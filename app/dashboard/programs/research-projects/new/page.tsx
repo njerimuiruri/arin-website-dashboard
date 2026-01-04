@@ -1,95 +1,153 @@
 "use client";
 import { useState } from "react";
-import { ArrowLeft, Save, FileText, Calendar, FolderOpen, Tag, Info, CheckCircle2 } from "lucide-react";
+import { createResearchProject } from '@/services/researchProjectService';
+import { ArrowLeft, Save, FileText, Calendar, FolderOpen, Info, X, Upload, Bold, Italic, List, ListOrdered, ImagePlus } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import ImprovedTiptapEditor from '@/components/ImprovedTiptapEditor';
 
-export default function NewProjectPage() {
+export default function NewResearchProjectPage() {
     const [form, setForm] = useState({
         title: "",
         date: "",
         category: "",
-        excerpt: "",
-        tags: "",
-        status: "Ongoing"
+        description: "",
+        projectTeam: [] as string[],
     });
+    const [authorInput, setAuthorInput] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    const handleChange = (e) => {
+    // Rich text editor state - TipTap uses HTML
+    const [editorContent, setEditorContent] = useState('');
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
-    const handleStatusChange = (value) => {
-        setForm({ ...form, status: value });
+    const handleAddAuthor = () => {
+        if (authorInput.trim() && !form.projectTeam.includes(authorInput.trim())) {
+            setForm({ ...form, projectTeam: [...form.projectTeam, authorInput.trim()] });
+            setAuthorInput("");
+        }
     };
 
-    const handleSubmit = () => {
-        // Here you would normally save the project
-        console.log("Project created:", form);
-        // router.push("/dashboard/programs/research-projects");
+    const handleRemoveAuthor = (author: string) => {
+        setForm({ ...form, projectTeam: form.projectTeam.filter(a => a !== author) });
     };
 
-    const tagArray = form.tags ? form.tags.split(',').map(t => t.trim()).filter(t => t) : [];
+    // Remove custom image upload and formatting logic (handled by Quill)
 
+   const handleSubmit = async () => {
+  // Validate required fields
+  if (!form.title || !form.date || !form.category || !form.description) {
+    setError('Please fill in all required fields');
+    return;
+  }
+
+  setLoading(true);
+  setError(null);
+  
+  try {
+    console.log('Submitting form data:', form);
+    const result = await createResearchProject(form);
+    console.log('Project created:', result);
+    
+    // Show success message
+    alert('Project created successfully!');
+    
+    // Redirect
+    window.location.href = '/dashboard/programs/research-projects';
+  } catch (err: any) {
+    console.error('Submission error:', err);
+    setError(err.message || 'Failed to create project');
+  } finally {
+    setLoading(false);
+  }
+};
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-emerald-50 p-6">
-            <div className="max-w-4xl mx-auto space-y-6">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 md:p-8">
+            <div className="max-w-5xl mx-auto space-y-8">
                 {/* Header */}
-                <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="icon" className="rounded-full">
+                <div className="flex items-center gap-4 animate-in slide-in-from-left duration-500">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="rounded-full hover:bg-white/60 transition-all"
+                        onClick={() => window.history.back()}
+                    >
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
                     <div>
-                        <h1 className="text-3xl font-bold text-slate-900">Add New Project</h1>
-                        <p className="text-slate-600 mt-1">Create a new research project entry</p>
+                        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                            Add New Project
+                        </h1>
+                        <p className="text-slate-600 mt-1">Create a comprehensive research project entry</p>
                     </div>
                 </div>
 
+                {/* Error Alert */}
+                {error && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-2 animate-in slide-in-from-top">
+                        <X className="h-5 w-5 text-red-600" />
+                        <p className="text-red-800">{error}</p>
+                    </div>
+                )}
+
                 <div className="space-y-6">
                     {/* Basic Information */}
-                    <Card>
-                        <CardHeader>
-                            <div className="flex items-center gap-2">
-                                <FileText className="h-5 w-5 text-blue-600" />
-                                <CardTitle>Basic Information</CardTitle>
+                    <Card className="border-2 shadow-lg hover:shadow-xl transition-all duration-300">
+                        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-blue-600 rounded-lg">
+                                    <FileText className="h-5 w-5 text-white" />
+                                </div>
+                                <div>
+                                    <CardTitle className="text-2xl">Basic Information</CardTitle>
+                                    <CardDescription>Enter the core details of your research project</CardDescription>
+                                </div>
                             </div>
-                            <CardDescription>Enter the core details of your research project</CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4">
+                        <CardContent className="space-y-6 pt-6">
+                            {/* Project Title */}
                             <div className="space-y-2">
-                                <Label htmlFor="title">Project Title *</Label>
+                                <Label htmlFor="title" className="text-base font-semibold flex items-center gap-2">
+                                    Project Title <span className="text-red-500">*</span>
+                                </Label>
                                 <Input
                                     id="title"
                                     name="title"
                                     value={form.title}
                                     onChange={handleChange}
                                     placeholder="e.g., State of Adaptation Report, 2025"
+                                    className="text-lg h-12 border-2 focus:border-blue-500 transition-all"
                                 />
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Date and Category */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <Label htmlFor="date" className="flex items-center gap-2">
-                                        <Calendar className="h-4 w-4 text-slate-500" />
-                                        Project Date *
+                                    <Label htmlFor="date" className="text-base font-semibold flex items-center gap-2">
+                                        <Calendar className="h-4 w-4 text-blue-600" />
+                                        Project Date <span className="text-red-500">*</span>
                                     </Label>
                                     <Input
                                         id="date"
                                         name="date"
+                                        type="date"
                                         value={form.date}
                                         onChange={handleChange}
-                                        placeholder="e.g., June 24, 2025"
+                                        className="h-12 border-2 focus:border-blue-500 transition-all"
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="category" className="flex items-center gap-2">
-                                        <FolderOpen className="h-4 w-4 text-slate-500" />
-                                        Category *
+                                    <Label htmlFor="category" className="text-base font-semibold flex items-center gap-2">
+                                        <FolderOpen className="h-4 w-4 text-blue-600" />
+                                        Category <span className="text-red-500">*</span>
                                     </Label>
                                     <Input
                                         id="category"
@@ -97,114 +155,123 @@ export default function NewProjectPage() {
                                         value={form.category}
                                         onChange={handleChange}
                                         placeholder="e.g., Climate Adaptation"
+                                        className="h-12 border-2 focus:border-blue-500 transition-all"
                                     />
                                 </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="excerpt" className="flex items-center gap-2">
-                                    <Info className="h-4 w-4 text-slate-500" />
-                                    Project Description *
-                                </Label>
-                                <Textarea
-                                    id="excerpt"
-                                    name="excerpt"
-                                    value={form.excerpt}
-                                    onChange={handleChange}
-                                    placeholder="Provide a brief description of the research project..."
-                                    className="min-h-[120px] resize-none"
-                                />
-                                <p className="text-xs text-slate-500">{form.excerpt.length} characters</p>
                             </div>
                         </CardContent>
                     </Card>
 
-                    {/* Classification & Status */}
-                    <Card>
-                        <CardHeader>
-                            <div className="flex items-center gap-2">
-                                <Tag className="h-5 w-5 text-blue-600" />
-                                <CardTitle>Classification & Status</CardTitle>
+                    {/* Rich Text Description (Slate) */}
+                    <Card className="border-2 shadow-lg hover:shadow-xl transition-all duration-300">
+                        <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-indigo-600 rounded-lg">
+                                    <Info className="h-5 w-5 text-white" />
+                                </div>
+                                <div>
+                                    <CardTitle className="text-2xl">Project Description</CardTitle>
+                                    <CardDescription>Provide detailed information with formatting</CardDescription>
+                                </div>
                             </div>
-                            <CardDescription>Organize and categorize your project</CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="tags" className="flex items-center gap-2">
-                                    <Tag className="h-4 w-4 text-slate-500" />
-                                    Tags
-                                </Label>
-                                <Input
-                                    id="tags"
-                                    name="tags"
-                                    value={form.tags}
-                                    onChange={handleChange}
-                                    placeholder="e.g., Climate Change, Adaptation, Policy"
-                                />
-                                <p className="text-xs text-slate-500">Separate tags with commas</p>
+                        <CardContent className="space-y-4 pt-6">
+                            <ImprovedTiptapEditor
+                                value={editorContent}
+                                onChange={(html) => {
+                                    setEditorContent(html);
+                                    setForm({ ...form, description: html });
+                                }}
+                                placeholder="Enter detailed project description with images, formatting, and links..."
+                            />
+                            <p className="text-xs text-slate-500">
+                                {editorContent.replace(/<[^>]*>/g, '').length} characters
+                            </p>
+                        </CardContent>
+                    </Card>
 
-                                {tagArray.length > 0 && (
-                                    <div className="flex flex-wrap gap-2 mt-3 p-3 bg-slate-50 rounded-lg border">
-                                        <span className="text-xs font-medium text-slate-600">Preview:</span>
-                                        {tagArray.map((tag, index) => (
-                                            <Badge key={index} variant="outline" className="text-xs">
-                                                {tag}
+                    {/* Project Team */}
+                    <Card className="border-2 shadow-lg hover:shadow-xl transition-all duration-300">
+                        <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-emerald-600 rounded-lg">
+                                    <FileText className="h-5 w-5 text-white" />
+                                </div>
+                                <div>
+                                    <CardTitle className="text-2xl">Project Team</CardTitle>
+                                    <CardDescription>Add team members to collaborate on this project</CardDescription>
+                                </div>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="space-y-4 pt-6">
+                            <div className="space-y-3">
+                                <Label htmlFor="projectTeam" className="text-base font-semibold">
+                                    Team Members <span className="text-red-500">*</span>
+                                </Label>
+                                <div className="flex gap-2">
+                                    <Input
+                                        id="projectTeam"
+                                        value={authorInput}
+                                        onChange={e => setAuthorInput(e.target.value)}
+                                        placeholder="Enter name or email"
+                                        className="h-12 border-2 focus:border-emerald-500 transition-all"
+                                        onKeyDown={e => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                handleAddAuthor();
+                                            }
+                                        }}
+                                    />
+                                    <Button
+                                        type="button"
+                                        onClick={handleAddAuthor}
+                                        className="bg-emerald-600 hover:bg-emerald-700 h-12 px-6"
+                                    >
+                                        Add
+                                    </Button>
+                                </div>
+                                {form.projectTeam.length > 0 && (
+                                    <div className="flex flex-wrap gap-2 mt-4 p-4 bg-emerald-50 rounded-lg border-2 border-emerald-100">
+                                        {form.projectTeam.map((author, idx) => (
+                                            <Badge
+                                                key={idx}
+                                                className="px-3 py-2 bg-white border-2 border-emerald-200 text-emerald-800 hover:bg-emerald-100 transition-all text-sm"
+                                            >
+                                                {author}
+                                                <button
+                                                    type="button"
+                                                    className="ml-2 text-red-500 hover:text-red-700 font-bold"
+                                                    onClick={() => handleRemoveAuthor(author)}
+                                                >
+                                                    ×
+                                                </button>
                                             </Badge>
                                         ))}
                                     </div>
                                 )}
                             </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="status" className="flex items-center gap-2">
-                                    <CheckCircle2 className="h-4 w-4 text-slate-500" />
-                                    Project Status *
-                                </Label>
-                                <Select value={form.status} onValueChange={handleStatusChange}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select status" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Ongoing">
-                                            <div className="flex items-center gap-2">
-                                                <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                                                Ongoing
-                                            </div>
-                                        </SelectItem>
-                                        <SelectItem value="Completed">
-                                            <div className="flex items-center gap-2">
-                                                <div className="h-2 w-2 rounded-full bg-slate-500"></div>
-                                                Completed
-                                            </div>
-                                        </SelectItem>
-                                        <SelectItem value="Planning">
-                                            <div className="flex items-center gap-2">
-                                                <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
-                                                Planning
-                                            </div>
-                                        </SelectItem>
-                                        <SelectItem value="On Hold">
-                                            <div className="flex items-center gap-2">
-                                                <div className="h-2 w-2 rounded-full bg-orange-500"></div>
-                                                On Hold
-                                            </div>
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
                         </CardContent>
                     </Card>
 
                     {/* Action Buttons */}
-                    <Card>
+                    <Card className="border-2 shadow-lg">
                         <CardContent className="pt-6">
-                            <div className="flex flex-col sm:flex-row gap-3 justify-end">
-                                <Button type="button" variant="outline" className="sm:w-auto w-full">
+                            <div className="flex flex-col sm:flex-row gap-4 justify-end">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="sm:w-auto w-full h-12 border-2"
+                                    onClick={() => window.history.back()}
+                                >
                                     Cancel
                                 </Button>
-                                <Button onClick={handleSubmit} className="sm:w-auto w-full bg-blue-600 hover:bg-blue-700">
-                                    <Save className="mr-2 h-4 w-4" />
-                                    Create Project
+                                <Button
+                                    onClick={handleSubmit}
+                                    className="sm:w-auto w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+                                    disabled={loading}
+                                >
+                                    <Save className="mr-2 h-5 w-5" />
+                                    {loading ? 'Creating Project...' : 'Create Project'}
                                 </Button>
                             </div>
                         </CardContent>

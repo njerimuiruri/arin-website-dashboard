@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -18,19 +19,30 @@ import {
     FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { login as loginService } from "@/services/authService";
 
 export function LoginForm({ className, ...props }) {
     const router = useRouter();
+
     const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
-        setTimeout(() => {
-            router.push("/dashboard/dashboard");
-        }, 1000);
+        setError("");
+        try {
+            await loginService(email, password);
+            // Wait a moment for cookie to be set before redirecting
+            setTimeout(() => {
+                router.push("/dashboard/dashboard");
+            }, 100);
+        } catch (err) {
+            setError(err.message || "Login failed");
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -74,6 +86,9 @@ export function LoginForm({ className, ...props }) {
                                     required
                                 />
                             </Field>
+                            {error && (
+                                <div className="text-red-500 text-sm text-center">{error}</div>
+                            )}
                             <Field>
                                 <Button type="submit" disabled={isLoading} className="w-full">
                                     {isLoading ? "Logging in..." : "Login"}

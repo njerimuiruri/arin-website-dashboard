@@ -1,3 +1,4 @@
+"use client";
 import {
     Sidebar,
     SidebarContent,
@@ -9,8 +10,18 @@ import {
     SidebarMenuSub,
     SidebarMenuSubButton,
 } from "@/components/ui/sidebar";
+import { useEffect, useState } from "react";
+import { getCurrentUser } from "@/services/authService";
 
 export function ArinSidebar() {
+    const [user, setUser] = useState<{ email?: string } | null>(null);
+
+    useEffect(() => {
+        getCurrentUser().then(setUser);
+    }, []);
+
+    const avatarLetter = user?.email ? user.email.charAt(0).toUpperCase() : 'A';
+
     return (
         <Sidebar>
             <SidebarHeader>
@@ -18,6 +29,7 @@ export function ArinSidebar() {
             </SidebarHeader>
             <SidebarContent>
                 <SidebarMenu>
+                    {/* ...existing menu code... */}
                     <SidebarMenuItem>
                         <SidebarMenuButton href="/dashboard/dashboard">Dashboard</SidebarMenuButton>
                     </SidebarMenuItem>
@@ -68,10 +80,16 @@ export function ArinSidebar() {
             </SidebarContent>
             <SidebarFooter>
                 <div className="flex items-center gap-3 p-2 rounded-md bg-muted/60 mb-2">
-                    <div className="h-9 w-9 rounded-full bg-blue-200 flex items-center justify-center font-bold text-blue-700">A</div>
+                    <div className="h-9 w-9 rounded-full bg-blue-200 flex items-center justify-center font-bold text-blue-700">{avatarLetter}</div>
                     <div className="flex-1">
-                        <div className="font-semibold text-sm">Alex Doe</div>
-                        <div className="text-xs text-muted-foreground">alex@arin.org</div>
+                        {user?.email ? (
+                            <>
+                                <div className="font-semibold text-sm">{user.email}</div>
+                                <div className="text-xs text-muted-foreground">{user.email}</div>
+                            </>
+                        ) : (
+                            <div className="font-semibold text-sm">Admin</div>
+                        )}
                     </div>
                     <a href="/dashboard/account" className="text-xs text-blue-600 hover:underline">My Account</a>
                 </div>
