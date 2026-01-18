@@ -1,79 +1,111 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
-
-const conferences = [
-    {
-        id: 'arin-conference-2024',
-        title: '2024 : THE 4TH ANNUAL ARIN INTERNATIONAL CONFERENCE – BRIDGING KNOWLEDGE GAPS: INTEGRATING DISCIPLINES FOR CLIMATE AND HEALTH RESILIENCE',
-        date: 'July 29, 2024',
-        year: '2024',
-        author: 'Awino',
-        excerpt: 'The 4th International Conference has organized by the Africa Research and Impact Network (ARIN). ARIN is a consortium of over 200 researchers and policymakers with national focal points across…',
-        tags: ['ARIN International conference', 'Conferences', 'Climate', 'Health Resilience'],
-        image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80',
-        edition: '4th Annual'
-    },
-    {
-        id: 'arin-conference-2022',
-        title: '2022: "REBUILDING BETTER AND RESILIENT COMMUNITIES THROUGH A JUST TRANSITION FOR AFRICA -WHAT DOES COP 27 OFFER? "',
-        date: 'July 22, 2024',
-        year: '2022',
-        author: 'Awino',
-        excerpt: 'Introduction The World is on the verge of and amid several transitions structured by major social, economic, and environmental disruptions including climate change, COVID-19, and knowledge shifts. These disruptions are…',
-        tags: ['ARIN International conference', 'Just Transition', 'COP27', 'Resilience'],
-        image: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&q=80',
-        edition: '2022 Conference'
-    },
-    {
-        id: 'arin-conference-2020',
-        title: "2020: INTERNATIONAL REFLECTIVE CONFERENCE 2021 ON 'EVIDENCE- DRIVEN SUSTAINABLE RECOVERY FROM GLOBAL INTRACTABLE CHALLENGES'",
-        date: 'July 22, 2024',
-        year: '2020',
-        author: 'Awino',
-        excerpt: "Click here to register for the conference END YEAR INTERNATIONAL REFLECTIVE CONFERENCE 'EVIDENCE - DRIVEN SUSTAINABLE RECOVERY FROM GLOBAL INTRACTABLE CHALLENGES' on 25th, 26th and 29th November 2021. As the world reconfigures its efforts towards addressing the changing nature of global challenges such…",
-        tags: ['ARIN International conference', 'Sustainable Recovery', 'Global Challenges'],
-        image: 'https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=800&q=80',
-        edition: '2020/2021 Conference'
-    }
-];
+import { useState, useEffect } from "react";
+import { Trash2, Edit } from 'lucide-react';
+import { getConferences, deleteConference, type Conference } from "@/services/conferencesService";
 
 export default function ConferencesPage() {
+    const [conferences, setConferences] = useState<Conference[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [search, setSearch] = useState("");
-    const filtered = conferences.filter(c => c.title.toLowerCase().includes(search.toLowerCase()));
+    const [selectedYear, setSelectedYear] = useState("All");
+
+    useEffect(() => {
+        fetchConferences();
+    }, []);
+
+    const fetchConferences = async () => {
+        try {
+            const data = await getConferences();
+            setConferences(data);
+        } catch (err) {
+            console.error('Failed to fetch conferences:', err);
+            setError('Failed to load conferences');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!window.confirm('Are you sure you want to delete this conference?')) return;
+
+        try {
+            await deleteConference(id);
+            setConferences(conferences.filter(c => c._id !== id));
+        } catch (err) {
+            console.error('Failed to delete conference:', err);
+            alert('Failed to delete conference');
+        }
+    };
+
+    const years = ['All', ...Array.from(new Set(conferences.map(c => c.year?.toString() || ''))).filter(Boolean).sort().reverse()];
+
+    const filtered = conferences.filter(c => {
+        const matchesSearch = c.title.toLowerCase().includes(search.toLowerCase());
+        const matchesYear = selectedYear === 'All' || c.year?.toString() === selectedYear;
+        return matchesSearch && matchesYear;
+    });
+
+    if (loading) {
+        return <div className="p-8 text-center">Loading conferences...</div>;
+    }
+
     return (
         <div className="p-8">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">Conferences</h1>
                 <Link href="/dashboard/convening-platforms/conferences/new" className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700">Add Conference</Link>
             </div>
-            <input
-                className="w-full mb-6 border rounded px-3 py-2"
-                placeholder="Search conferences..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filtered.map(conf => (
-                    <Link key={conf.id} href={`/dashboard/convening-platforms/conferences/${conf.id}`} className="block bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
-                        <img src={conf.image} alt={conf.title} className="w-full h-40 object-cover" />
-                        <div className="p-4">
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-xs bg-pink-100 text-pink-700 px-2 py-1 rounded">{conf.edition}</span>
-                                <span className="text-xs text-gray-500">{conf.date}</span>
-                            </div>
-                            <h2 className="font-semibold text-lg mb-1 line-clamp-2">{conf.title}</h2>
-                            <p className="text-sm text-gray-600 line-clamp-3 mb-2">{conf.excerpt}</p>
-                            <div className="flex flex-wrap gap-1 mb-2">
-                                {conf.tags.map(tag => (
-                                    <span key={tag} className="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded">{tag}</span>
-                                ))}
-                            </div>
-                            <span className="text-xs text-gray-400">By {conf.author}</span>
-                        </div>
-                    </Link>
-                ))}
+
+            {error && <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>}
+
+            <div className="mb-6 flex gap-4">
+                <input
+                    className="flex-1 border rounded px-3 py-2"
+                    placeholder="Search conferences..."
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                />
+                <select
+                    className="border rounded px-3 py-2"
+                    value={selectedYear}
+                    onChange={e => setSelectedYear(e.target.value)}
+                >
+                    {years.map(year => (
+                        <option key={year} value={year}>{year}</option>
+                    ))}
+                </select>
             </div>
+
+            {filtered.length === 0 ? (
+                <div className="text-center text-gray-500">No conferences found</div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filtered.map(conf => (
+                        <div key={conf._id} className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
+                            {conf.image && <img src={conf.image} alt={conf.title} className="w-full h-40 object-cover" />}
+                            <div className="p-4">
+                                <h2 className="font-semibold text-lg mb-2 line-clamp-2">{conf.title}</h2>
+                                <p className="text-sm text-gray-600 line-clamp-2 mb-3">{conf.description}</p>
+                                <div className="flex justify-between items-center gap-2 mb-3">
+                                    {conf.venue && <span className="text-xs text-gray-500">{conf.venue}</span>}
+                                    <span className="text-xs text-gray-400">{new Date(conf.date).toLocaleDateString()}</span>
+                                </div>
+                                <div className="flex gap-2">
+                                    <Link href={`/dashboard/convening-platforms/conferences/${conf._id}`} className="flex-1 px-3 py-2 text-center bg-blue-100 text-blue-700 text-sm rounded hover:bg-blue-200">View</Link>
+                                    <Link href={`/dashboard/convening-platforms/conferences/${conf._id}/edit`} className="px-3 py-2 text-blue-600 hover:text-blue-800">
+                                        <Edit size={18} />
+                                    </Link>
+                                    <button onClick={() => conf._id && handleDelete(conf._id)} className="px-3 py-2 text-red-600 hover:text-red-800">
+                                        <Trash2 size={18} />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }

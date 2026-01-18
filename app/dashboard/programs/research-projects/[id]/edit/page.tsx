@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft, Save, FileText, Calendar, FolderOpen, Info, X, Upload } from "lucide-react";
+import { ArrowLeft, Save, FileText, Calendar, FolderOpen, Info, X, Upload, ImagePlus } from "lucide-react";
 import { Input } from '@/components/ui/input';
 import ImprovedTiptapEditor from '@/components/ImprovedTiptapEditor';
 import { Button } from '@/components/ui/button';
@@ -220,18 +220,75 @@ export default function EditProjectPage() {
                                     <FolderOpen className="h-4 w-4 text-blue-600" />
                                     Category <span className="text-red-500">*</span>
                                 </Label>
-                                <Input
+                                <select
                                     id="category"
                                     name="category"
                                     value={form.category}
-                                    onChange={handleChange}
-                                    placeholder="e.g., Climate Adaptation"
-                                    className="h-12 border-2 focus:border-blue-500 transition-all"
-                                />
+                                    onChange={handleChange as any}
+                                    className="h-12 border-2 focus:border-blue-500 transition-all rounded-md px-3"
+                                >
+                                    <option value="" disabled>Select a category</option>
+                                    {['Finance','Environment','Health','Sustainability','Energy','Water','Agriculture'].map(opt => (
+                                        <option key={opt} value={opt}>{opt}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
+                {/* Project Image Upload */}
+                <Card className="border-2 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <CardHeader className="bg-linear-to-r from-purple-50 to-pink-50 border-b">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-purple-600 rounded-lg">
+                                <ImagePlus className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-2xl">Project Image</CardTitle>
+                                <CardDescription>Upload or update the main project image</CardDescription>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4 pt-6">
+                        <div className="space-y-2">
+                            <Label htmlFor="project-image" className="text-base font-semibold flex items-center gap-2">
+                                Upload Image
+                            </Label>
+                            <div className="flex items-center gap-4">
+                                <Input
+                                    id="project-image"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleProjectImageUpload}
+                                    disabled={imageUploading}
+                                    className="h-12 border-2 focus:border-purple-500 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                                />
+                                {imageUploading && (
+                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-600"></div>
+                                )}
+                            </div>
+                            {form.image && (
+                                <div className="mt-4 relative w-full max-w-md">
+                                    <img
+                                        src={`http://localhost:5001${form.image}`}
+                                        alt="Project preview"
+                                        className="w-full h-auto rounded-lg border-2 border-purple-200 shadow-md"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="sm"
+                                        className="absolute top-2 right-2"
+                                        onClick={() => setForm(prev => ({ ...prev, image: '' }))}
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+
 
                 {/* Rich Text Description (Slate) */}
                 <Card className="border-2 shadow-lg hover:shadow-xl transition-all duration-300">

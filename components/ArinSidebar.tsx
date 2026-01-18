@@ -11,9 +11,11 @@ import {
     SidebarMenuSubButton,
 } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { getCurrentUser } from "@/services/authService";
 
 export function ArinSidebar() {
+    const router = useRouter();
     const [user, setUser] = useState<{ email?: string } | null>(null);
 
     useEffect(() => {
@@ -21,6 +23,10 @@ export function ArinSidebar() {
     }, []);
 
     const avatarLetter = user?.email ? user.email.charAt(0).toUpperCase() : 'A';
+
+    const handleNavigation = (path: string) => {
+        router.push(path);
+    };
 
     return (
         <Sidebar>
@@ -31,17 +37,21 @@ export function ArinSidebar() {
                 <SidebarMenu>
                     {/* ...existing menu code... */}
                     <SidebarMenuItem>
-                        <SidebarMenuButton href="/dashboard/dashboard">Dashboard</SidebarMenuButton>
+                        <SidebarMenuButton onClick={() => handleNavigation("/dashboard/dashboard")}>Dashboard</SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
-                        <SidebarMenuButton href="/dashboard/programs">Programs</SidebarMenuButton>
+                        <SidebarMenuButton onClick={() => handleNavigation("/dashboard/contacts")}>Contact Messages</SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton onClick={() => handleNavigation("/dashboard/programs")}>Programs</SidebarMenuButton>
                         <SidebarMenuSub>
                             <SidebarMenuSubButton href="/dashboard/programs/research-projects">Research Projects</SidebarMenuSubButton>
                             <SidebarMenuSubButton href="/dashboard/programs/capacity-building">Capacity Building</SidebarMenuSubButton>
+                            <SidebarMenuSubButton href="/dashboard/programs/teams">Teams</SidebarMenuSubButton>
                         </SidebarMenuSub>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
-                        <SidebarMenuButton href="/dashboard/convening-platforms">Convening Platforms</SidebarMenuButton>
+                        <SidebarMenuButton onClick={() => handleNavigation("/dashboard/convening-platforms")}>Convening Platforms</SidebarMenuButton>
                         <SidebarMenuSub>
                             <SidebarMenuSubButton href="/dashboard/convening-platforms/policy-dialogues">Policy Dialogues</SidebarMenuSubButton>
                             <SidebarMenuSubButton href="/dashboard/convening-platforms/events">Events</SidebarMenuSubButton>
@@ -50,14 +60,14 @@ export function ArinSidebar() {
                         </SidebarMenuSub>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
-                        <SidebarMenuButton href="/opportunities">Opportunities</SidebarMenuButton>
+                        <SidebarMenuButton onClick={() => handleNavigation("/opportunities")}>Opportunities</SidebarMenuButton>
                         <SidebarMenuSub>
                             <SidebarMenuSubButton href="/dashboard/opportunities/vacancies">Vacancies</SidebarMenuSubButton>
                             <SidebarMenuSubButton href="/dashboard/opportunities/csr">CSR</SidebarMenuSubButton>
                         </SidebarMenuSub>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
-                        <SidebarMenuButton href="/dashboard/press">ARIN Press</SidebarMenuButton>
+                        <SidebarMenuButton onClick={() => handleNavigation("/dashboard/press")}>ARIN Press</SidebarMenuButton>
                         <SidebarMenuSub>
                             <SidebarMenuSubButton href="/dashboard/press/about">About ARIN Press</SidebarMenuSubButton>
                             <SidebarMenuSubButton href="/dashboard/press/publishing-academy">Publishing Academy</SidebarMenuSubButton>

@@ -1,49 +1,125 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { booksService } from "@/services/booksService";
+import HtmlRenderer from "@/components/HtmlRenderer";
 
-const books = [
-    {
-        id: 'earth-system-governance',
-        title: "Earth System Governance – Africa's Right to Development in a Climate-Constrained World",
-        authors: 'Kennedy Mbeva, Reuben Makomere, Joanes Atela, Victoria Chengo and Charles Tonui',
-        postedBy: 'Gordon Gogo',
-        postedDate: 'December 13, 2024',
-        category: 'Publications, Books',
-        description: "The book is a comprehensive rendition of Africa's sustainable development…",
-        image: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=800&q=80',
-        hasImage: true
-    },
-    {
-        id: 'transformative-pathways',
-        title: 'Transformative pathways to sustainability: learning across disciplines, cultures and contexts',
-        authors: 'Dinesh Abrol, Marina Apgar, Joanes Atela, Robert Byrne, Lakshmi Charli-Joseph, Victoria Chengo, Almendra Cremaschi, Rachael Durrant, Hallie Eakin, Adrian Ely, Anabel Marin, Fiona Marshall, David Ockwell, Nathan…',
-        postedBy: 'Gordon Gogo',
-        postedDate: 'December 11, 2024',
-        category: 'Publications, Books',
-        description: '',
-        image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800&q=80',
-        hasImage: true
-    }
-];
+interface Book {
+    _id?: string;
+    title: string;
+    authors?: string[];
+    description: string;
+    image?: string;
+    datePosted?: string;
+    availableResources?: string[];
+    year?: number;
+}
 
-export default function BookViewPage({ params }) {
-    const item = books.find(i => i.id === params.id);
-    if (!item) return <div className="p-8">Book not found.</div>;
+export default function BookViewPage() {
+    const params = useParams();
+    const router = useRouter();
+    const id = params.id as string;
+    const [book, setBook] = useState<Book | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        loadBook();
+    }, [id]);
+
+    const loadBook = async () => {
+        try {
+            setLoading(true);
+            const data = await booksService.getById(id);
+            setBook(data);
+            setError(null);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to load book");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDelete = async () => {
+        if (confirm("Are you sure you want to delete this book?")) {
+            try {
+                await booksService.delete(id);
+                router.push("/dashboard/press/books");
+            } catch (err) {
+                alert(err instanceof Error ? err.message : "Failed to delete book");
+            }
+        }
+    };
+
+    if (loading) return <div className="p-8">Loading...</div>;
+    if (error) return <div className="p-8 text-red-600">Error: {error}</div>;
+    if (!book) return <div className="p-8">Book not found.</div>;
+
     return (
-        <div className="p-8 max-w-2xl mx-auto">
-            <img src={item.image} alt={item.title} className="w-full h-64 object-cover rounded mb-4" />
-            <div className="flex justify-between items-center mb-2">
-                <span className="text-xs bg-pink-100 text-pink-700 px-2 py-1 rounded">{item.category}</span>
-                <span className="text-xs text-gray-500">{item.postedDate}</span>
+        <div className="p-8 max-w-4xl mx-auto">
+            {book.image && (
+                <img src={book.image} alt={book.title} className="w-full h-64 object-cover rounded mb-4" />
+            )}
+
+            <div className="flex justify-between items-center mb-4">
+                <span className="text-xs bg-pink-100 text-pink-700 px-2 py-1 rounded">Book</span>
+                {book.datePosted && (
+                    <span className="text-xs text-gray-500">{new Date(book.datePosted).toLocaleDateString()}</span>
+                )}
             </div>
-            <h1 className="text-2xl font-bold mb-2">{item.title}</h1>
-            <p className="text-gray-700 mb-4">{item.description}</p>
-            <div className="mb-2">
-                <span className="font-semibold">Authors:</span> {item.authors}
-            </div>
-            <div className="flex justify-between items-center mt-6">
-                <span className="text-xs text-gray-400">Posted by {item.postedBy}</span>
-                <Link href={`/dashboard/press/books/${item.id}/edit`} className="px-3 py-1 bg-pink-600 text-white rounded hover:bg-pink-700 text-xs">Edit</Link>
+
+            <h1 className="text-3xl font-bold mb-4">{book.title}</h1>
+
+            {book.authors && book.authors.length > 0 && (
+                <div className="mb-4">
+                    <span className="font-semibold text-gray-700">Authors: </span>
+                    <span className="text-gray-600">{book.authors.join(", ")}</span>
+                </div>
+            )}
+
+            {book.description && (
+                <div className="prose max-w-none mb-6">
+                    <HtmlRenderer content={book.description} />
+                </div>
+            )}
+
+            {book.availableResources && book.availableResources.length > 0 && (
+                <div className="mb-6 p-4 bg-gray-50 rounded">
+                    <span className="font-semibold text-gray-700 block mb-2">Available Resources:</span>
+                    <ul className="space-y-2">
+                        {book.availableResources.map((url, i) => (
+                            <li key={i}>
+                                <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm flex items-center gap-2">
+                                    📄 {url.split("/").pop()}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
+            <div className="flex justify-between items-center mt-8 pt-6 border-t">
+                <div className="flex gap-2">
+                    <Link
+                        href={`/dashboard/press/books/${id}/edit`}
+                        className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700"
+                    >
+                        Edit
+                    </Link>
+                    <button
+                        onClick={handleDelete}
+                        className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                    >
+                        Delete
+                    </button>
+                </div>
+                <Link
+                    href="/dashboard/press/books"
+                    className="px-4 py-2 border rounded hover:bg-gray-50"
+                >
+                    Back to List
+                </Link>
             </div>
         </div>
     );

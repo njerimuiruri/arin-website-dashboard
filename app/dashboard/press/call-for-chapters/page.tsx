@@ -1,42 +1,57 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { callForBooksService } from "@/services/callForBooksService";
 
-const calls = [
-    {
-        id: 'decolonising-methodologies',
-        title: 'Decolonising Methodologies to Sustainability in the Global South',
-        postedBy: '',
-        postedDate: 'March 25, 2021',
-        category: 'Publications, Books, Call for book chapters',
-        excerpt: 'Deadline for the submission of abstracts for book chapters -2nd May 2021. The Africa Research and Impact Network and its partners would like hereby invite a call for book chapters…',
-        image: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800&q=80',
-        hasImage: true,
-        deadline: '2nd May 2021',
-        status: 'Closed'
-    },
-    {
-        id: 'building-africa-resilience',
-        title: "Building Africa's Resilience in the Post-COVID-19 World: Lessons for Research and Development Priorities. Edited by Joanes Atela and Mark Pelling",
-        postedBy: '',
-        postedDate: 'July 23, 2020',
-        category: 'Publications, Books, Call for book chapters',
-        excerpt: 'Book Chapter Abstracts Submissions deadline: 21st August 2020, 11:59 GMT The Africa Research & Impact Network (ARIN) and its partners are pleased to invite submissions for book chapter…',
-        image: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=800&q=80',
-        hasImage: true,
-        deadline: '21st August 2020',
-        status: 'Closed'
-    }
-];
-
-export default function CallsPage() {
+export default function CallForChaptersPage() {
+    const [items, setItems] = useState([]);
     const [search, setSearch] = useState("");
-    const filtered = calls.filter(item => item.title.toLowerCase().includes(search.toLowerCase()));
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        callForBooksService.getAll()
+            .then(data => {
+                setItems(data);
+                setError(null);
+            })
+            .catch(err => {
+                setError(err.message);
+            })
+            .finally(() => setLoading(false));
+    }, []);
+
+    const handleDelete = async (id: string) => {
+        if (confirm("Are you sure you want to delete this call for chapters?")) {
+            try {
+                await callForBooksService.delete(id);
+                setItems(items.filter(item => item._id !== id));
+            } catch (err: any) {
+                alert("Error deleting call: " + err.message);
+            }
+        }
+    };
+
+    const filtered = items.filter(item => 
+        item.title.toLowerCase().includes(search.toLowerCase())
+    );
+
+    const getDeadlineStatus = (deadline: string) => {
+        const now = new Date();
+        const deadlineDate = new Date(deadline);
+        return deadlineDate > now ? "Open" : "Closed";
+    };
+
+    if (loading) return <div className="p-8">Loading...</div>;
+    if (error) return <div className="p-8 text-red-600">Error: {error}</div>;
+
     return (
         <div className="p-8">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">Call for Book Chapters</h1>
-                <Link href="/dashboard/press/call-for-chapters/new" className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700">Add New</Link>
+                <Link href="/dashboard/press/call-for-chapters/new" className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700">
+                    Add New
+                </Link>
             </div>
             <input
                 className="w-full mb-6 border rounded px-3 py-2"
@@ -44,21 +59,49 @@ export default function CallsPage() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filtered.map(item => (
-                    <Link key={item.id} href={`/dashboard/press/call-for-chapters/${item.id}`} className="block bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
-                        <img src={item.image} alt={item.title} className="w-full h-40 object-cover" />
-                        <div className="p-4">
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-xs bg-pink-100 text-pink-700 px-2 py-1 rounded">{item.status}</span>
-                                <span className="text-xs text-gray-500">Deadline: {item.deadline}</span>
+            {filtered.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">
+                    No calls for chapters found
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filtered.map(item => (
+                        <div key={item._id} className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
+                            {item.image && <img src={item.image} alt={item.title} className="w-full h-40 object-cover" />}
+                            <div className="p-4">
+                                <div className="flex justify-between items-center mb-2">
+                                    <span className={`text-xs px-2 py-1 rounded ${
+                                        getDeadlineStatus(item.deadline) === 'Open'
+                                            ? 'bg-green-100 text-green-700'
+                                            : 'bg-red-100 text-red-700'
+                                    }`}>
+                                        {getDeadlineStatus(item.deadline)}
+                                    </span>
+                                    <span className="text-xs text-gray-500">
+                                        Deadline: {new Date(item.deadline).toLocaleDateString()}
+                                    </span>
+                                </div>
+                                <h2 className="font-semibold text-lg mb-1 line-clamp-2">{item.title}</h2>
+                                <p className="text-sm text-gray-600 line-clamp-3 mb-3">{item.description}</p>
+                                <div className="flex gap-2">
+                                    <Link href={`/dashboard/press/call-for-chapters/${item._id}`} className="flex-1 text-center px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                                        View
+                                    </Link>
+                                    <Link href={`/dashboard/press/call-for-chapters/${item._id}/edit`} className="flex-1 text-center px-3 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700">
+                                        Edit
+                                    </Link>
+                                    <button
+                                        onClick={() => handleDelete(item._id)}
+                                        className="flex-1 px-3 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
                             </div>
-                            <h2 className="font-semibold text-lg mb-1 line-clamp-2">{item.title}</h2>
-                            <p className="text-sm text-gray-600 line-clamp-3 mb-2">{item.excerpt}</p>
                         </div>
-                    </Link>
-                ))}
-            </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }

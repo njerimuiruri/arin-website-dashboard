@@ -65,3 +65,17 @@ export async function uploadImage(file: File) {
   if (!res.ok) throw new Error('Failed to upload image');
   return res.json();
 }
+
+export async function uploadDescriptionImage(file: File) {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const res = await fetch(`${BASE_URL}/upload-description-image`, {
+    method: 'POST',
+    body: formData,
+    credentials: 'include',
+  });
+
+  if (!res.ok) throw new Error('Failed to upload description image');
+  return res.json();
+}

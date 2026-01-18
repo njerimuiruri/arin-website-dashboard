@@ -1,54 +1,114 @@
-import React from "react";
+"use client";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { annualReportsService } from "@/services/annualReportsService";
+import HtmlRenderer from "@/components/HtmlRenderer";
 
-const reports = [
-    {
-        id: 'annual-report-2023',
-        title: 'ARIN ANNUAL REPORT 2023',
-        date: 'June 10, 2025',
-        year: '2023',
-        author: 'Awino',
-        excerpt: 'This document encapsulates our collective journey in advancing knowledge, fostering innovation, and making a meaningful impact on society.  At…',
-        tags: ['Annual Reports', 'Publications'],
-        image: '/annualreport2023.png',
-        pdfLink: '/documents/ARIN-Annual-Report-2023.pdf'
-    },
-    {
-        id: 'annual-report-2022',
-        title: 'ARIN ANNUAL REPORT 2022',
-        date: 'April 22, 2023',
-        year: '2022',
-        author: 'Erick',
-        excerpt: 'This report provides the key highlights and achievements realised by the Africa Research & Impact Network (ARIN) during the year 2022. The report highlights some of the project activities…',
-        tags: ['Annual Reports', 'Publications'],
-        image: '/annualreport2022.png',
-        pdfLink: '/documents/ARIN-ANNUAL-REPORT-2022_Consolidating-Research-Evidence-for-Impact.pdf'
-    }
-];
+export default function AnnualReportViewPage() {
+    const params = useParams();
+    const router = useRouter();
+    const id = params.id as string;
+    const [report, setReport] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-export default function AnnualReportViewPage({ params }) {
-    const item = reports.find(i => i.id === params.id);
-    if (!item) return <div className="p-8">Annual Report not found.</div>;
+    useEffect(() => {
+        loadReport();
+    }, [id]);
+
+    const loadReport = async () => {
+        try {
+            setLoading(true);
+            const data = await annualReportsService.getById(id);
+            setReport(data);
+            setError(null);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to load annual report");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDelete = async () => {
+        if (confirm("Are you sure you want to delete this annual report?")) {
+            try {
+                await annualReportsService.delete(id);
+                router.push("/dashboard/press/annual-reports");
+            } catch (err) {
+                alert(err instanceof Error ? err.message : "Failed to delete annual report");
+            }
+        }
+    };
+
+    if (loading) return <div className="p-8">Loading...</div>;
+    if (error) return <div className="p-8 text-red-600">Error: {error}</div>;
+    if (!report) return <div className="p-8">Annual Report not found.</div>;
+
     return (
-        <div className="p-8 max-w-2xl mx-auto">
-            <img src={item.image} alt={item.title} className="w-full h-64 object-cover rounded mb-4" />
-            <div className="flex justify-between items-center mb-2">
-                <span className="text-xs bg-pink-100 text-pink-700 px-2 py-1 rounded">{item.year}</span>
-                <span className="text-xs text-gray-500">{item.date}</span>
-            </div>
-            <h1 className="text-2xl font-bold mb-2">{item.title}</h1>
-            <p className="text-gray-700 mb-4">{item.excerpt}</p>
-            <div className="flex flex-wrap gap-1 mb-2">
-                {item.tags.map(tag => (
-                    <span key={tag} className="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded">{tag}</span>
-                ))}
-            </div>
-            <div className="flex justify-between items-center mt-6">
-                <span className="text-xs text-gray-400">By {item.author}</span>
-                <div className="flex gap-2">
-                    <a href={item.pdfLink} target="_blank" rel="noopener noreferrer" className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs">View PDF</a>
-                    <Link href={`/dashboard/press/annual-reports/${item.id}/edit`} className="px-3 py-1 bg-pink-600 text-white rounded hover:bg-pink-700 text-xs">Edit</Link>
+        <div className="p-8 max-w-4xl mx-auto">
+            {report.image && (
+                <img src={report.image} alt={report.title} className="w-full h-64 object-cover rounded mb-4" />
+            )}
+
+            <div className="flex justify-between items-center mb-4">
+                <div className="flex gap-2 items-center">
+                    {report.year && (
+                        <span className="text-xs bg-pink-100 text-pink-700 px-2 py-1 rounded">{report.year}</span>
+                    )}
+                    {report.category && (
+                        <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">{report.category}</span>
+                    )}
                 </div>
+                {report.date && (
+                    <span className="text-xs text-gray-500">{new Date(report.date).toLocaleDateString()}</span>
+                )}
+            </div>
+
+            <h1 className="text-3xl font-bold mb-6">{report.title}</h1>
+
+            {report.description && (
+                <div className="prose max-w-none mb-6">
+                    <HtmlRenderer content={report.description} />
+                </div>
+            )}
+
+            {report.availableResources && report.availableResources.length > 0 && (
+                <div className="mb-6 p-4 bg-gray-50 rounded">
+                    <span className="font-semibold text-gray-700 block mb-2">Available Resources:</span>
+                    <ul className="space-y-2">
+                        {report.availableResources.map((url: string, i: number) => (
+                            <li key={i}>
+                                <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm flex items-center gap-2">
+                                    📄 {url.split("/").pop()}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
+            <div className="flex justify-between items-center mt-8 pt-6 border-t">
+                <div className="flex gap-2">
+                    <Link
+                        href={`/dashboard/press/annual-reports/${id}/edit`}
+                        className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700"
+                    >
+                        Edit
+                    </Link>
+                    <button
+                        onClick={handleDelete}
+                        className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                    >
+                        Delete
+                    </button>
+                </div>
+                <Link
+                    href="/dashboard/press/annual-reports"
+                    className="px-4 py-2 border rounded hover:bg-gray-50"
+                >
+                    Back to List
+                </Link>
             </div>
         </div>
     );

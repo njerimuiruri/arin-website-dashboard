@@ -1,6 +1,6 @@
 "use client";
 import { useState, useMemo, useEffect } from 'react';
-import { Search, Filter, Plus, Calendar, Tag, TrendingUp, CheckCircle2, Clock } from 'lucide-react';
+import { Search, Filter, Plus, Calendar, Tag } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ function ResearchProjectsPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('all');
     const [statusFilter, setStatusFilter] = useState('all');
+    const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
     // Get all unique statuses from projects
     const statuses = ['all', ...new Set(projects.map((p: any) => p.status))];
@@ -56,6 +57,23 @@ function ResearchProjectsPage() {
     const router = useRouter();
     const handleAddProject = () => {
         router.push("/dashboard/programs/research-projects/new");
+    };
+
+    const stripHtml = (html: string) => html?.replace(/<[^>]*>/g, '') || '';
+    const formatDate = (value: any) => {
+        const d = new Date(value);
+        return isNaN(d.getTime()) ? value : d.toLocaleDateString();
+    };
+    const buildImageUrl = (img?: string) => {
+        if (!img) return '';
+        return img.startsWith('http') ? img : `http://localhost:5001${img}`;
+    };
+    const getText = (project: any) => stripHtml(project.description || project.excerpt || '');
+    const getTeaser = (text: string, isExpanded: boolean, words = 12) => {
+        if (isExpanded) return text;
+        const parts = text.split(/\s+/).filter(Boolean);
+        if (parts.length <= words) return text;
+        return parts.slice(0, words).join(' ') + '…';
     };
 
     return (
@@ -118,52 +136,98 @@ function ResearchProjectsPage() {
 
             {/* Projects Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredProjects.map((project: any, idx: number) => (
-                    <Card key={project.id ? String(project.id) : `project-${idx}`} className="hover:shadow-lg transition-shadow duration-300 flex flex-col">
-                        <CardHeader>
-                            <div className="flex items-start justify-between mb-2">
-                                <Badge variant={project.status === 'Ongoing' ? 'default' : 'secondary'} className={project.status === 'Ongoing' ? 'bg-green-100 text-green-800 hover:bg-green-200' : ''}>
-                                    {project.status}
-                                </Badge>
-                            </div>
-                            <CardTitle className="text-lg leading-tight text-slate-900">
-                                {project.title}
-                            </CardTitle>
-                            <CardDescription className="flex items-center gap-2 text-xs mt-2">
-                                <Calendar className="h-3 w-3" />
-                                {project.date}
-                                <span className="mx-1">•</span>
-                                {project.category}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex-1">
-                            <p className="text-sm text-slate-600 line-clamp-3">{project.excerpt}</p>
-                            <div className="flex flex-wrap gap-2 mt-4">
-                                {project.tags && project.tags.map((tag: string, idx: number) => (
-                                    <Badge key={`${project.id}-${tag}-${idx}`} variant="outline" className="text-xs">
-                                        <Tag className="h-3 w-3 mr-1" />
-                                        {tag}
-                                    </Badge>
-                                ))}
-                            </div>
-                        </CardContent>
-                        <CardFooter>
-                            <Button
-                                variant="ghost"
-                                className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                                onClick={() => {
-                                    if (project.id) {
-                                        router.push(`/dashboard/programs/research-projects/${String(project.id)}`);
-                                    } else {
-                                        alert('Project ID is missing. Cannot view details.');
-                                    }
-                                }}
-                            >
-                                View Details →
-                            </Button>
-                        </CardFooter>
-                    </Card>
-                ))}
+                {filteredProjects.map((project: any, idx: number) => {
+                    const id = project.id ? String(project.id) : `project-${idx}`;
+                    const text = getText(project);
+                    const isExpanded = expanded[id];
+                    const teaser = getTeaser(text, isExpanded, 10);
+                    const imageUrl = buildImageUrl(project.image);
+                    const hasDate = Boolean(project.date);
+                    const hasCategory = Boolean(project.category);
+
+                    return (
+                        <Card key={id} className="hover:shadow-lg transition-shadow duration-300 flex flex-col overflow-hidden">
+                            {imageUrl ? (
+                                <div className="relative h-40 w-full bg-slate-100">
+                                    <img
+                                        src={imageUrl}
+                                        alt={project.title || 'Project image'}
+                                        className="h-full w-full object-cover"
+                                    />
+                                </div>
+                            ) : (
+                                <div className="h-40 w-full bg-slate-100 flex items-center justify-center text-slate-400 text-sm">
+                                    No image
+                                </div>
+                            )}
+                            <CardHeader>
+                                <div className="flex items-start justify-between mb-2">
+                                    {project.status && (
+                                        <Badge variant={project.status === 'Ongoing' ? 'default' : 'secondary'} className={project.status === 'Ongoing' ? 'bg-green-100 text-green-800 hover:bg-green-200' : ''}>
+                                            {project.status}
+                                        </Badge>
+                                    )}
+                                </div>
+                                <CardTitle className="text-lg leading-tight text-slate-900">
+                                    {project.title}
+                                </CardTitle>
+                                <CardDescription className="flex items-center gap-2 text-xs mt-2 flex-wrap">
+                                    {hasDate ? (
+                                        <>
+                                            <Calendar className="h-3 w-3" />
+                                            {formatDate(project.date)}
+                                        </>
+                                    ) : (
+                                        <span className="text-slate-400 italic">No date</span>
+                                    )}
+                                    <span className="mx-1">•</span>
+                                    {hasCategory ? (
+                                        <span>{project.category}</span>
+                                    ) : (
+                                        <span className="text-slate-400 italic">No category</span>
+                                    )}
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="flex-1 space-y-3">
+                                <p className="text-sm text-slate-600 leading-relaxed">
+                                    {teaser}
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                    {project.tags && project.tags.map((tag: string, idx: number) => (
+                                        <Badge key={`${id}-${tag}-${idx}`} variant="outline" className="text-xs">
+                                            <Tag className="h-3 w-3 mr-1" />
+                                            {tag}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            </CardContent>
+                            <CardFooter className="flex gap-2">
+                                <Button
+                                    variant="ghost"
+                                    className="flex-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                    onClick={() => {
+                                        setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
+                                    }}
+                                >
+                                    {isExpanded ? 'View less' : 'View more'}
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    className="flex-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                    onClick={() => {
+                                        if (project.id) {
+                                            router.push(`/dashboard/programs/research-projects/${String(project.id)}`);
+                                        } else {
+                                            alert('Project ID is missing. Cannot view details.');
+                                        }
+                                    }}
+                                >
+                                    View Details →
+                                </Button>
+                            </CardFooter>
+                        </Card>
+                    );
+                })}
             </div>
 
             {/* No Results */}

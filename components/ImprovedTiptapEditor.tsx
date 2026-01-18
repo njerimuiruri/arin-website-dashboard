@@ -30,12 +30,16 @@ interface ImprovedTiptapEditorProps {
   value?: string;
   onChange: (html: string) => void;
   placeholder?: string;
+  uploadUrl?: string;
+  uploadFieldName?: string;
 }
 
 export default function ImprovedTiptapEditor({
   value = '',
   onChange,
-  placeholder = 'Start typing your content here...'
+  placeholder = 'Start typing your content here...',
+  uploadUrl = 'http://localhost:5001/research-projects/upload-description-image',
+  uploadFieldName = 'image',
 }: ImprovedTiptapEditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -79,8 +83,12 @@ export default function ImprovedTiptapEditor({
 
   // Update editor content when value changes externally
   useEffect(() => {
-    if (editor && value !== editor.getHTML()) {
-      editor.commands.setContent(value || '');
+    if (editor && value) {
+      const currentContent = editor.getHTML();
+      if (value !== currentContent) {
+        console.log('Updating editor content:', value.substring(0, 100) + '...');
+        editor.commands.setContent(value);
+      }
     }
   }, [value, editor]);
 
@@ -91,15 +99,27 @@ export default function ImprovedTiptapEditor({
     // Upload multiple images
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const formData = new FormData();
-      formData.append('file', file);
+
+      const descForm = new FormData();
+      descForm.append(uploadFieldName, file);
 
       try {
-        const res = await fetch('http://localhost:5001/research-projects/upload', {
+        let res = await fetch(uploadUrl, {
           method: 'POST',
-          body: formData,
+          body: descForm,
           credentials: 'include',
         });
+
+        // Fallback to main upload endpoint if description endpoint not found
+        if (res.status === 404) {
+          const mainForm = new FormData();
+          mainForm.append('file', file);
+          res = await fetch('http://localhost:5001/research-projects/upload', {
+            method: 'POST',
+            body: mainForm,
+            credentials: 'include',
+          });
+        }
 
         if (!res.ok) {
           throw new Error('Upload failed');
@@ -108,12 +128,10 @@ export default function ImprovedTiptapEditor({
         const data = await res.json();
 
         if (data.url) {
-          // Ensure full URL
           const fullUrl = data.url.startsWith('http')
             ? data.url
             : `http://localhost:5001${data.url}`;
 
-          // Insert image into editor
           editor.chain().focus().setImage({ src: fullUrl }).run();
         }
       } catch (error) {

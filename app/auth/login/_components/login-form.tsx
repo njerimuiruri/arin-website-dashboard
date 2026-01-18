@@ -34,12 +34,23 @@ export function LoginForm({ className, ...props }) {
         setIsLoading(true);
         setError("");
         try {
-            await loginService(email, password);
-            // Wait a moment for cookie to be set before redirecting
-            setTimeout(() => {
-                router.push("/dashboard/dashboard");
-            }, 100);
+            console.log('📝 Attempting login with email:', email);
+            const result = await loginService(email, password);
+            console.log('✅ Login service returned:', {
+                has_access_token: !!result.access_token,
+                has_refresh_token: !!result.refresh_token,
+                user: result.user,
+            });
+
+            // Give a small moment for tokens to be stored in localStorage
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            console.log('🔄 Redirecting to dashboard...');
+            // Token is automatically stored in localStorage by loginService
+            // Redirect to dashboard
+            router.push("/dashboard/dashboard");
         } catch (err) {
+            console.error('❌ Login error:', err);
             setError(err.message || "Login failed");
             setIsLoading(false);
         }

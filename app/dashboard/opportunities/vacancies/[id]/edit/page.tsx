@@ -1,141 +1,206 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { ArrowLeft, Upload } from 'lucide-react';
+import ImprovedTiptapEditor from '@/components/ImprovedTiptapEditor';
+import { getVacancy, updateVacancy, uploadVacancyImage } from "@/services/vacanciesService";
 
-const vacancies = [
-    {
-        id: 'research-fellow-climate',
-        title: 'Research Fellow - Climate Adaptation',
-        location: 'Nairobi, Kenya',
-        type: 'Full-time',
-        deadline: 'January 31, 2025',
-        postedDate: 'December 15, 2024',
-        status: 'Open',
-        salary: 'Competitive',
-        excerpt: 'ARIN is seeking a highly motivated Research Fellow to lead climate adaptation research projects across East Africa. The ideal candidate will have expertise in climate science, policy analysis, and community engagement.',
-        requirements: ['PhD in Climate Science, Environmental Studies, or related field', '5+ years research experience', 'Strong publication record'],
-        tags: ['Research', 'Climate', 'Full-time'],
-        poster: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=80'
-    },
-    {
-        id: 'policy-analyst',
-        title: 'Policy Analyst - Health Systems',
-        location: 'Accra, Ghana',
-        type: 'Full-time',
-        deadline: 'February 15, 2025',
-        postedDate: 'December 10, 2024',
-        status: 'Open',
-        salary: '$45,000 - $60,000',
-        excerpt: 'We are looking for a Policy Analyst to support our health systems strengthening initiatives. This role involves analyzing health policies, conducting stakeholder consultations, and developing policy briefs.',
-        requirements: ['Master\'s degree in Public Health or related field', 'Policy analysis experience', 'Excellent writing skills'],
-        tags: ['Policy', 'Health', 'Full-time'],
-        poster: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80'
-    },
-    {
-        id: 'communications-officer',
-        title: 'Communications Officer',
-        location: 'Remote',
-        type: 'Contract',
-        deadline: 'January 20, 2025',
-        postedDate: 'December 5, 2024',
-        status: 'Open',
-        salary: 'Negotiable',
-        excerpt: 'ARIN seeks a creative Communications Officer to manage our digital presence, develop content strategies, and engage with stakeholders across multiple platforms.',
-        requirements: ['Bachelor\'s degree in Communications or Journalism', '3+ years experience', 'Social media expertise'],
-        tags: ['Communications', 'Remote', 'Contract'],
-        poster: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800&q=80'
-    },
-    {
-        id: 'data-scientist',
-        title: 'Data Scientist - Climate Modeling',
-        location: 'Kigali, Rwanda',
-        type: 'Full-time',
-        deadline: 'March 1, 2025',
-        postedDate: 'December 1, 2024',
-        status: 'Open',
-        salary: '$50,000 - $70,000',
-        excerpt: 'Join our team as a Data Scientist to develop climate models and analyze large datasets for evidence-based policy recommendations across Africa.',
-        requirements: ['Master\'s or PhD in Data Science, Statistics, or related field', 'Python/R programming', 'Machine learning experience'],
-        tags: ['Data Science', 'Climate', 'Full-time'],
-        poster: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80'
-    },
-    {
-        id: 'program-coordinator',
-        title: 'Program Coordinator - Youth Engagement',
-        location: 'Lagos, Nigeria',
-        type: 'Part-time',
-        deadline: 'November 30, 2024',
-        postedDate: 'October 15, 2024',
-        status: 'Closed',
-        salary: '$30,000 - $40,000',
-        excerpt: 'Support the coordination of youth-focused climate action programs, including workshop organization, stakeholder engagement, and monitoring and evaluation.',
-        requirements: ['Bachelor\'s degree in relevant field', 'Project management experience', 'Youth engagement background'],
-        tags: ['Program Management', 'Youth', 'Part-time'],
-        poster: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80'
-    }
-];
-
-export default function EditVacancyPage({ params }) {
+const EditVacancyPage = () => {
+    const params = useParams();
     const router = useRouter();
-    const item = vacancies.find((i) => i.id === params.id);
-    const [form, setForm] = useState(item ? {
-        title: item.title,
-        location: item.location,
-        type: item.type,
-        deadline: item.deadline,
-        postedDate: item.postedDate,
-        status: item.status,
-        salary: item.salary,
-        excerpt: item.excerpt,
-        requirements: item.requirements.join(", "),
-        tags: item.tags.join(", "),
-        poster: item.poster
-    } : {
-        title: "",
-        location: "",
-        type: "Full-time",
-        deadline: "",
-        postedDate: "",
-        status: "Open",
-        salary: "",
-        excerpt: "",
-        requirements: "",
-        tags: "",
-        poster: ""
+    const id = params.id as string;
+
+    const [formData, setFormData] = useState({
+        positionName: '',
+        employmentType: 'Full-time',
+        description: '',
+        datePosted: '',
+        deadline: '',
+        image: '',
     });
-    if (!item) return <div className="p-8">Vacancy not found.</div>;
-    const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState('');
+
+    useEffect(() => {
+        async function fetchVacancy() {
+            if (!id) return;
+            try {
+                const data = await getVacancy(id);
+                if (data) {
+                    setFormData(data);
+                    setImagePreview(data.image || '');
+                }
+            } catch (err) {
+                console.error('Failed to fetch vacancy:', err);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchVacancy();
+    }, [id]);
+
+    const handleInputChange = (field: string, value: any) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
     };
-    const handleSubmit = (e) => {
+
+    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setImageFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Here you would normally update the vacancy
-        router.push(`/dashboard/opportunities/vacancies/${item.id}`);
+        setSaving(true);
+
+        try {
+            let imageUrl = formData.image;
+
+            if (imageFile) {
+                imageUrl = await uploadVacancyImage(imageFile);
+            }
+
+            const dataToSend = {
+                ...formData,
+                image: imageUrl,
+            };
+
+            await updateVacancy(id, dataToSend);
+            alert('Vacancy updated successfully!');
+            router.push(`/dashboard/opportunities/vacancies/${id}`);
+        } catch (error) {
+            console.error('Failed to update vacancy:', error);
+            alert('Failed to update vacancy');
+        } finally {
+            setSaving(false);
+        }
     };
+
+    if (loading) {
+        return (
+            <div className="p-8 text-center">
+                <div className="animate-pulse">Loading vacancy...</div>
+            </div>
+        );
+    }
+
     return (
-        <div className="p-8 max-w-xl mx-auto">
-            <h1 className="text-2xl font-bold mb-4">Edit Vacancy</h1>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <input name="title" value={form.title} onChange={handleChange} placeholder="Title" className="w-full border rounded px-3 py-2" required />
-                <input name="location" value={form.location} onChange={handleChange} placeholder="Location" className="w-full border rounded px-3 py-2" required />
-                <select name="type" value={form.type} onChange={handleChange} className="w-full border rounded px-3 py-2">
-                    <option value="Full-time">Full-time</option>
-                    <option value="Part-time">Part-time</option>
-                    <option value="Contract">Contract</option>
-                </select>
-                <input name="deadline" value={form.deadline} onChange={handleChange} placeholder="Deadline (e.g. January 31, 2025)" className="w-full border rounded px-3 py-2" required />
-                <input name="postedDate" value={form.postedDate} onChange={handleChange} placeholder="Posted Date (e.g. December 15, 2024)" className="w-full border rounded px-3 py-2" required />
-                <select name="status" value={form.status} onChange={handleChange} className="w-full border rounded px-3 py-2">
-                    <option value="Open">Open</option>
-                    <option value="Closed">Closed</option>
-                </select>
-                <input name="salary" value={form.salary} onChange={handleChange} placeholder="Salary" className="w-full border rounded px-3 py-2" />
-                <textarea name="excerpt" value={form.excerpt} onChange={handleChange} placeholder="Excerpt" className="w-full border rounded px-3 py-2" required />
-                <textarea name="requirements" value={form.requirements} onChange={handleChange} placeholder="Requirements (comma separated)" className="w-full border rounded px-3 py-2" />
-                <input name="tags" value={form.tags} onChange={handleChange} placeholder="Tags (comma separated)" className="w-full border rounded px-3 py-2" />
-                <input name="poster" value={form.poster} onChange={handleChange} placeholder="Poster Image URL" className="w-full border rounded px-3 py-2" />
-                <button type="submit" className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700">Update</button>
+        <div className="p-8 max-w-4xl mx-auto">
+            <button onClick={() => router.back()} className="flex items-center gap-2 mb-6 text-gray-600 hover:text-gray-800">
+                <ArrowLeft size={20} /> Back
+            </button>
+
+            <h1 className="text-3xl font-bold mb-6">Edit Vacancy</h1>
+
+            <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg p-6 space-y-6">
+                <div>
+                    <label className="block text-sm font-medium mb-2">Position Name *</label>
+                    <input
+                        type="text"
+                        value={formData.positionName}
+                        onChange={(e) => handleInputChange('positionName', e.target.value)}
+                        className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
+                        required
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium mb-2">Employment Type *</label>
+                    <select
+                        value={formData.employmentType}
+                        onChange={(e) => handleInputChange('employmentType', e.target.value)}
+                        className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
+                        required
+                    >
+                        <option value="Full-time">Full-time</option>
+                        <option value="Part-time">Part-time</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium mb-2">Date Posted *</label>
+                    <input
+                        type="date"
+                        value={formData.datePosted ? new Date(formData.datePosted).toISOString().split('T')[0] : ''}
+                        onChange={(e) => handleInputChange('datePosted', e.target.value)}
+                        className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
+                        required
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium mb-2">Deadline *</label>
+                    <input
+                        type="date"
+                        value={formData.deadline ? new Date(formData.deadline).toISOString().split('T')[0] : ''}
+                        onChange={(e) => handleInputChange('deadline', e.target.value)}
+                        className="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500"
+                        required
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium mb-2">Image</label>
+                    <div className="border-2 border-dashed rounded-lg p-6">
+                        {imagePreview ? (
+                            <div className="flex gap-4 items-start">
+                                <img src={imagePreview} alt="Preview" className="w-40 h-32 object-cover rounded" />
+                                <div className="flex-1">
+                                    <label className="flex items-center gap-2 cursor-pointer text-blue-600 hover:text-blue-800">
+                                        <Upload size={18} />
+                                        Change Image
+                                        <input type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
+                                    </label>
+                                </div>
+                            </div>
+                        ) : (
+                            <label className="flex items-center gap-2 cursor-pointer text-gray-600 hover:text-gray-800">
+                                <Upload size={20} />
+                                <div>
+                                    <p className="font-medium">Click to upload or drag and drop</p>
+                                    <p className="text-sm text-gray-500">PNG, JPG, GIF (max 5MB)</p>
+                                </div>
+                                <input type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
+                            </label>
+                        )}
+                    </div>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium mb-2">Description *</label>
+                    <ImprovedTiptapEditor
+                        value={formData.description}
+                        onChange={(value) => handleInputChange('description', value)}
+                    />
+                </div>
+
+                <div className="flex gap-4 pt-4">
+                    <button
+                        type="submit"
+                        disabled={saving}
+                        className="px-6 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 disabled:opacity-50"
+                    >
+                        {saving ? 'Updating...' : 'Update Vacancy'}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => router.back()}
+                        className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
+                    >
+                        Cancel
+                    </button>
+                </div>
             </form>
         </div>
     );
-}
+};
+
+export default EditVacancyPage;

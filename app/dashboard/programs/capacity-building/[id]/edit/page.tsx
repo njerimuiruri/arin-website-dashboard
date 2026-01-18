@@ -1,53 +1,190 @@
 "use client";
-import { useState } from "react";
-import { ArrowLeft, Save, FileText, Calendar, MapPin, Users, Clock, Tag, Info, CheckCircle2, Trash2, Target, DollarSign, BookOpen } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { getCapacityProject, updateCapacityProject, deleteCapacityProject, uploadImage, uploadResource } from '@/services/capacityBuildingService';
+import { ArrowLeft, Save, FileText, Calendar, MapPin, Info, X, ImagePlus, FileUp, Trash2, CheckCircle2, Clock, Users, Target } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Textarea } from '@/components/ui/textarea';
+import ImprovedTiptapEditor from '@/components/ImprovedTiptapEditor';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function EditCapacityBuildingPage() {
+    const params = useParams();
+    const router = useRouter();
+    const id = params.id as string;
+
     const [form, setForm] = useState({
-        title: "The Climate Finance and Sustainability CFS (Centre)",
-        date: "October 3, 2023",
-        location: "Pan-African",
-        duration: "Ongoing",
-        participants: "1000+ professionals",
-        excerpt: "The Climate Finance and Sustainability (CFS) Centre is one of the first Southern-Driven Centres of Excellence, aimed at enhancing climate finance and sustainability training in Africa.",
-        description: "The Climate Finance and Sustainability (CFS) Centre represents a groundbreaking initiative in African-led capacity development. As one of the first Southern-Driven Centres of Excellence, it addresses the critical need for enhanced climate finance expertise and sustainability training across the continent.",
-        tags: "Training, Climate Finance, Sustainability",
-        status: "Ongoing",
-        budget: "$5.2M",
-        trainingModules: "12",
-        facilitators: "Dr. Amina Mohamed, Prof. Kwabena Osei, Dr. Zainab Ibrahim",
-        fundingPartners: "African Development Bank, Green Climate Fund, European Union",
-        targetAudience: "Government officials and policymakers, Financial sector professionals, NGO and civil society leaders, Academic researchers and students",
-        objectives: "Build a robust network of climate finance professionals who can effectively mobilize resources, design innovative financial instruments, and drive sustainable development initiatives across Africa."
+        title: "",
+        date: "",
+        location: "",
+        status: "Ongoing" as string,
+        category: "",
+        description: "",
+        image: "",
+        objectives: [] as string[],
+        partners: [] as string[],
+        outcomes: [] as string[],
+        availableResources: [] as string[],
     });
 
+    const [objectiveInput, setObjectiveInput] = useState("");
+    const [partnerInput, setPartnerInput] = useState("");
+    const [outcomeInput, setOutcomeInput] = useState("");
+
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [uploading, setUploading] = useState(false);
+    const [uploadingResource, setUploadingResource] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-    const handleChange = (e) => {
+    const [editorContent, setEditorContent] = useState('');
+
+    useEffect(() => {
+        async function fetchProject() {
+            try {
+                const data = await getCapacityProject(id);
+                setForm({
+                    title: data.title || "",
+                    date: data.date || "",
+                    location: data.location || "",
+                    status: data.status || "Ongoing",
+                    category: data.category || "",
+                    description: data.description || "",
+                    image: data.image || "",
+                    objectives: data.objectives || [],
+                    partners: data.partners || [],
+                    outcomes: data.outcomes || [],
+                    availableResources: data.availableResources || [],
+                });
+                setEditorContent(data.description || '');
+            } catch (err: any) {
+                setError(err.message || 'Failed to load project');
+            } finally {
+                setLoading(false);
+            }
+        }
+        if (id) {
+            fetchProject();
+        }
+    }, [id]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
-    const handleStatusChange = (value) => {
-        setForm({ ...form, status: value });
+    const handleStatusChange = (val: string) => {
+        setForm({ ...form, status: val });
     };
 
-    const handleSubmit = () => {
-        console.log("Project updated:", form);
+    const handleAddObjective = () => {
+        if (objectiveInput.trim() && !form.objectives.includes(objectiveInput.trim())) {
+            setForm({ ...form, objectives: [...form.objectives, objectiveInput.trim()] });
+            setObjectiveInput("");
+        }
+    };
+    const handleRemoveObjective = (item: string) => {
+        setForm({ ...form, objectives: form.objectives.filter(i => i !== item) });
     };
 
-    const handleDelete = () => {
-        console.log("Project deleted");
+    const handleAddPartner = () => {
+        if (partnerInput.trim() && !form.partners.includes(partnerInput.trim())) {
+            setForm({ ...form, partners: [...form.partners, partnerInput.trim()] });
+            setPartnerInput("");
+        }
+    };
+    const handleRemovePartner = (item: string) => {
+        setForm({ ...form, partners: form.partners.filter(i => i !== item) });
     };
 
-    const tagArray = form.tags ? form.tags.split(',').map(t => t.trim()).filter(t => t) : [];
+    const handleAddOutcome = () => {
+        if (outcomeInput.trim() && !form.outcomes.includes(outcomeInput.trim())) {
+            setForm({ ...form, outcomes: [...form.outcomes, outcomeInput.trim()] });
+            setOutcomeInput("");
+        }
+    };
+    const handleRemoveOutcome = (item: string) => {
+        setForm({ ...form, outcomes: form.outcomes.filter(i => i !== item) });
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+            setUploading(true);
+            const res = await uploadImage(file);
+            setForm({ ...form, image: res.url });
+        } catch (err: any) {
+            setError(err.message || 'Image upload failed');
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const handleResourceUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+            setUploadingResource(true);
+            const res = await uploadResource(file);
+            setForm({ ...form, availableResources: [...form.availableResources, res.url] });
+        } catch (err: any) {
+            setError(err.message || 'Resource upload failed');
+        } finally {
+            setUploadingResource(false);
+        }
+    };
+
+    const handleRemoveResource = (url: string) => {
+        setForm({ ...form, availableResources: form.availableResources.filter(r => r !== url) });
+    };
+
+    const handleSubmit = async () => {
+        if (!form.title || !form.date || !form.location || !form.status) {
+            setError('Please fill in all required fields');
+            return;
+        }
+        try {
+            setSaving(true);
+            setError(null);
+            await updateCapacityProject(id, { ...form, description: editorContent });
+            router.push('/dashboard/programs/capacity-building');
+        } catch (err: any) {
+            setError(err.message || 'Failed to update project');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleDelete = async () => {
+        try {
+            await deleteCapacityProject(id);
+            router.push('/dashboard/programs/capacity-building');
+        } catch (err: any) {
+            setError(err.message || 'Failed to delete project');
+        }
+    };
+
+    const buildImageUrl = (path: string) => {
+        if (!path) return '';
+        return path.startsWith('http') ? path : `http://localhost:5001${path}`;
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+                    <p className="text-slate-600">Loading project...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 p-6">
@@ -55,7 +192,7 @@ export default function EditCapacityBuildingPage() {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <Button variant="ghost" size="icon" className="rounded-full">
+                        <Button variant="ghost" size="icon" className="rounded-full" onClick={() => router.push('/dashboard/programs/capacity-building')}>
                             <ArrowLeft className="h-5 w-5" />
                         </Button>
                         <div>
@@ -95,6 +232,13 @@ export default function EditCapacityBuildingPage() {
                                 </Button>
                             </div>
                         </AlertDescription>
+                    </Alert>
+                )}
+
+                {/* Error Alert */}
+                {error && (
+                    <Alert variant="destructive">
+                        <AlertDescription>{error}</AlertDescription>
                     </Alert>
                 )}
 
@@ -193,7 +337,7 @@ export default function EditCapacityBuildingPage() {
                                     placeholder="Provide a brief one-paragraph summary for the project card..."
                                     className="min-h-[80px] resize-none"
                                 />
-                                <p className="text-xs text-slate-500">{form.excerpt.length} characters</p>
+                                <p className="text-xs text-slate-500">{(form.excerpt || "").length} characters</p>
                             </div>
 
                             <div className="space-y-2">
@@ -214,134 +358,25 @@ export default function EditCapacityBuildingPage() {
                         </CardContent>
                     </Card>
 
-                    {/* Program Details */}
+                    {/* Status & Category */}
                     <Card>
                         <CardHeader>
                             <div className="flex items-center gap-2">
-                                <BookOpen className="h-5 w-5 text-emerald-600" />
-                                <CardTitle>Program Details</CardTitle>
+                                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                                <CardTitle>Status & Category</CardTitle>
                             </div>
-                            <CardDescription>Specific information about the training program</CardDescription>
+                            <CardDescription>Project status and classification</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="targetAudience">Target Audience</Label>
-                                <Textarea
-                                    id="targetAudience"
-                                    name="targetAudience"
-                                    value={form.targetAudience}
-                                    onChange={handleChange}
-                                    placeholder="e.g., Government officials, Financial sector professionals, NGO leaders..."
-                                    className="min-h-[80px] resize-none"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="objectives" className="flex items-center gap-2">
-                                    <Target className="h-4 w-4 text-slate-500" />
-                                    Program Objectives
-                                </Label>
-                                <Textarea
-                                    id="objectives"
-                                    name="objectives"
-                                    value={form.objectives}
-                                    onChange={handleChange}
-                                    placeholder="List the key objectives and expected outcomes of the program..."
-                                    className="min-h-[100px] resize-none"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="trainingModules" className="flex items-center gap-2">
-                                        <BookOpen className="h-4 w-4 text-slate-500" />
-                                        Number of Training Modules
-                                    </Label>
-                                    <Input
-                                        id="trainingModules"
-                                        name="trainingModules"
-                                        type="number"
-                                        value={form.trainingModules}
-                                        onChange={handleChange}
-                                        placeholder="e.g., 12"
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="budget" className="flex items-center gap-2">
-                                        <DollarSign className="h-4 w-4 text-slate-500" />
-                                        Budget
-                                    </Label>
-                                    <Input
-                                        id="budget"
-                                        name="budget"
-                                        value={form.budget}
-                                        onChange={handleChange}
-                                        placeholder="e.g., $5.2M"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="facilitators">Lead Facilitators</Label>
+                                <Label htmlFor="category">Category</Label>
                                 <Input
-                                    id="facilitators"
-                                    name="facilitators"
-                                    value={form.facilitators}
+                                    id="category"
+                                    name="category"
+                                    value={form.category}
                                     onChange={handleChange}
-                                    placeholder="e.g., Dr. Amina Mohamed, Prof. Kwabena Osei (comma separated)"
+                                    placeholder="e.g., Training, Workshop, Certification"
                                 />
-                                <p className="text-xs text-slate-500">Separate names with commas</p>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="fundingPartners">Funding Partners</Label>
-                                <Input
-                                    id="fundingPartners"
-                                    name="fundingPartners"
-                                    value={form.fundingPartners}
-                                    onChange={handleChange}
-                                    placeholder="e.g., African Development Bank, Green Climate Fund (comma separated)"
-                                />
-                                <p className="text-xs text-slate-500">Separate partners with commas</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Classification & Status */}
-                    <Card>
-                        <CardHeader>
-                            <div className="flex items-center gap-2">
-                                <Tag className="h-5 w-5 text-emerald-600" />
-                                <CardTitle>Classification & Status</CardTitle>
-                            </div>
-                            <CardDescription>Organize and categorize your project</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="tags" className="flex items-center gap-2">
-                                    <Tag className="h-4 w-4 text-slate-500" />
-                                    Tags
-                                </Label>
-                                <Input
-                                    id="tags"
-                                    name="tags"
-                                    value={form.tags}
-                                    onChange={handleChange}
-                                    placeholder="e.g., Training, Climate Finance, Sustainability"
-                                />
-                                <p className="text-xs text-slate-500">Separate tags with commas</p>
-
-                                {tagArray.length > 0 && (
-                                    <div className="flex flex-wrap gap-2 mt-3 p-3 bg-slate-50 rounded-lg border">
-                                        <span className="text-xs font-medium text-slate-600">Preview:</span>
-                                        {tagArray.map((tag, index) => (
-                                            <Badge key={index} variant="outline" className="text-xs">
-                                                {tag}
-                                            </Badge>
-                                        ))}
-                                    </div>
-                                )}
                             </div>
 
                             <div className="space-y-2">
@@ -354,18 +389,6 @@ export default function EditCapacityBuildingPage() {
                                         <SelectValue placeholder="Select status" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="Planning">
-                                            <div className="flex items-center gap-2">
-                                                <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
-                                                Planning
-                                            </div>
-                                        </SelectItem>
-                                        <SelectItem value="Registration Open">
-                                            <div className="flex items-center gap-2">
-                                                <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-                                                Registration Open
-                                            </div>
-                                        </SelectItem>
                                         <SelectItem value="Ongoing">
                                             <div className="flex items-center gap-2">
                                                 <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
@@ -381,6 +404,208 @@ export default function EditCapacityBuildingPage() {
                                     </SelectContent>
                                 </Select>
                             </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Resources */}
+                    <Card>
+                        <CardHeader>
+                            <div className="flex items-center gap-2">
+                                <FileUp className="h-5 w-5 text-emerald-600" />
+                                <CardTitle>Available Resources</CardTitle>
+                            </div>
+                            <CardDescription>Upload PDF resources for download</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="resource-upload">Upload Resource (PDF)</Label>
+                                <Input
+                                    id="resource-upload"
+                                    type="file"
+                                    accept=".pdf"
+                                    onChange={handleResourceUpload}
+                                    disabled={uploadingResource}
+                                />
+                                {uploadingResource && <p className="text-xs text-slate-500">Uploading...</p>}
+                            </div>
+
+                            {form.availableResources && form.availableResources.length > 0 && (
+                                <div className="space-y-2">
+                                    <Label>Uploaded Resources</Label>
+                                    <div className="space-y-2">
+                                        {form.availableResources.map((resource, idx) => {
+                                            const fileName = resource.split('/').pop() || `Resource ${idx + 1}`;
+                                            return (
+                                                <div key={idx} className="flex items-center justify-between p-2 bg-slate-50 rounded border">
+                                                    <span className="text-sm">{fileName}</span>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => handleRemoveResource(resource)}
+                                                    >
+                                                        <X className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    {/* Objectives */}
+                    <Card>
+                        <CardHeader>
+                            <div className="flex items-center gap-2">
+                                <Target className="h-5 w-5 text-emerald-600" />
+                                <CardTitle>Objectives</CardTitle>
+                            </div>
+                            <CardDescription>Project objectives and goals</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="objective-input">Add Objective</Label>
+                                <div className="flex gap-2">
+                                    <Input
+                                        id="objective-input"
+                                        value={objectiveInput}
+                                        onChange={(e) => setObjectiveInput(e.target.value)}
+                                        placeholder="e.g., Build capacity in climate finance"
+                                        onKeyPress={(e) => {
+                                            if (e.key === 'Enter') {
+                                                handleAddObjective();
+                                            }
+                                        }}
+                                    />
+                                    <Button onClick={handleAddObjective} variant="outline">
+                                        Add
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {form.objectives.length > 0 && (
+                                <div className="space-y-2">
+                                    <Label>Objectives List</Label>
+                                    <div className="space-y-2">
+                                        {form.objectives.map((obj, idx) => (
+                                            <div key={idx} className="flex items-center justify-between p-2 bg-slate-50 rounded border">
+                                                <span className="text-sm">{obj}</span>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => handleRemoveObjective(obj)}
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    {/* Partners */}
+                    <Card>
+                        <CardHeader>
+                            <div className="flex items-center gap-2">
+                                <Users className="h-5 w-5 text-emerald-600" />
+                                <CardTitle>Partners</CardTitle>
+                            </div>
+                            <CardDescription>Organizations and institutions involved</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="partner-input">Add Partner</Label>
+                                <div className="flex gap-2">
+                                    <Input
+                                        id="partner-input"
+                                        value={partnerInput}
+                                        onChange={(e) => setPartnerInput(e.target.value)}
+                                        placeholder="e.g., UNDP, World Bank"
+                                        onKeyPress={(e) => {
+                                            if (e.key === 'Enter') {
+                                                handleAddPartner();
+                                            }
+                                        }}
+                                    />
+                                    <Button onClick={handleAddPartner} variant="outline">
+                                        Add
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {form.partners.length > 0 && (
+                                <div className="space-y-2">
+                                    <Label>Partners List</Label>
+                                    <div className="flex flex-wrap gap-2">
+                                        {form.partners.map((partner, idx) => (
+                                            <Badge key={idx} variant="outline" className="pl-3">
+                                                {partner}
+                                                <button
+                                                    onClick={() => handleRemovePartner(partner)}
+                                                    className="ml-2 text-xs hover:text-red-600"
+                                                >
+                                                    ×
+                                                </button>
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    {/* Outcomes */}
+                    <Card>
+                        <CardHeader>
+                            <div className="flex items-center gap-2">
+                                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                                <CardTitle>Outcomes</CardTitle>
+                            </div>
+                            <CardDescription>Expected results and impacts</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="outcome-input">Add Outcome</Label>
+                                <div className="flex gap-2">
+                                    <Input
+                                        id="outcome-input"
+                                        value={outcomeInput}
+                                        onChange={(e) => setOutcomeInput(e.target.value)}
+                                        placeholder="e.g., 500+ professionals trained in sustainable finance"
+                                        onKeyPress={(e) => {
+                                            if (e.key === 'Enter') {
+                                                handleAddOutcome();
+                                            }
+                                        }}
+                                    />
+                                    <Button onClick={handleAddOutcome} variant="outline">
+                                        Add
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {form.outcomes.length > 0 && (
+                                <div className="space-y-2">
+                                    <Label>Outcomes List</Label>
+                                    <div className="space-y-2">
+                                        {form.outcomes.map((outcome, idx) => (
+                                            <div key={idx} className="flex items-center justify-between p-2 bg-slate-50 rounded border">
+                                                <span className="text-sm">{outcome}</span>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => handleRemoveOutcome(outcome)}
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
 

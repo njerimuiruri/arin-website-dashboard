@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { createResearchProject } from '@/services/researchProjectService';
+import { createResearchProject, uploadImage } from '@/services/researchProjectService';
 import { ArrowLeft, Save, FileText, Calendar, FolderOpen, Info, X, Upload, Bold, Italic, List, ListOrdered, ImagePlus } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,21 +10,32 @@ import { Badge } from '@/components/ui/badge';
 import ImprovedTiptapEditor from '@/components/ImprovedTiptapEditor';
 
 export default function NewResearchProjectPage() {
+    const CATEGORY_OPTIONS = [
+        'Finance',
+        'Environment',
+        'Health',
+        'Sustainability',
+        'Energy',
+        'Water',
+        'Agriculture',
+    ];
     const [form, setForm] = useState({
         title: "",
         date: "",
         category: "",
         description: "",
         projectTeam: [] as string[],
+        image: "",
     });
     const [authorInput, setAuthorInput] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [uploading, setUploading] = useState(false);
 
     // Rich text editor state - TipTap uses HTML
     const [editorContent, setEditorContent] = useState('');
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
@@ -39,37 +50,51 @@ export default function NewResearchProjectPage() {
         setForm({ ...form, projectTeam: form.projectTeam.filter(a => a !== author) });
     };
 
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+            setUploading(true);
+            const res = await uploadImage(file);
+            setForm({ ...form, image: res.url });
+        } catch (err: any) {
+            setError(err.message || 'Image upload failed');
+        } finally {
+            setUploading(false);
+        }
+    };
+
     // Remove custom image upload and formatting logic (handled by Quill)
 
-   const handleSubmit = async () => {
-  // Validate required fields
-  if (!form.title || !form.date || !form.category || !form.description) {
-    setError('Please fill in all required fields');
-    return;
-  }
+    const handleSubmit = async () => {
+        // Validate required fields
+        if (!form.title || !form.date || !form.category || !form.description) {
+            setError('Please fill in all required fields');
+            return;
+        }
 
-  setLoading(true);
-  setError(null);
-  
-  try {
-    console.log('Submitting form data:', form);
-    const result = await createResearchProject(form);
-    console.log('Project created:', result);
-    
-    // Show success message
-    alert('Project created successfully!');
-    
-    // Redirect
-    window.location.href = '/dashboard/programs/research-projects';
-  } catch (err: any) {
-    console.error('Submission error:', err);
-    setError(err.message || 'Failed to create project');
-  } finally {
-    setLoading(false);
-  }
-};
+        setLoading(true);
+        setError(null);
+
+        try {
+            console.log('Submitting form data:', form);
+            const result = await createResearchProject(form);
+            console.log('Project created:', result);
+
+            // Show success message
+            alert('Project created successfully!');
+
+            // Redirect
+            window.location.href = '/dashboard/programs/research-projects';
+        } catch (err: any) {
+            console.error('Submission error:', err);
+            setError(err.message || 'Failed to create project');
+        } finally {
+            setLoading(false);
+        }
+    };
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 md:p-8">
+        <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 md:p-8">
             <div className="max-w-5xl mx-auto space-y-8">
                 {/* Header */}
                 <div className="flex items-center gap-4 animate-in slide-in-from-left duration-500">
@@ -82,7 +107,7 @@ export default function NewResearchProjectPage() {
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
                     <div>
-                        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                        <h1 className="text-4xl font-bold bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                             Add New Project
                         </h1>
                         <p className="text-slate-600 mt-1">Create a comprehensive research project entry</p>
@@ -100,7 +125,7 @@ export default function NewResearchProjectPage() {
                 <div className="space-y-6">
                     {/* Basic Information */}
                     <Card className="border-2 shadow-lg hover:shadow-xl transition-all duration-300">
-                        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+                        <CardHeader className="bg-linear-to-r from-blue-50 to-indigo-50 border-b">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-blue-600 rounded-lg">
                                     <FileText className="h-5 w-5 text-white" />
@@ -149,22 +174,65 @@ export default function NewResearchProjectPage() {
                                         <FolderOpen className="h-4 w-4 text-blue-600" />
                                         Category <span className="text-red-500">*</span>
                                     </Label>
-                                    <Input
+                                    <select
                                         id="category"
                                         name="category"
                                         value={form.category}
                                         onChange={handleChange}
-                                        placeholder="e.g., Climate Adaptation"
-                                        className="h-12 border-2 focus:border-blue-500 transition-all"
-                                    />
+                                        className="h-12 border-2 focus:border-blue-500 transition-all rounded-md px-3"
+                                    >
+                                        <option value="" disabled>Select a category</option>
+                                        {CATEGORY_OPTIONS.map(opt => (
+                                            <option key={opt} value={opt}>{opt}</option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
+                    {/* Main Project Image */}
+                    <Card className="border-2 shadow-lg hover:shadow-xl transition-all duration-300">
+                        <CardHeader className="bg-linear-to-r from-purple-50 to-pink-50 border-b">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-purple-600 rounded-lg">
+                                    <ImagePlus className="h-5 w-5 text-white" />
+                                </div>
+                                <div>
+                                    <CardTitle className="text-2xl">Project Image</CardTitle>
+                                    <CardDescription>Upload a main image for this project</CardDescription>
+                                </div>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="space-y-4 pt-6">
+                            <div className="space-y-2">
+                                <Label htmlFor="image" className="text-base font-semibold">
+                                    Main Image
+                                </Label>
+                                <Input
+                                    id="image"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                    className="h-12 border-2 focus:border-purple-500"
+                                />
+                                {uploading && <p className="text-sm text-gray-600">Uploading...</p>}
+                                {form.image && (
+                                    <div className="mt-4">
+                                        <img
+                                            src={`http://localhost:5001${form.image}`}
+                                            alt="Project preview"
+                                            className="w-full max-w-md h-auto rounded-lg shadow-md"
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+
 
                     {/* Rich Text Description (Slate) */}
                     <Card className="border-2 shadow-lg hover:shadow-xl transition-all duration-300">
-                        <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
+                        <CardHeader className="bg-linear-to-r from-indigo-50 to-purple-50 border-b">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-indigo-600 rounded-lg">
                                     <Info className="h-5 w-5 text-white" />
@@ -192,7 +260,7 @@ export default function NewResearchProjectPage() {
 
                     {/* Project Team */}
                     <Card className="border-2 shadow-lg hover:shadow-xl transition-all duration-300">
-                        <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b">
+                        <CardHeader className="bg-linear-to-r from-emerald-50 to-teal-50 border-b">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-emerald-600 rounded-lg">
                                     <FileText className="h-5 w-5 text-white" />
@@ -267,7 +335,7 @@ export default function NewResearchProjectPage() {
                                 </Button>
                                 <Button
                                     onClick={handleSubmit}
-                                    className="sm:w-auto w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+                                    className="sm:w-auto w-full h-12 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
                                     disabled={loading}
                                 >
                                     <Save className="mr-2 h-5 w-5" />
