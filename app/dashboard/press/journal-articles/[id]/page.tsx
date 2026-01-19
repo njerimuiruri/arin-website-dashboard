@@ -1,57 +1,172 @@
-import React from "react";
+"use client";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { journalArticlesService } from "@/services/journalArticlesService";
 
-const articles = [
-    {
-        id: 'health-professionals-climate',
-        title: "Improving health professionals' capacity to respond to the climate crisis in Africa: outcomes of the Africa climate and health responder course",
-        date: 'October 28, 2025',
-        category: 'Health & Climate',
-        authors: 'Danielly de P. Magalhães1*†, Cecilia Sorensen1,2†,Nicola Hamacher1, Haley Campbell1, Hannah N. W. Weinstein1,  Patrick O. Owili3, Alex R. Ario4,5, Glory M. E. Nja6,7,8,  Charles A. Michael9, Yewande Alimi9, Hervé Hien4,  Woldekidan Amde6,10, Sokhna Thiam11,…',
-        excerpt: '',
-        image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80',
-        hasImage: true
-    },
-    {
-        id: 'air-quality-nairobi',
-        title: 'Political Economy of the Air Quality Management of Nairobi City',
-        date: 'August 4, 2025',
-        category: 'Environmental Policy',
-        authors: 'Washington Kanyangi1 Joanes Atela1 George Mwaniki2 Tom Randa3 Humphrey Agevi1,4* Eurallyah Akinyi1',
-        excerpt: 'The quality of air…',
-        image: 'https://images.unsplash.com/photo-1519452575417-564c1401ecc0?w=800&q=80',
-        hasImage: true
-    },
-    {
-        id: 'fiscal-decentralization-healthcare',
-        title: 'Fiscal Decentralization and Devolved Healthcare Service Availability Outcomes in Kenya: Evidence From Panel Dynamic Approach',
-        date: 'July 8, 2025',
-        category: 'Health Economics',
-        authors: 'Isaiah Maket a,b,* , Remmy Naibei c,d,*',
-        excerpt: 'The study examined the effect of fiscal…',
-        image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=80',
-        hasImage: true
-    }
-];
+interface JournalArticle {
+    _id?: string;
+    title: string;
+    description: string;
+    authors?: string[];
+    datePosted?: string;
+    image?: string;
+    availableResources?: string[];
+    year?: number;
+}
 
-export default function JournalArticleViewPage({ params }) {
-    const item = articles.find(i => i.id === params.id);
-    if (!item) return <div className="p-8">Journal Article not found.</div>;
+export default function JournalArticleViewPage() {
+    const params = useParams();
+    const router = useRouter();
+    const id = params.id as string;
+
+    const [article, setArticle] = useState<JournalArticle | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        loadArticle();
+    }, [id]);
+
+    const loadArticle = async () => {
+        try {
+            setLoading(true);
+            const data = await journalArticlesService.getById(id);
+            setArticle(data);
+            setError(null);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to load article");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!confirm("Are you sure you want to delete this journal article?")) return;
+        
+        try {
+            await journalArticlesService.delete(id);
+            router.push("/dashboard/press/journal-articles");
+        } catch (err) {
+            alert(err instanceof Error ? err.message : "Failed to delete article");
+        }
+    };
+
+    if (loading) return <div className="p-8">Loading...</div>;
+    if (error) return <div className="p-8 text-red-600">Error: {error}</div>;
+    if (!article) return <div className="p-8">Journal article not found.</div>;
+
+    const dateDisplay = article.datePosted 
+        ? new Date(article.datePosted).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+        : 'Date not available';
+
     return (
-        <div className="p-8 max-w-2xl mx-auto">
-            <img src={item.image} alt={item.title} className="w-full h-64 object-cover rounded mb-4" />
-            <div className="flex justify-between items-center mb-2">
-                <span className="text-xs bg-pink-100 text-pink-700 px-2 py-1 rounded">{item.category}</span>
-                <span className="text-xs text-gray-500">{item.date}</span>
+        <div className="p-8 max-w-4xl mx-auto">
+            {/* Header Section */}
+            <div className="mb-6 flex justify-between items-start">
+                <div>
+                    <Link 
+                        href="/dashboard/press/journal-articles" 
+                        className="text-pink-600 hover:text-pink-700 text-sm font-medium mb-4 inline-block"
+                    >
+                        ← Back to Journal Articles
+                    </Link>
+                    <h1 className="text-3xl font-bold text-gray-900 mt-2">{article.title}</h1>
+                </div>
             </div>
-            <h1 className="text-2xl font-bold mb-2">{item.title}</h1>
-            <div className="mb-2">
-                <span className="font-semibold">Authors:</span> {item.authors}
+
+            {/* Cover Image */}
+            {article.image && (
+                <div className="mb-6">
+                    <img 
+                        src={`http://localhost:5001${article.image}`} 
+                        alt={article.title} 
+                        className="w-full h-96 object-cover rounded-lg shadow-lg" 
+                    />
+                </div>
+            )}
+
+            {/* Metadata Card */}
+            <div className="bg-gray-50 rounded-lg p-6 mb-6 border border-gray-200">
+                <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <h3 className="text-sm font-semibold text-gray-700 mb-2">Authors</h3>
+                        <p className="text-gray-900">
+                            {article.authors && article.authors.length > 0 
+                                ? article.authors.join(", ") 
+                                : "No authors listed"}
+                        </p>
+                    </div>
+                    <div>
+                        <h3 className="text-sm font-semibold text-gray-700 mb-2">Date Posted</h3>
+                        <p className="text-gray-900">{dateDisplay}</p>
+                    </div>
+                    {article.year && (
+                        <div>
+                            <h3 className="text-sm font-semibold text-gray-700 mb-2">Year</h3>
+                            <p className="text-gray-900">{article.year}</p>
+                        </div>
+                    )}
+                </div>
             </div>
-            <p className="text-gray-700 mb-4">{item.excerpt}</p>
-            <div className="flex justify-between items-center mt-6">
-                <span className="text-xs text-gray-400">Category: {item.category}</span>
-                <Link href={`/dashboard/press/journal-articles/${item.id}/edit`} className="px-3 py-1 bg-pink-600 text-white rounded hover:bg-pink-700 text-xs">Edit</Link>
+
+            {/* Description */}
+            <div className="mb-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Description</h2>
+                <div 
+                    className="prose prose-lg max-w-none text-gray-700 leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: article.description }} 
+                />
+            </div>
+
+            {/* Available Resources */}
+            {article.availableResources && article.availableResources.length > 0 && (
+                <div className="mb-6">
+                    <h2 className="text-xl font-bold text-gray-900 mb-4">Available Resources</h2>
+                    <div className="space-y-2">
+                        {article.availableResources.map((url, i) => (
+                            <a
+                                key={i}
+                                href={`http://localhost:5001${url}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-3 bg-blue-50 hover:bg-blue-100 px-4 py-3 rounded-lg border border-blue-200 transition-colors group"
+                            >
+                                <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
+                                </svg>
+                                <span className="text-blue-700 font-medium group-hover:underline">
+                                    {url.split("/").pop()}
+                                </span>
+                                <svg className="w-4 h-4 text-blue-600 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                            </a>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex gap-4 pt-6 border-t">
+                <Link
+                    href={`/dashboard/press/journal-articles/${id}/edit`}
+                    className="flex-1 px-6 py-3 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 text-center transition-colors"
+                >
+                    Edit Article
+                </Link>
+                <button
+                    onClick={handleDelete}
+                    className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors"
+                >
+                    Delete
+                </button>
+                <Link
+                    href="/dashboard/press/journal-articles"
+                    className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-center transition-colors"
+                >
+                    Back
+                </Link>
             </div>
         </div>
     );

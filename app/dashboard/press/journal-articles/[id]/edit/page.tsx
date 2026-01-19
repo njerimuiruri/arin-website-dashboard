@@ -1,80 +1,249 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { journalArticlesService } from "@/services/journalArticlesService";
+import ImprovedTiptapEditor from "@/components/ImprovedTiptapEditor";
 
-const articles = [
-    {
-        id: 'health-professionals-climate',
-        title: "Improving health professionals' capacity to respond to the climate crisis in Africa: outcomes of the Africa climate and health responder course",
-        date: 'October 28, 2025',
-        category: 'Health & Climate',
-        authors: 'Danielly de P. Magalhães1*†, Cecilia Sorensen1,2†,Nicola Hamacher1, Haley Campbell1, Hannah N. W. Weinstein1,  Patrick O. Owili3, Alex R. Ario4,5, Glory M. E. Nja6,7,8,  Charles A. Michael9, Yewande Alimi9, Hervé Hien4,  Woldekidan Amde6,10, Sokhna Thiam11,…',
-        excerpt: '',
-        image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80',
-        hasImage: true
-    },
-    {
-        id: 'air-quality-nairobi',
-        title: 'Political Economy of the Air Quality Management of Nairobi City',
-        date: 'August 4, 2025',
-        category: 'Environmental Policy',
-        authors: 'Washington Kanyangi1 Joanes Atela1 George Mwaniki2 Tom Randa3 Humphrey Agevi1,4* Eurallyah Akinyi1',
-        excerpt: 'The quality of air…',
-        image: 'https://images.unsplash.com/photo-1519452575417-564c1401ecc0?w=800&q=80',
-        hasImage: true
-    },
-    {
-        id: 'fiscal-decentralization-healthcare',
-        title: 'Fiscal Decentralization and Devolved Healthcare Service Availability Outcomes in Kenya: Evidence From Panel Dynamic Approach',
-        date: 'July 8, 2025',
-        category: 'Health Economics',
-        authors: 'Isaiah Maket a,b,* , Remmy Naibei c,d,*',
-        excerpt: 'The study examined the effect of fiscal…',
-        image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=80',
-        hasImage: true
-    }
-];
+interface JournalArticle {
+    _id?: string;
+    title: string;
+    description: string;
+    authors?: string[];
+    datePosted?: string;
+    image?: string;
+    availableResources?: string[];
+}
 
-export default function EditJournalArticlePage({ params }) {
+export default function EditJournalArticlePage() {
     const router = useRouter();
-    const item = articles.find((i) => i.id === params.id);
-    const [form, setForm] = useState(item ? {
-        title: item.title,
-        date: item.date,
-        category: item.category,
-        authors: item.authors,
-        excerpt: item.excerpt,
-        image: item.image,
-        hasImage: item.hasImage
-    } : {
+    const params = useParams();
+    const id = params.id as string;
+
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [uploadingImage, setUploadingImage] = useState(false);
+    const [uploadingResource, setUploadingResource] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    
+    const [form, setForm] = useState<JournalArticle>({
         title: "",
-        date: "",
-        category: "",
-        authors: "",
-        excerpt: "",
+        description: "",
+        authors: [],
+        datePosted: "",
         image: "",
-        hasImage: true
+        availableResources: [],
     });
-    if (!item) return <div className="p-8">Journal Article not found.</div>;
-    const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
+
+    useEffect(() => {
+        loadArticle();
+    }, [id]);
+
+    const loadArticle = async () => {
+        try {
+            setLoading(true);
+            const data = await journalArticlesService.getById(id);
+            setForm({
+                ...data,
+                authors: data.authors || [],
+                availableResources: data.availableResources || [],
+            });
+            setError(null);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to load article");
+        } finally {
+            setLoading(false);
+        }
     };
-    const handleSubmit = (e) => {
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        
+        try {
+            setUploadingImage(true);
+            const { url } = await journalArticlesService.uploadImage(file);
+            setForm(prev => ({ ...prev, image: url }));
+        } catch (err) {
+            alert(err instanceof Error ? err.message : "Image upload failed");
+        } finally {
+            setUploadingImage(false);
+        }
+    };
+
+    const handleResourceUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        
+        try {
+            setUploadingResource(true);
+            const { url } = await journalArticlesService.uploadResource(file);
+            setForm(prev => ({
+                ...prev,
+                availableResources: [...(prev.availableResources || []), url]
+            }));
+        } catch (err) {
+            alert(err instanceof Error ? err.message : "PDF upload failed");
+        } finally {
+            setUploadingResource(false);
+        }
+    };
+
+    const removeResource = (index: number) => {
+        setForm(prev => ({
+            ...prev,
+            availableResources: (prev.availableResources || []).filter((_, i) => i !== index)
+        }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Here you would normally update the article
-        router.push(`/dashboard/press/journal-articles/${item.id}`);
+        
+        if (!form.title || !form.description || !form.authors || form.authors.length === 0) {
+            alert("Title, description, and at least one author are required");
+            return;
+        }
+
+        try {
+            setSaving(true);
+            await journalArticlesService.update(id, {
+                title: form.title,
+                description: form.description,
+                authors: form.authors,
+                datePosted: form.datePosted,
+                image: form.image || undefined,
+                availableResources: form.availableResources || []
+            });
+            router.push(`/dashboard/press/journal-articles/${id}`);
+        } catch (err) {
+            alert(err instanceof Error ? err.message : "Failed to update journal article");
+        } finally {
+            setSaving(false);
+        }
     };
+
+    if (loading) return <div className="p-8">Loading...</div>;
+    if (error) return <div className="p-8 text-red-600">Error: {error}</div>;
+
     return (
-        <div className="p-8 max-w-xl mx-auto">
-            <h1 className="text-2xl font-bold mb-4">Edit Journal Article</h1>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <input name="title" value={form.title} onChange={handleChange} placeholder="Title" className="w-full border rounded px-3 py-2" required />
-                <input name="date" value={form.date} onChange={handleChange} placeholder="Date (e.g. October 28, 2025)" className="w-full border rounded px-3 py-2" required />
-                <input name="category" value={form.category} onChange={handleChange} placeholder="Category" className="w-full border rounded px-3 py-2" />
-                <input name="authors" value={form.authors} onChange={handleChange} placeholder="Authors" className="w-full border rounded px-3 py-2" required />
-                <textarea name="excerpt" value={form.excerpt} onChange={handleChange} placeholder="Excerpt" className="w-full border rounded px-3 py-2" />
-                <input name="image" value={form.image} onChange={handleChange} placeholder="Image URL" className="w-full border rounded px-3 py-2" />
-                <button type="submit" className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700">Update</button>
+        <div className="p-8 max-w-3xl mx-auto">
+            <h1 className="text-3xl font-bold mb-6 text-gray-900">Edit Journal Article</h1>
+            
+            <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-700">Title *</label>
+                    <input 
+                        value={form.title}
+                        onChange={(e) => setForm(prev => ({ ...prev, title: e.target.value }))}
+                        placeholder="Enter article title" 
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-pink-500 focus:border-transparent" 
+                        required 
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-700">Authors * (comma-separated)</label>
+                    <input 
+                        value={(form.authors || []).join(", ")}
+                        onChange={(e) => setForm(prev => ({
+                            ...prev,
+                            authors: e.target.value.split(",").map(a => a.trim()).filter(a => a)
+                        }))}
+                        placeholder="John Doe, Jane Smith, Dr. Alice Johnson" 
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-pink-500 focus:border-transparent" 
+                        required 
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Separate multiple authors with commas</p>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-700">Date Posted</label>
+                    <input 
+                        type="date"
+                        value={form.datePosted ? form.datePosted.split("T")[0] : ""}
+                        onChange={(e) => setForm(prev => ({ ...prev, datePosted: e.target.value }))}
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-pink-500 focus:border-transparent" 
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-700">Description * (Rich Text Editor)</label>
+                    <div className="border border-gray-300 rounded-lg overflow-hidden">
+                        <ImprovedTiptapEditor
+                            value={form.description}
+                            onChange={(html) => setForm(prev => ({ ...prev, description: html }))}
+                            uploadUrl="http://localhost:5001/journal-articles/upload"
+                            placeholder="Write your article description here. You can add images, format text, and more..."
+                        />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">You can upload images directly in the editor</p>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-700">Cover Image</label>
+                    <input 
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        disabled={uploadingImage}
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2.5 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100" 
+                    />
+                    {uploadingImage && <p className="text-sm text-pink-600 mt-2">Uploading image...</p>}
+                    {form.image && (
+                        <div className="mt-3">
+                            <img src={`http://localhost:5001${form.image}`} alt="Preview" className="h-48 w-auto object-cover rounded-lg shadow-md" />
+                        </div>
+                    )}
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-700">Available Resources (PDF Files)</label>
+                    <input 
+                        type="file"
+                        accept=".pdf"
+                        onChange={handleResourceUpload}
+                        disabled={uploadingResource}
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2.5 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" 
+                    />
+                    {uploadingResource && <p className="text-sm text-blue-600 mt-2">Uploading PDF...</p>}
+                    {(form.availableResources || []).length > 0 && (
+                        <ul className="mt-3 space-y-2">
+                            {(form.availableResources || []).map((url, i) => (
+                                <li key={i} className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded text-sm">
+                                    <span className="text-blue-600 flex items-center gap-2">
+                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
+                                        </svg>
+                                        {url.split("/").pop()}
+                                    </span>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => removeResource(i)} 
+                                        className="text-red-600 hover:text-red-800 text-xs font-medium"
+                                    >
+                                        Remove
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+
+                <div className="flex gap-4 pt-6 border-t">
+                    <button 
+                        type="submit" 
+                        disabled={saving}
+                        className="flex-1 px-6 py-3 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                        {saving ? "Saving..." : "Save Changes"}
+                    </button>
+                    <button 
+                        type="button"
+                        onClick={() => router.back()}
+                        className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors"
+                    >
+                        Cancel
+                    </button>
+                </div>
             </form>
         </div>
     );
