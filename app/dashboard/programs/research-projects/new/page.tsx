@@ -76,9 +76,19 @@ export default function NewResearchProjectPage() {
         setLoading(true);
         setError(null);
 
+        // Map frontend fields to backend expected fields
+        const payload = {
+            title: form.title,
+            date: form.date,
+            category: form.category,
+            description: form.description,
+            author: form.projectTeam.join(', '), // backend expects 'author' as string
+            coverImage: form.image,   // backend expects 'coverImage'
+        };
+
         try {
-            console.log('Submitting form data:', form);
-            const result = await createResearchProject(form);
+            console.log('Submitting form data:', payload);
+            const result = await createResearchProject(payload);
             console.log('Project created:', result);
 
             // Show success message
@@ -219,7 +229,7 @@ export default function NewResearchProjectPage() {
                                 {form.image && (
                                     <div className="mt-4">
                                         <img
-                                            src={`http://localhost:5001${form.image}`}
+                                            src={form.image.startsWith('http') ? form.image : `http://localhost:5001${form.image}`}
                                             alt="Project preview"
                                             className="w-full max-w-md h-auto rounded-lg shadow-md"
                                         />
