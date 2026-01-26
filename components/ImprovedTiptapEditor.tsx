@@ -38,7 +38,7 @@ export default function ImprovedTiptapEditor({
   value = '',
   onChange,
   placeholder = 'Start typing your content here...',
-  uploadUrl = 'http://localhost:5001/research-projects/upload-description-image',
+  uploadUrl = 'http://localhost:5001/journal-articles/upload-description-image',
   uploadFieldName = 'image',
 }: ImprovedTiptapEditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
