@@ -1,7 +1,7 @@
 const BASE_URL = "http://localhost:5001/api/teams";
 
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('access_token');
+  const token = localStorage.getItem('arin_access_token');
   return {
     'Content-Type': 'application/json',
     ...(token ? { 'Authorization': `Bearer ${token}` } : {})
@@ -47,7 +47,7 @@ export async function updateTeamMember(id: string, data: any) {
 }
 
 export async function deleteTeamMember(id: string) {
-  const token = localStorage.getItem('access_token');
+  const token = localStorage.getItem('arin_access_token');
   const res = await fetch(`${BASE_URL}/${id}`, {
     method: "DELETE",
     headers: token ? { 'Authorization': `Bearer ${token}` } : {},
@@ -58,7 +58,7 @@ export async function deleteTeamMember(id: string) {
 }
 
 export async function uploadImage(file: File) {
-  const token = localStorage.getItem('access_token');
+  const token = localStorage.getItem('arin_access_token');
   const formData = new FormData();
   formData.append('image', file);
 

@@ -67,9 +67,10 @@ export default function TeamsPage() {
                         {/* Image at top */}
                         <div className="w-full mb-4">
                             <img
-                                src={m.image ? `http://localhost:5001${m.image}` : "/placeholder.png"}
+                                src={m.image && m.image.startsWith('http') ? m.image : m.image ? `http://localhost:5001${m.image}` : "/placeholder.png"}
                                 alt={`${m.firstName} ${m.lastName}`}
                                 className="w-full h-48 object-cover rounded-lg bg-gray-100"
+                                onError={e => { (e.target as HTMLImageElement).src = '/placeholder.png'; }}
                             />
                         </div>
 
@@ -79,11 +80,9 @@ export default function TeamsPage() {
                             <p className="text-sm text-gray-600">{m.role}</p>
                         </div>
 
-                        {/* Truncated Bio */}
+                        {/* Truncated Bio (render as HTML) */}
                         <div className="mb-4">
-                            <p className="text-sm text-gray-700 line-clamp-3">
-                                {truncateBio(m.bio || "No bio available", 2)}
-                            </p>
+                            <div className="text-sm text-gray-700 line-clamp-3" dangerouslySetInnerHTML={{ __html: truncateBio(m.bio || "No bio available", 2) }} />
                         </div>
 
                         {/* Action Buttons */}
@@ -143,12 +142,10 @@ export default function TeamsPage() {
                                 <p className="text-lg text-blue-600 font-medium">{selectedMember.role}</p>
                             </div>
 
-                            {/* Full Bio */}
+                            {/* Full Bio (render as HTML) */}
                             <div className="mb-4">
                                 <h4 className="font-semibold text-lg mb-2">Biography</h4>
-                                <p className="text-gray-700 whitespace-pre-line leading-relaxed">
-                                    {selectedMember.bio || "No bio available"}
-                                </p>
+                                <div className="text-gray-700 whitespace-pre-line leading-relaxed" dangerouslySetInnerHTML={{ __html: selectedMember.bio || "No bio available" }} />
                             </div>
                         </div>
 

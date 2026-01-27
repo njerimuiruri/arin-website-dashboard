@@ -43,7 +43,7 @@ export default function NewsBriefViewPage() {
             </div>
             <h1 className="text-2xl font-bold mb-2">{item.title}</h1>
             <div className="mb-2">
-                <span className="font-semibold">Author:</span> {item.author}
+                <span className="font-semibold">Authors:</span> {item.authors && item.authors.length > 0 ? item.authors.join(", ") : "N/A"}
             </div>
             {item.description && (
                 <div className="prose mb-4" dangerouslySetInnerHTML={{ __html: item.description }} />

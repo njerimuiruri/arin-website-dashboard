@@ -4,6 +4,7 @@ export interface NewsBrief {
   _id?: string;
   title: string;
   description: string;
+  authors?: string[];
   image?: string;
   datePosted?: string;
   availableResources?: string[];

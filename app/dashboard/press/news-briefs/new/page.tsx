@@ -12,7 +12,7 @@ export default function NewNewsBriefPage() {
     const [uploadingResource, setUploadingResource] = useState(false);
     const [form, setForm] = useState({
         title: "",
-        author: "",
+        authors: [""],
         datePosted: "",
         description: "",
         coverImage: "",
@@ -20,8 +20,24 @@ export default function NewNewsBriefPage() {
     });
     const [error, setError] = useState<string | null>(null);
 
+
     const handleInput = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    };
+
+    const handleAuthorChange = (idx: number, value: string) => {
+        setForm(prev => ({
+            ...prev,
+            authors: prev.authors.map((a, i) => i === idx ? value : a)
+        }));
+    };
+
+    const addAuthor = () => {
+        setForm(prev => ({ ...prev, authors: [...prev.authors, ""] }));
+    };
+
+    const removeAuthor = (idx: number) => {
+        setForm(prev => ({ ...prev, authors: prev.authors.filter((_, i) => i !== idx) }));
     };
 
     const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,7 +97,25 @@ export default function NewNewsBriefPage() {
             <h1 className="text-2xl font-bold mb-4">Add New News Brief</h1>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <input name="title" value={form.title} onChange={handleInput} placeholder="Title" className="w-full border rounded px-3 py-2" required />
-                <input name="author" value={form.author} onChange={handleInput} placeholder="Author" className="w-full border rounded px-3 py-2" required />
+                <div>
+                    <label className="block mb-1 font-semibold">Authors</label>
+                    {form.authors.map((author, idx) => (
+                        <div key={idx} className="flex gap-2 mb-2">
+                            <input
+                                type="text"
+                                value={author}
+                                onChange={e => handleAuthorChange(idx, e.target.value)}
+                                placeholder={`Author ${idx + 1}`}
+                                className="w-full border rounded px-3 py-2"
+                                required
+                            />
+                            {form.authors.length > 1 && (
+                                <button type="button" onClick={() => removeAuthor(idx)} className="px-2 text-red-500">Remove</button>
+                            )}
+                        </div>
+                    ))}
+                    <button type="button" onClick={addAuthor} className="px-3 py-1 bg-gray-200 rounded text-xs">Add Author</button>
+                </div>
                 <input name="datePosted" value={form.datePosted} onChange={handleInput} type="date" className="w-full border rounded px-3 py-2" required />
                 <div>
                     <label className="block mb-1 font-semibold">Description</label>

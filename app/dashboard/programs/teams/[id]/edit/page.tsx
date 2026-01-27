@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import ImprovedTiptapEditor from "@/components/ImprovedTiptapEditor";
 import { useRouter, useParams } from "next/navigation";
 import { getTeamMember, updateTeamMember, uploadImage } from "@/services/teamsService";
 
@@ -25,8 +26,11 @@ export default function EditTeamMemberPage() {
         if (id) load();
     }, [id]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    };
+    const handleBioChange = (html: string) => {
+        setForm(prev => ({ ...prev, bio: html }));
     };
 
     const handleImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,7 +76,11 @@ export default function EditTeamMemberPage() {
                 </div>
                 <div>
                     <label className="block text-sm">Bio</label>
-                    <textarea name="bio" value={form.bio} onChange={handleChange} className="mt-1 w-full border rounded p-2 h-32" />
+                    <ImprovedTiptapEditor
+                        value={form.bio}
+                        onChange={handleBioChange}
+                        placeholder="Edit team member bio..."
+                    />
                 </div>
                 <div>
                     <label className="block text-sm">Image</label>
