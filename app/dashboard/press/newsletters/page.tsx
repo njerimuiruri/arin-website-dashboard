@@ -32,7 +32,7 @@ export default function NewslettersList() {
         }
     };
 
-    const filtered = items.filter(item => 
+    const filtered = items.filter(item =>
         item.title.toLowerCase().includes(search.toLowerCase())
     );
 
@@ -64,7 +64,7 @@ export default function NewslettersList() {
                             {item.image && <img src={item.image} alt={item.title} className="w-full h-40 object-cover" />}
                             <div className="p-4">
                                 <h2 className="font-semibold text-lg mb-1 line-clamp-2">{item.title}</h2>
-                                <p className="text-sm text-gray-600 line-clamp-3 mb-3">{item.description}</p>
+                                <p className="text-sm text-gray-600 line-clamp-3 mb-3">{item.description.replace(/<[^>]*>/g, '')}</p>
                                 <div className="text-xs text-gray-500 mb-4">
                                     {new Date(item.datePosted).toLocaleDateString()}
                                 </div>
