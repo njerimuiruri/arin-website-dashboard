@@ -200,6 +200,15 @@ function ResearchProjectsPage() {
                                         </Badge>
                                     ))}
                                 </div>
+                                {project.teamMembers && project.teamMembers.length > 0 && (
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                        {project.teamMembers.map((member: string, idx: number) => (
+                                            <Badge key={idx} variant="secondary" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                                                {member}
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                )}
                             </CardContent>
                             <CardFooter className="flex gap-2">
                                 <Button

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+// ...existing code...
 import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ArrowLeft, Save, FileText, Calendar, FolderOpen, Info, X, Upload, ImagePlus } from "lucide-react";
@@ -19,8 +20,55 @@ export default function EditProjectPage() {
         category: "",
         description: "",
         projectTeam: [],
-        image: ""
+        teamMembers: [],
+        coverImage: "",
     });
+    const [teamMembers, setTeamMembers] = useState([]);
+    const [coverImage, setCoverImage] = useState("");
+
+    useEffect(() => {
+        async function fetchProject() {
+            setLoading(true);
+            setError("");
+            try {
+                const data = await getResearchProject(id);
+                const projectData = {
+                    title: data.title || "",
+                    date: data.date || "",
+                    category: data.category || "",
+                    description: data.description || "",
+                    projectTeam: Array.isArray(data.projectTeam) ? data.projectTeam : [],
+                    image: data.image || ""
+                };
+                setForm(projectData);
+                setTeamMembers(data.teamMembers || []);
+                setCoverImage(data.coverImage || "");
+            } catch (err) {
+                console.error('Error fetching project:', err);
+                setError(err.message || "Failed to load project");
+            } finally {
+                setLoading(false);
+            }
+        }
+        if (id) fetchProject();
+    }, [id]);
+
+    async function handleUpdate(updates) {
+        const res = await fetch(`/api/research-projects/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updates),
+        });
+        const updated = await res.json();
+        setForm(prev => ({ ...prev, ...updated }));
+        setTeamMembers(updated.teamMembers || []);
+        setCoverImage(updated.coverImage || "");
+    }
+
+    // Example usage in your form:
+    // handleUpdate({ teamMembers: newTeamMembers })
+    // handleUpdate({ coverImage: newImageUrl })
+    // });
     const [authorInput, setAuthorInput] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -102,15 +150,18 @@ export default function EditProjectPage() {
         setImageUploading(true);
         setError("");
         try {
+            // Use the correct upload endpoint from the service
             const formData = new FormData();
-            formData.append('file', file);
-            const res = await fetch('http://localhost:5001/research-projects/upload', {
+            formData.append('coverImage', file);
+            const res = await fetch('http://localhost:5001/api/research-projects/upload-cover-image', {
                 method: 'POST',
-                body: formData
+                body: formData,
+                credentials: 'include',
             });
             const data = await res.json();
             if (!data.url) throw new Error('Image upload failed');
-            setForm(prev => ({ ...prev, image: data.url }));
+            setForm(prev => ({ ...prev, coverImage: data.url }));
+            setCoverImage(data.url);
         } catch (err) {
             setError(err.message || 'Image upload failed');
         } finally {
@@ -122,7 +173,7 @@ export default function EditProjectPage() {
         setSaving(true);
         setError("");
         try {
-            await updateResearchProject(id, form);
+            await updateResearchProject(id, { ...form, teamMembers, coverImage });
             alert('Project updated successfully!');
             router.push('/dashboard/programs/research-projects');
         } catch (err) {
@@ -270,7 +321,7 @@ export default function EditProjectPage() {
                             {form.image && (
                                 <div className="mt-4 relative w-full max-w-md">
                                     <img
-                                        src={`http://localhost:5001${form.image}`}
+                                        src={coverImage || form.coverImage}
                                         alt="Project preview"
                                         className="w-full h-auto rounded-lg border-2 border-purple-200 shadow-md"
                                     />
@@ -279,7 +330,10 @@ export default function EditProjectPage() {
                                         variant="destructive"
                                         size="sm"
                                         className="absolute top-2 right-2"
-                                        onClick={() => setForm(prev => ({ ...prev, image: '' }))}
+                                        onClick={() => {
+                                            setForm(prev => ({ ...prev, coverImage: '' }));
+                                            setCoverImage("");
+                                        }}
                                     >
                                         <X className="h-4 w-4" />
                                     </Button>
@@ -311,6 +365,8 @@ export default function EditProjectPage() {
                                 setForm(prev => ({ ...prev, description: html }));
                             }}
                             placeholder="Edit detailed project description with images, formatting, and links..."
+                            uploadUrl="http://localhost:5001/api/research-projects/upload-description-image"
+                            uploadFieldName="image"
                         />
                         <p className="text-xs text-slate-500">
                             {editorContent.replace(/<[^>]*>/g, '').length} characters
@@ -381,7 +437,7 @@ export default function EditProjectPage() {
                     </CardContent>
                 </Card>
 
-                {/* Action Buttons */}
+                {/* Remove duplicate preview blocks. Team and image are handled above. */}
                 <Card className="border-2 shadow-lg">
                     <CardContent className="pt-6">
                         <div className="flex flex-col sm:flex-row gap-4 justify-end">
