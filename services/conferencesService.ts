@@ -1,6 +1,6 @@
 const getApiUrl = () => {
-  if (typeof window === 'undefined') return 'http://localhost:5001';
-  return process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001';
+  if (typeof window === 'undefined') return 'http://localhost:5001/api';
+  return (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001') + '/api';
 };
 
 const API_BASE_URL = getApiUrl();
