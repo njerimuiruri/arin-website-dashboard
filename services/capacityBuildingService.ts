@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:5001/capacity-building";
+const BASE_URL = "http://localhost:5001/api/capacity-building";
 
 export async function getCapacityProjects() {
   const res = await fetch(BASE_URL, { credentials: 'include' });

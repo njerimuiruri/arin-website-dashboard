@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:5001/teams";
+const BASE_URL = "http://localhost:5001/api/teams";
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('access_token');

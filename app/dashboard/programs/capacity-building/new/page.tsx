@@ -313,7 +313,7 @@ export default function NewCapacityBuildingPage() {
                                     setForm({ ...form, description: html });
                                 }}
                                 placeholder="Enter detailed project description..."
-                                uploadUrl="http://localhost:5001/capacity-building/upload"
+                                uploadUrl="http://localhost:5001/api/capacity-building/upload"
                                 uploadFieldName="file"
                             />
                             <p className="text-xs text-slate-500">
