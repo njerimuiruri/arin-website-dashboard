@@ -141,7 +141,7 @@ function ResearchProjectsPage() {
                     const text = getText(project);
                     const isExpanded = expanded[id];
                     const teaser = getTeaser(text, isExpanded, 10);
-                    const imageUrl = buildImageUrl(project.image);
+                    const imageUrl = buildImageUrl(project.coverImage);
                     const hasDate = Boolean(project.date);
                     const hasCategory = Boolean(project.category);
 
