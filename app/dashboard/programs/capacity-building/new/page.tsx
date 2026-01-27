@@ -131,7 +131,7 @@ export default function NewCapacityBuildingPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 p-4 md:p-8">
+        <div className="min-h-screen bg-linear-to-br from-emerald-50 via-green-50 to-teal-50 p-4 md:p-8">
             <div className="max-w-5xl mx-auto space-y-8">
                 {/* Header */}
                 <div className="flex items-center gap-4">
@@ -161,7 +161,7 @@ export default function NewCapacityBuildingPage() {
                 <div className="space-y-6">
                     {/* Basic Information */}
                     <Card className="border-2 shadow-lg">
-                        <CardHeader className="bg-gradient-to-r from-emerald-50 to-green-50 border-b">
+                        <CardHeader className="bg-linear-to-r from-emerald-50 to-green-50 border-b">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-emerald-600 rounded-lg">
                                     <FileText className="h-5 w-5 text-white" />
@@ -245,7 +245,7 @@ export default function NewCapacityBuildingPage() {
                                         name="category"
                                         value={form.category}
                                         onChange={handleChange}
-                                        placeholder="e.g., Training, Workshop"
+                                        placeholder="e.g., Training, Workshop (optional)"
                                         className="h-12 border-2"
                                     />
                                 </div>
@@ -255,7 +255,7 @@ export default function NewCapacityBuildingPage() {
 
                     {/* Main Project Image */}
                     <Card className="border-2 shadow-lg">
-                        <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b">
+                        <CardHeader className="bg-linear-to-r from-purple-50 to-pink-50 border-b">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-purple-600 rounded-lg">
                                     <ImagePlus className="h-5 w-5 text-white" />
@@ -294,7 +294,7 @@ export default function NewCapacityBuildingPage() {
 
                     {/* Project Description */}
                     <Card className="border-2 shadow-lg">
-                        <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
+                        <CardHeader className="bg-linear-to-r from-indigo-50 to-purple-50 border-b">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-indigo-600 rounded-lg">
                                     <Info className="h-5 w-5 text-white" />
@@ -324,7 +324,7 @@ export default function NewCapacityBuildingPage() {
 
                     {/* Objectives */}
                     <Card className="border-2 shadow-lg">
-                        <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50 border-b">
+                        <CardHeader className="bg-linear-to-r from-blue-50 to-cyan-50 border-b">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-blue-600 rounded-lg">
                                     <FileText className="h-5 w-5 text-white" />
@@ -368,7 +368,7 @@ export default function NewCapacityBuildingPage() {
 
                     {/* Partners */}
                     <Card className="border-2 shadow-lg">
-                        <CardHeader className="bg-gradient-to-r from-teal-50 to-emerald-50 border-b">
+                        <CardHeader className="bg-linear-to-r from-teal-50 to-emerald-50 border-b">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-teal-600 rounded-lg">
                                     <FileText className="h-5 w-5 text-white" />
@@ -412,7 +412,7 @@ export default function NewCapacityBuildingPage() {
 
                     {/* Outcomes */}
                     <Card className="border-2 shadow-lg">
-                        <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 border-b">
+                        <CardHeader className="bg-linear-to-r from-amber-50 to-orange-50 border-b">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-amber-600 rounded-lg">
                                     <FileText className="h-5 w-5 text-white" />
@@ -456,7 +456,7 @@ export default function NewCapacityBuildingPage() {
 
                     {/* Resources (PDFs) */}
                     <Card className="border-2 shadow-lg">
-                        <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50 border-b">
+                        <CardHeader className="bg-linear-to-r from-slate-50 to-gray-50 border-b">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-slate-600 rounded-lg">
                                     <FileUp className="h-5 w-5 text-white" />

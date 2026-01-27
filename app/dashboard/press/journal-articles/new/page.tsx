@@ -154,15 +154,15 @@ export default function NewJournalArticlePage() {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium mb-2 text-gray-700">Resources (PDF Files)</label>
+                    <label className="block text-sm font-medium mb-2 text-gray-700">Resources (PDF, DOCX, PPTX, etc.)</label>
                     <input
                         type="file"
-                        accept=".pdf"
+                        accept=".pdf,.doc,.docx,.ppt,.pptx"
                         onChange={handleResourceUpload}
                         disabled={uploadingResource}
                         className="w-full border border-gray-300 rounded-lg px-4 py-2.5 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                     />
-                    {uploadingResource && <p className="text-sm text-blue-600 mt-2">Uploading PDF...</p>}
+                    {uploadingResource && <p className="text-sm text-blue-600 mt-2">Uploading file...</p>}
                     {form.resources.length > 0 && (
                         <ul className="mt-3 space-y-2">
                             {form.resources.map((url, i) => (

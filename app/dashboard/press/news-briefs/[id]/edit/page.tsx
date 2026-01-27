@@ -1,90 +1,140 @@
-"use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 
-const newsBriefs = [
-    {
-        id: 'geo-africa-workshop',
-        title: 'GEO-AFRICA WORKSHOP',
-        date: 'November 21, 2025',
-        category: 'Events & Workshops',
-        authors: 'Maria Nailantei & Florence Onyango',
-        excerpt: 'Photo: Participants stood for a group photo at Emara…',
-        image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80',
-        hasImage: true
-    },
-    {
-        id: 'climate-resilience-metrics',
-        title: 'Accelerating Global Climate Resilience through Robust Adaptation Metrics',
-        date: 'November 21, 2025',
-        category: 'Publications',
-        authors: '',
-        excerpt: 'A new policy paper titled "Accelerating Global Climate Resilience through Robust Adaptation Metrics", co-authored by…',
-        image: 'https://images.unsplash.com/photo-1569163139394-de4798aa62b6?w=800&q=80',
-        hasImage: true
-    },
-    {
-        id: 'morocco-conference',
-        title: 'ARIN Advances Climate Adaptation Measurement at International Conference in Morocco',
-        date: 'October 8, 2025',
-        category: 'Conferences',
-        authors: 'Dr. Humphrey Agevi, Dr. Eurallyah Akinyi',
-        excerpt: 'Delegates gather for a group photo during the…',
-        image: 'https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=800&q=80',
-        hasImage: true
-    },
-    {
-        id: 'africa-climate-summit',
-        title: 'ARIN Advocates for Locally Led Adaptation Metrics at Africa Climate Summit 2',
-        date: 'September 11, 2025',
-        category: 'Advocacy',
-        authors: 'Florence Onyango, Maria Nalantei',
-        excerpt: 'The Africa Research and Impact Network (ARIN), through its Locally Led…',
-        image: 'https://images.unsplash.com/photo-1464618663641-bbdd760ae84a?w=800&q=80',
-        hasImage: true
-    }
-];
+import { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { newsBriefsService } from "@/services/newsBriefsService";
+import ImprovedTiptapEditor from "@/components/ImprovedTiptapEditor";
 
-export default function EditNewsBriefPage({ params }) {
+export default function EditNewsBriefPage() {
     const router = useRouter();
-    const item = newsBriefs.find((i) => i.id === params.id);
-    const [form, setForm] = useState(item ? {
-        title: item.title,
-        date: item.date,
-        category: item.category,
-        authors: item.authors,
-        excerpt: item.excerpt,
-        image: item.image,
-        hasImage: item.hasImage
-    } : {
-        title: "",
-        date: "",
-        category: "",
-        authors: "",
-        excerpt: "",
-        image: "",
-        hasImage: true
-    });
-    if (!item) return <div className="p-8">News Brief not found.</div>;
-    const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
+    const params = useParams();
+    const id = params.id as string;
+    const [form, setForm] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [uploadingCover, setUploadingCover] = useState(false);
+    const [uploadingResource, setUploadingResource] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        async function fetchBrief() {
+            try {
+                setLoading(true);
+                const data = await newsBriefsService.getById(id);
+                setForm({
+                    title: data.title || "",
+                    author: data.author || "",
+                    datePosted: data.datePosted ? data.datePosted.slice(0, 10) : "",
+                    description: data.description || "",
+                    coverImage: data.coverImage || "",
+                    availableResources: data.availableResources || [],
+                });
+                setError(null);
+            } catch (err: any) {
+                setError(err.message || "Failed to load news brief");
+            } finally {
+                setLoading(false);
+            }
+        }
+        if (id) fetchBrief();
+    }, [id]);
+
+    const handleInput = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setForm((prev: any) => ({ ...prev, [e.target.name]: e.target.value }));
     };
-    const handleSubmit = (e) => {
+
+    const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+            setUploadingCover(true);
+            const { url } = await newsBriefsService.uploadImage(file);
+            setForm((prev: any) => ({ ...prev, coverImage: url }));
+        } catch (err) {
+            setError("Cover image upload failed");
+        } finally {
+            setUploadingCover(false);
+        }
+    };
+
+    const handleResourceUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+            setUploadingResource(true);
+            const { url } = await newsBriefsService.uploadResource(file);
+            setForm((prev: any) => ({
+                ...prev,
+                availableResources: [...prev.availableResources, url]
+            }));
+        } catch (err) {
+            setError("Resource upload failed");
+        } finally {
+            setUploadingResource(false);
+        }
+    };
+
+    const removeResource = (index: number) => {
+        setForm((prev: any) => ({
+            ...prev,
+            availableResources: prev.availableResources.filter((_: any, i: number) => i !== index)
+        }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Here you would normally update the news brief
-        router.push(`/dashboard/press/news-briefs/${item.id}`);
+        setSaving(true);
+        setError(null);
+        try {
+            await newsBriefsService.update(id, form);
+            router.push(`/dashboard/press/news-briefs/${id}`);
+        } catch (err: any) {
+            setError(err.message || "Failed to update news brief");
+        } finally {
+            setSaving(false);
+        }
     };
+
+    if (loading || !form) return <div className="p-8">Loading...</div>;
+    if (error) return <div className="p-8 text-red-600">Error: {error}</div>;
+
     return (
-        <div className="p-8 max-w-xl mx-auto">
+        <div className="p-8 max-w-2xl mx-auto">
             <h1 className="text-2xl font-bold mb-4">Edit News Brief</h1>
             <form onSubmit={handleSubmit} className="space-y-4">
-                <input name="title" value={form.title} onChange={handleChange} placeholder="Title" className="w-full border rounded px-3 py-2" required />
-                <input name="date" value={form.date} onChange={handleChange} placeholder="Date (e.g. November 21, 2025)" className="w-full border rounded px-3 py-2" required />
-                <input name="category" value={form.category} onChange={handleChange} placeholder="Category" className="w-full border rounded px-3 py-2" />
-                <input name="authors" value={form.authors} onChange={handleChange} placeholder="Authors" className="w-full border rounded px-3 py-2" />
-                <textarea name="excerpt" value={form.excerpt} onChange={handleChange} placeholder="Excerpt" className="w-full border rounded px-3 py-2" />
-                <input name="image" value={form.image} onChange={handleChange} placeholder="Image URL" className="w-full border rounded px-3 py-2" />
-                <button type="submit" className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700">Update</button>
+                <input name="title" value={form.title} onChange={handleInput} placeholder="Title" className="w-full border rounded px-3 py-2" required />
+                <input name="author" value={form.author} onChange={handleInput} placeholder="Author" className="w-full border rounded px-3 py-2" required />
+                <input name="datePosted" value={form.datePosted} onChange={handleInput} type="date" className="w-full border rounded px-3 py-2" required />
+                <div>
+                    <label className="block mb-1 font-semibold">Description</label>
+                    <ImprovedTiptapEditor
+                        value={form.description}
+                        onChange={val => setForm((prev: any) => ({ ...prev, description: val }))}
+                        placeholder="Enter news brief description..."
+                        uploadUrl={process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/news-briefs/upload` : "http://localhost:5001/news-briefs/upload"}
+                        uploadFieldName="file"
+                    />
+                </div>
+                <div>
+                    <label className="block mb-1 font-semibold">Cover Image</label>
+                    <input type="file" accept="image/*" onChange={handleCoverUpload} />
+                    {uploadingCover && <span className="text-xs text-gray-500 ml-2">Uploading...</span>}
+                    {form.coverImage && <img src={form.coverImage} alt="cover" className="w-full h-40 object-cover mt-2 rounded" />}
+                </div>
+                <div>
+                    <label className="block mb-1 font-semibold">Available Resources (PDF)</label>
+                    <input type="file" accept="application/pdf" onChange={handleResourceUpload} />
+                    {uploadingResource && <span className="text-xs text-gray-500 ml-2">Uploading...</span>}
+                    <ul className="mt-2 space-y-1">
+                        {form.availableResources.map((url: string, i: number) => (
+                            <li key={i} className="flex items-center gap-2 text-sm">
+                                <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{url.split("/").pop()}</a>
+                                <button type="button" onClick={() => removeResource(i)} className="text-red-500 hover:underline">Remove</button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                {error && <div className="text-red-600 text-sm">{error}</div>}
+                <button type="submit" className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700" disabled={saving}>{saving ? "Saving..." : "Update"}</button>
             </form>
         </div>
     );

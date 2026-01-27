@@ -218,7 +218,7 @@ export default function EditProjectPage() {
                             <div className="space-y-2">
                                 <Label htmlFor="category" className="text-base font-semibold flex items-center gap-2">
                                     <FolderOpen className="h-4 w-4 text-blue-600" />
-                                    Category <span className="text-red-500">*</span>
+                                    Category (optional)
                                 </Label>
                                 <select
                                     id="category"
@@ -227,8 +227,8 @@ export default function EditProjectPage() {
                                     onChange={handleChange as any}
                                     className="h-12 border-2 focus:border-blue-500 transition-all rounded-md px-3"
                                 >
-                                    <option value="" disabled>Select a category</option>
-                                    {['Finance','Environment','Health','Sustainability','Energy','Water','Agriculture'].map(opt => (
+                                    <option value="">No category</option>
+                                    {['Finance', 'Environment', 'Health', 'Sustainability', 'Energy', 'Water', 'Agriculture'].map(opt => (
                                         <option key={opt} value={opt}>{opt}</option>
                                     ))}
                                 </select>

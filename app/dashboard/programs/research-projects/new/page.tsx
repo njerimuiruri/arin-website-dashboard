@@ -66,9 +66,10 @@ export default function NewResearchProjectPage() {
 
     // Remove custom image upload and formatting logic (handled by Quill)
 
+
     const handleSubmit = async () => {
-        // Validate required fields
-        if (!form.title || !form.date || !form.category || !form.description) {
+        // Validate required fields (category is now optional)
+        if (!form.title || !form.date || !form.description) {
             setError('Please fill in all required fields');
             return;
         }
@@ -182,7 +183,7 @@ export default function NewResearchProjectPage() {
                                 <div className="space-y-2">
                                     <Label htmlFor="category" className="text-base font-semibold flex items-center gap-2">
                                         <FolderOpen className="h-4 w-4 text-blue-600" />
-                                        Category <span className="text-red-500">*</span>
+                                        Category (optional)
                                     </Label>
                                     <select
                                         id="category"
@@ -191,7 +192,7 @@ export default function NewResearchProjectPage() {
                                         onChange={handleChange}
                                         className="h-12 border-2 focus:border-blue-500 transition-all rounded-md px-3"
                                     >
-                                        <option value="" disabled>Select a category</option>
+                                        <option value="">No category</option>
                                         {CATEGORY_OPTIONS.map(opt => (
                                             <option key={opt} value={opt}>{opt}</option>
                                         ))}
@@ -261,6 +262,8 @@ export default function NewResearchProjectPage() {
                                     setForm({ ...form, description: html });
                                 }}
                                 placeholder="Enter detailed project description with images, formatting, and links..."
+                                uploadUrl="http://localhost:5001/api/research-projects/upload-description-image"
+                                uploadFieldName="image"
                             />
                             <p className="text-xs text-slate-500">
                                 {editorContent.replace(/<[^>]*>/g, '').length} characters

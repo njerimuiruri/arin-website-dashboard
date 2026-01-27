@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:5001/research-projects";
+const BASE_URL = "http://localhost:5001/api/research-projects";
 
 export async function getResearchProjects() {
   const res = await fetch(BASE_URL, { credentials: 'include' });
@@ -52,11 +52,12 @@ export async function deleteResearchProject(id: string) {
   return res.json();
 }
 
+
 export async function uploadImage(file: File) {
   const formData = new FormData();
-  formData.append('file', file);
+  formData.append('coverImage', file);
 
-  const res = await fetch(`${BASE_URL}/upload`, {
+  const res = await fetch(`${BASE_URL}/upload-cover-image`, {
     method: 'POST',
     body: formData,
     credentials: 'include',

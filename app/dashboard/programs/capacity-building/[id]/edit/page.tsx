@@ -177,7 +177,7 @@ export default function EditCapacityBuildingPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 flex items-center justify-center">
+            <div className="min-h-screen bg-linear-to-br from-emerald-50 via-green-50 to-teal-50 flex items-center justify-center">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
                     <p className="text-slate-600">Loading project...</p>
@@ -187,7 +187,7 @@ export default function EditCapacityBuildingPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 p-6">
+        <div className="min-h-screen bg-linear-to-br from-emerald-50 via-green-50 to-teal-50 p-6">
             <div className="max-w-5xl mx-auto space-y-6">
                 {/* Header */}
                 <div className="flex items-center justify-between">
@@ -335,7 +335,7 @@ export default function EditCapacityBuildingPage() {
                                     value={form.excerpt}
                                     onChange={handleChange}
                                     placeholder="Provide a brief one-paragraph summary for the project card..."
-                                    className="min-h-[80px] resize-none"
+                                    className="min-h-20 resize-none"
                                 />
                                 <p className="text-xs text-slate-500">{(form.excerpt || "").length} characters</p>
                             </div>
@@ -351,7 +351,7 @@ export default function EditCapacityBuildingPage() {
                                     value={form.description}
                                     onChange={handleChange}
                                     placeholder="Provide a comprehensive description including training programs, target audience, and impact objectives..."
-                                    className="min-h-[160px] resize-none"
+                                    className="min-h-40 resize-none"
                                 />
                                 <p className="text-xs text-slate-500">{form.description.length} characters</p>
                             </div>
@@ -375,7 +375,7 @@ export default function EditCapacityBuildingPage() {
                                     name="category"
                                     value={form.category}
                                     onChange={handleChange}
-                                    placeholder="e.g., Training, Workshop, Certification"
+                                    placeholder="e.g., Training, Workshop, Certification (optional)"
                                 />
                             </div>
 

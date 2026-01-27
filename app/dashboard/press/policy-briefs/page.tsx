@@ -7,9 +7,10 @@ interface PolicyBrief {
     _id?: string;
     title: string;
     description: string;
-    image?: string;
+    coverImage?: string;
     datePosted?: string;
     year?: number;
+    availableResources?: string[];
 }
 
 export default function PolicyBriefsList() {
@@ -45,7 +46,7 @@ export default function PolicyBriefsList() {
         }
     };
 
-    const filtered = items.filter(item => 
+    const filtered = items.filter(item =>
         item.title.toLowerCase().includes(search.toLowerCase())
     );
 
@@ -67,7 +68,9 @@ export default function PolicyBriefsList() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filtered.map(item => (
                     <div key={item._id} className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
-                        {item.image && <img src={item.image} alt={item.title} className="w-full h-40 object-cover" />}
+                        {item.coverImage && (
+                            <img src={item.coverImage} alt={item.title} className="w-full h-40 object-cover" />
+                        )}
                         <div className="p-4">
                             <h2 className="font-semibold text-lg mb-1 line-clamp-2">{item.title}</h2>
                             <p className="text-sm text-gray-600 line-clamp-2 mb-2" dangerouslySetInnerHTML={{ __html: item.description }} />
