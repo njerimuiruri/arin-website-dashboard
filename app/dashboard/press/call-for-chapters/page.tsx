@@ -1,7 +1,9 @@
 "use client";
+
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { callForBooksService } from "@/services/callForBooksService";
+import HtmlRenderer from "@/components/HtmlRenderer";
 
 export default function CallForChaptersPage() {
     const [items, setItems] = useState([]);
@@ -32,7 +34,7 @@ export default function CallForChaptersPage() {
         }
     };
 
-    const filtered = items.filter(item => 
+    const filtered = items.filter(item =>
         item.title.toLowerCase().includes(search.toLowerCase())
     );
 
@@ -70,11 +72,10 @@ export default function CallForChaptersPage() {
                             {item.image && <img src={item.image} alt={item.title} className="w-full h-40 object-cover" />}
                             <div className="p-4">
                                 <div className="flex justify-between items-center mb-2">
-                                    <span className={`text-xs px-2 py-1 rounded ${
-                                        getDeadlineStatus(item.deadline) === 'Open'
+                                    <span className={`text-xs px-2 py-1 rounded ${getDeadlineStatus(item.deadline) === 'Open'
                                             ? 'bg-green-100 text-green-700'
                                             : 'bg-red-100 text-red-700'
-                                    }`}>
+                                        }`}>
                                         {getDeadlineStatus(item.deadline)}
                                     </span>
                                     <span className="text-xs text-gray-500">
@@ -82,7 +83,7 @@ export default function CallForChaptersPage() {
                                     </span>
                                 </div>
                                 <h2 className="font-semibold text-lg mb-1 line-clamp-2">{item.title}</h2>
-                                <p className="text-sm text-gray-600 line-clamp-3 mb-3">{item.description}</p>
+                                <HtmlRenderer content={item.description} className="text-sm text-gray-600 line-clamp-3 mb-3" />
                                 <div className="flex gap-2">
                                     <Link href={`/dashboard/press/call-for-chapters/${item._id}`} className="flex-1 text-center px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
                                         View

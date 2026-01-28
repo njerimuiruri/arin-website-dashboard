@@ -97,7 +97,7 @@ const EventDetailPage = () => {
         return (
             <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
                 <div className="text-center py-20">
-                    <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#46a1bb] border-t-transparent mx-auto"></div>
+                    <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#021d49] border-t-transparent mx-auto"></div>
                     <p className="text-gray-600 mt-6 text-lg font-medium">Loading event...</p>
                 </div>
             </div>
@@ -161,7 +161,7 @@ const EventDetailPage = () => {
                             </div>
                         )}
 
-                        <CardHeader className="bg-gradient-to-r from-[#021d49] to-[#46a1bb] text-white">
+                        <CardHeader className="bg-gradient-to-r from-[#021d49] to-[#021d49] text-white">
                             <CardTitle className="text-3xl">{event.title}</CardTitle>
                             <CardDescription className="text-gray-100 text-base">
                                 Event Details and Information
@@ -173,7 +173,7 @@ const EventDetailPage = () => {
                             <div className="grid md:grid-cols-2 gap-6 pb-6 border-b border-gray-200">
                                 <div className="flex items-start gap-3">
                                     <div className="p-3 bg-blue-50 rounded-lg">
-                                        <Calendar className="w-6 h-6 text-[#46a1bb]" />
+                                        <Calendar className="w-6 h-6 text-[#021d49]" />
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-500 font-medium">Date</p>
@@ -216,7 +216,7 @@ const EventDetailPage = () => {
                                     <div className="mt-4 border rounded-lg p-4 bg-white shadow-lg">
                                         <SimpleCalendar
                                             selectedDate={new Date(event.date)}
-                                            onDateSelect={() => {}}
+                                            onDateSelect={() => { }}
                                         />
                                     </div>
                                 )}
@@ -225,8 +225,8 @@ const EventDetailPage = () => {
                             {/* Description */}
                             <div>
                                 <div className="flex items-center gap-3 mb-4">
-                                    <div className="p-2 bg-[#46a1bb]/10 rounded-lg">
-                                        <FileText className="w-6 h-6 text-[#46a1bb]" />
+                                    <div className="p-2 bg-[#021d49]/10 rounded-lg">
+                                        <FileText className="w-6 h-6 text-[#021d49]" />
                                     </div>
                                     <h3 className="text-2xl font-bold text-gray-900">Description</h3>
                                 </div>
@@ -255,16 +255,16 @@ const EventDetailPage = () => {
                                                     href={resourceUrl}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="flex items-center gap-4 p-5 border-2 border-gray-200 rounded-xl hover:border-[#46a1bb] hover:bg-blue-50/50 transition-all group"
+                                                    className="flex items-center gap-4 p-5 border-2 border-gray-200 rounded-xl hover:border-[#021d49] hover:bg-blue-50/50 transition-all group"
                                                 >
-                                                    <div className="p-3 bg-gray-100 rounded-lg group-hover:bg-[#46a1bb]/10 transition-colors">
-                                                        <FileText className="w-6 h-6 text-gray-600 group-hover:text-[#46a1bb]" />
+                                                    <div className="p-3 bg-gray-100 rounded-lg group-hover:bg-[#021d49]/10 transition-colors">
+                                                        <FileText className="w-6 h-6 text-gray-600 group-hover:text-[#021d49]" />
                                                     </div>
                                                     <div className="flex-1">
-                                                        <p className="font-semibold text-gray-900 group-hover:text-[#46a1bb]">{fileName}</p>
+                                                        <p className="font-semibold text-gray-900 group-hover:text-[#021d49]">{fileName}</p>
                                                         <p className="text-sm text-gray-500">Click to download</p>
                                                     </div>
-                                                    <Download className="w-5 h-5 text-gray-400 group-hover:text-[#46a1bb]" />
+                                                    <Download className="w-5 h-5 text-gray-400 group-hover:text-[#021d49]" />
                                                 </a>
                                             );
                                         })}
@@ -276,7 +276,7 @@ const EventDetailPage = () => {
                             <div className="flex gap-4 pt-6 border-t border-gray-200">
                                 <Button
                                     onClick={() => router.push(`/dashboard/convening-platforms/events/${id}/edit`)}
-                                    className="flex-1 bg-gradient-to-r from-[#021d49] to-[#46a1bb] hover:opacity-90 text-white"
+                                    className="flex-1 bg-gradient-to-r from-[#021d49] to-[#021d49] hover:opacity-90 text-white"
                                 >
                                     <Edit className="w-4 h-4 mr-2" />
                                     Edit Event

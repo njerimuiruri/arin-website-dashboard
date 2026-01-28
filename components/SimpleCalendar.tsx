@@ -55,11 +55,10 @@ const SimpleCalendar: React.FC<SimpleCalendarProps> = ({ selectedDate, onDateSel
                 key={day}
                 type="button"
                 onClick={() => handleDateClick(day)}
-                className={`p-2 rounded-lg text-sm font-medium transition-colors ${
-                    isSelected
-                        ? 'bg-[#46a1bb] text-white font-bold'
-                        : 'hover:bg-gray-100 text-gray-700'
-                }`}
+                className={`p-2 rounded-lg text-sm font-medium transition-colors ${isSelected
+                    ? 'bg-[#021d49] text-white font-bold'
+                    : 'hover:bg-gray-100 text-gray-700'
+                    }`}
             >
                 {day}
             </button>

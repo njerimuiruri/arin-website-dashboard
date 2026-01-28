@@ -158,7 +158,7 @@ const EditEventPage = () => {
         return (
             <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8 flex items-center justify-center">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#46a1bb] border-t-transparent mx-auto"></div>
+                    <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#021d49] border-t-transparent mx-auto"></div>
                     <p className="text-gray-600 mt-4 font-medium">Loading event data...</p>
                 </div>
             </div>
@@ -177,7 +177,7 @@ const EditEventPage = () => {
                 </button>
 
                 <Card className="shadow-xl border-0">
-                    <CardHeader className="bg-gradient-to-r from-[#021d49] to-[#46a1bb] text-white">
+                    <CardHeader className="bg-gradient-to-r from-[#021d49] to-[#021d49] text-white">
                         <CardTitle className="text-2xl">Edit Event</CardTitle>
                         <CardDescription className="text-gray-100">
                             Update event details, category, and resources
@@ -335,7 +335,7 @@ const EditEventPage = () => {
                             {/* Main Image Upload */}
                             <div>
                                 <Label className="text-base font-semibold">Main Event Image</Label>
-                                <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#46a1bb] transition-colors">
+                                <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#021d49] transition-colors">
                                     <input
                                         type="file"
                                         accept="image/*"
@@ -401,7 +401,7 @@ const EditEventPage = () => {
                             {/* New Resources Upload */}
                             <div>
                                 <Label className="text-base font-semibold">Add New Resources (PDFs)</Label>
-                                <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#46a1bb] transition-colors">
+                                <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#021d49] transition-colors">
                                     <input
                                         type="file"
                                         accept=".pdf"
@@ -442,7 +442,7 @@ const EditEventPage = () => {
                                 <Button
                                     type="submit"
                                     disabled={loading}
-                                    className="flex-1 bg-gradient-to-r from-[#021d49] to-[#46a1bb] hover:opacity-90 text-white"
+                                    className="flex-1 bg-gradient-to-r from-[#021d49] to-[#021d49] hover:opacity-90 text-white"
                                 >
                                     {loading ? 'Updating...' : 'Update Event'}
                                 </Button>

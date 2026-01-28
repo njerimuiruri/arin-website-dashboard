@@ -13,17 +13,18 @@ const Editor = dynamic(
 
 export default function WysiwygEditor({ value, onChange }) {
   const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
-  const [mounted, setMounted] = useState(false);
+  const isMountedRef = useRef(false);
   const isInitialized = useRef(false);
   const lastValue = useRef(value);
 
   useEffect(() => {
-    setMounted(true);
+    isMountedRef.current = true;
+    return () => { isMountedRef.current = false; };
   }, []);
 
   // Only initialize once when component mounts or when value changes externally
   useEffect(() => {
-    if (!mounted) return;
+    if (!isMountedRef.current) return;
 
     // Skip if already initialized and value hasn't changed externally
     if (isInitialized.current && value === lastValue.current) return;
@@ -32,39 +33,36 @@ export default function WysiwygEditor({ value, onChange }) {
       try {
         // Strip out any existing entity references that might cause issues
         const cleanHtml = value.replace(/data-entity-\w+="[^"]*"/g, '');
-        
         const contentBlock = htmlToDraft(cleanHtml);
-        
         if (contentBlock && contentBlock.contentBlocks) {
           // Create content state WITHOUT any entity map to avoid null entity errors
           const contentState = ContentState.createFromBlockArray(
             contentBlock.contentBlocks,
             {} // Empty entity map
           );
-          
           const newEditorState = EditorState.createWithContent(contentState);
-          setEditorState(newEditorState);
+          if (isMountedRef.current) setEditorState(newEditorState);
           isInitialized.current = true;
           lastValue.current = value;
         } else {
-          setEditorState(EditorState.createEmpty());
+          if (isMountedRef.current) setEditorState(EditorState.createEmpty());
           isInitialized.current = true;
         }
       } catch (err) {
         console.error('Error converting HTML to Draft.js:', err);
-        setEditorState(EditorState.createEmpty());
+        if (isMountedRef.current) setEditorState(EditorState.createEmpty());
         isInitialized.current = true;
       }
     } else if (!value || value.trim() === '') {
-      setEditorState(EditorState.createEmpty());
+      if (isMountedRef.current) setEditorState(EditorState.createEmpty());
       isInitialized.current = true;
     }
-  }, [value, mounted]);
+  }, [value]);
 
   const onEditorStateChange = (newEditorState) => {
     setEditorState(newEditorState);
     lastValue.current = null; // Mark that content is being edited
-    
+
     try {
       const rawContentState = convertToRaw(newEditorState.getCurrentContent());
       // Clean the raw content to remove any null entities
@@ -78,7 +76,7 @@ export default function WysiwygEditor({ value, onChange }) {
           return acc;
         }, {})
       };
-      
+
       const html = draftToHtml(cleanRawContent);
       onChange(html);
     } catch (err) {
@@ -86,7 +84,7 @@ export default function WysiwygEditor({ value, onChange }) {
     }
   };
 
-  if (!mounted) {
+  if (!isMountedRef.current) {
     return (
       <div className="border rounded-md p-2 bg-white min-h-[200px]">
         <div className="animate-pulse bg-gray-100 h-full rounded"></div>

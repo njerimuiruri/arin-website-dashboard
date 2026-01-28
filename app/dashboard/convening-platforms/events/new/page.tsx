@@ -122,7 +122,7 @@ const NewEventPage = () => {
                 </button>
 
                 <Card className="shadow-xl border-0">
-                    <CardHeader className="bg-gradient-to-r from-[#021d49] to-[#46a1bb] text-white">
+                    <CardHeader className="bg-gradient-to-r from-[#021d49] to-[#021d49] text-white">
                         <CardTitle className="text-2xl">Create New Event</CardTitle>
                         <CardDescription className="text-gray-100">
                             Add a new event with details, category, and resources
@@ -280,7 +280,7 @@ const NewEventPage = () => {
                             {/* Main Image Upload */}
                             <div>
                                 <Label className="text-base font-semibold">Main Event Image</Label>
-                                <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#46a1bb] transition-colors">
+                                <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#021d49] transition-colors">
                                     <input
                                         type="file"
                                         accept="image/*"
@@ -318,7 +318,7 @@ const NewEventPage = () => {
                             {/* Resources Upload */}
                             <div>
                                 <Label className="text-base font-semibold">Event Resources (PDFs)</Label>
-                                <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#46a1bb] transition-colors">
+                                <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#021d49] transition-colors">
                                     <input
                                         type="file"
                                         accept=".pdf"
@@ -359,7 +359,7 @@ const NewEventPage = () => {
                                 <Button
                                     type="submit"
                                     disabled={loading}
-                                    className="flex-1 bg-gradient-to-r from-[#021d49] to-[#46a1bb] hover:opacity-90 text-white"
+                                    className="flex-1 bg-gradient-to-r from-[#021d49] to-[#021d49] hover:opacity-90 text-white"
                                 >
                                     {loading ? 'Creating...' : 'Create Event'}
                                 </Button>

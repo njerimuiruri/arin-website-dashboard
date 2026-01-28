@@ -85,7 +85,7 @@ export default function ContactDetailPage() {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-[#46a1bb] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <div className="w-16 h-16 border-4 border-[#021d49] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <p className="text-gray-600">Loading message...</p>
                 </div>
             </div>
@@ -99,7 +99,7 @@ export default function ContactDetailPage() {
                     <p className="text-gray-500 mb-4">Contact message not found</p>
                     <button
                         onClick={() => router.push('/dashboard/contacts')}
-                        className="px-4 py-2 bg-[#46a1bb] text-white rounded-lg hover:bg-[#3a8ba3]"
+                        className="px-4 py-2 bg-[#021d49] text-white rounded-lg hover:bg-[#3a8ba3]"
                     >
                         Back to Messages
                     </button>
@@ -173,7 +173,7 @@ export default function ContactDetailPage() {
                             </label>
                             <a
                                 href={`mailto:${contact.email}`}
-                                className="text-lg text-[#46a1bb] hover:underline break-all"
+                                className="text-lg text-[#021d49] hover:underline break-all"
                             >
                                 {contact.email}
                             </a>
@@ -187,7 +187,7 @@ export default function ContactDetailPage() {
                                 </label>
                                 <a
                                     href={`tel:${contact.phone}`}
-                                    className="text-lg text-[#46a1bb] hover:underline"
+                                    className="text-lg text-[#021d49] hover:underline"
                                 >
                                     {contact.phone}
                                 </a>
@@ -230,7 +230,7 @@ export default function ContactDetailPage() {
                         {contact.email && (
                             <a
                                 href={`mailto:${contact.email}?subject=Re: ${contact.subject}`}
-                                className="px-6 py-2 bg-[#46a1bb] text-white rounded-lg hover:bg-[#3a8ba3] transition-colors font-medium flex items-center gap-2"
+                                className="px-6 py-2 bg-[#021d49] text-white rounded-lg hover:bg-[#3a8ba3] transition-colors font-medium flex items-center gap-2"
                             >
                                 <Mail className="w-5 h-5" />
                                 Reply via Email

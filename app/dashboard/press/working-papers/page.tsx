@@ -32,7 +32,7 @@ export default function WorkingPapersList() {
         }
     };
 
-    const filtered = items.filter(item => 
+    const filtered = items.filter(item =>
         item.title.toLowerCase().includes(search.toLowerCase())
     );
 
@@ -61,10 +61,16 @@ export default function WorkingPapersList() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filtered.map(item => (
                         <div key={item._id} className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
-                            {item.image && <img src={item.image} alt={item.title} className="w-full h-40 object-cover" />}
+                            {item.image && (
+                                <img
+                                    src={item.image.startsWith('http') ? item.image : `http://localhost:5001${item.image}`}
+                                    alt={item.title}
+                                    className="w-full h-40 object-cover"
+                                />
+                            )}
                             <div className="p-4">
                                 <h2 className="font-semibold text-lg mb-1 line-clamp-2">{item.title}</h2>
-                                <p className="text-sm text-gray-600 line-clamp-3 mb-3">{item.description}</p>
+                                <div className="text-sm text-gray-600 line-clamp-3 mb-3 prose max-w-none" dangerouslySetInnerHTML={{ __html: item.description || "<em>No description provided.</em>" }} />
                                 {item.authors && item.authors.length > 0 && (
                                     <p className="text-xs text-gray-500 mb-3">
                                         Authors: {item.authors.join(", ")}
@@ -73,6 +79,18 @@ export default function WorkingPapersList() {
                                 <div className="text-xs text-gray-500 mb-4">
                                     {new Date(item.datePosted).toLocaleDateString()}
                                 </div>
+                                {item.availableResources && item.availableResources.length > 0 && (
+                                    <div className="mb-2">
+                                        <span className="font-semibold text-xs text-gray-700">Resources:</span>
+                                        <ul className="list-disc ml-4">
+                                            {item.availableResources.map((url: string, idx: number) => (
+                                                <li key={idx}>
+                                                    <a href={url.startsWith('http') ? url : `http://localhost:5001${url}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-xs">Resource {idx + 1}</a>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
                                 <div className="flex gap-2">
                                     <Link href={`/dashboard/press/working-papers/${item._id}`} className="flex-1 text-center px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
                                         View

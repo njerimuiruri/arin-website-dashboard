@@ -129,7 +129,7 @@ export default function ContactsPage() {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
                 <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-[#46a1bb] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <div className="w-16 h-16 border-4 border-[#021d49] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <p className="text-gray-600">Loading contacts...</p>
                 </div>
             </div>
@@ -160,7 +160,7 @@ export default function ContactsPage() {
                     <button
                         onClick={() => setFilter('all')}
                         className={`px-4 py-2 rounded-lg font-medium transition-colors ${filter === 'all'
-                            ? 'bg-[#46a1bb] text-white'
+                            ? 'bg-[#021d49] text-white'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                     >
@@ -169,7 +169,7 @@ export default function ContactsPage() {
                     <button
                         onClick={() => setFilter('unread')}
                         className={`px-4 py-2 rounded-lg font-medium transition-colors ${filter === 'unread'
-                            ? 'bg-[#46a1bb] text-white'
+                            ? 'bg-[#021d49] text-white'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                     >
@@ -178,7 +178,7 @@ export default function ContactsPage() {
                     <button
                         onClick={() => setFilter('read')}
                         className={`px-4 py-2 rounded-lg font-medium transition-colors ${filter === 'read'
-                            ? 'bg-[#46a1bb] text-white'
+                            ? 'bg-[#021d49] text-white'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                     >
@@ -202,7 +202,7 @@ export default function ContactsPage() {
                                 key={contact._id}
                                 onClick={() => handleContactClick(contact)}
                                 className={`p-4 rounded-lg border cursor-pointer transition-all ${contact.isRead
-                                    ? 'bg-white border-gray-200 hover:border-[#46a1bb] hover:bg-gray-50'
+                                    ? 'bg-white border-gray-200 hover:border-[#021d49] hover:bg-gray-50'
                                     : 'bg-blue-50 border-blue-200 hover:border-blue-300 hover:bg-blue-100'
                                     }`}
                             >
