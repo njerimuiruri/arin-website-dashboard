@@ -111,7 +111,7 @@ export default function EditNewsBriefPage() {
                         value={form.description}
                         onChange={val => setForm((prev: any) => ({ ...prev, description: val }))}
                         placeholder="Enter news brief description..."
-                        uploadUrl={process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/news-briefs/upload` : "http://localhost:5001/news-briefs/upload"}
+                        uploadUrl={process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/news-briefs/upload` : "https://api.demo.arin-africa.org/news-briefs/upload"}
                         uploadFieldName="file"
                     />
                 </div>

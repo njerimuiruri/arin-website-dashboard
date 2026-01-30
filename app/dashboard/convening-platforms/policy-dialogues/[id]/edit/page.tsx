@@ -140,7 +140,7 @@ export default function EditDialoguePage({ params }: { params: Promise<{ id: str
 
     const buildImageUrl = (path: string) => {
         if (!path) return '';
-        return path.startsWith('http') ? path : `http://localhost:5001${path}`;
+        return path.startsWith('http') ? path : `https://api.demo.arin-africa.org${path}`;
     };
 
     if (loading) return <div className="p-8 text-center">Loading...</div>;
@@ -227,7 +227,7 @@ export default function EditDialoguePage({ params }: { params: Promise<{ id: str
                                 <ImprovedTiptapEditor
                                     value={editorContent}
                                     onChange={setEditorContent}
-                                    uploadUrl="http://localhost:5001/policy-dialogue/upload"
+                                    uploadUrl="https://api.demo.arin-africa.org/policy-dialogue/upload"
                                     uploadFieldName="image"
                                 />
                                 <p className="text-xs text-gray-500">{editorContent.length} characters</p>

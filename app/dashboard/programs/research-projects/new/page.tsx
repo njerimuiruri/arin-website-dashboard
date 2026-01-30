@@ -230,7 +230,7 @@ export default function NewResearchProjectPage() {
                                 {form.image && (
                                     <div className="mt-4">
                                         <img
-                                            src={form.image.startsWith('http') ? form.image : `http://localhost:5001${form.image}`}
+                                            src={form.image.startsWith('http') ? form.image : `https://api.demo.arin-africa.org${form.image}`}
                                             alt="Project preview"
                                             className="w-full max-w-md h-auto rounded-lg shadow-md"
                                         />
@@ -262,7 +262,7 @@ export default function NewResearchProjectPage() {
                                     setForm({ ...form, description: html });
                                 }}
                                 placeholder="Enter detailed project description with images, formatting, and links..."
-                                uploadUrl="http://localhost:5001/api/research-projects/upload-description-image"
+                                uploadUrl="https://api.demo.arin-africa.org/api/research-projects/upload-description-image"
                                 uploadFieldName="image"
                             />
                             <p className="text-xs text-slate-500">

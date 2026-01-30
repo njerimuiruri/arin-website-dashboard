@@ -1,6 +1,6 @@
 import { fetchWithAuth } from './authService';
 
-const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001') + '/api';
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://api.demo.arin-africa.org') + '/api';
 
 export const contactService = {
   async getAllContactsPaginated(page: number = 1, limit: number = 10) {

@@ -156,7 +156,7 @@ export default function NewCallPage() {
                             {form.coverImage && (
                                 <div className="mt-4">
                                     <img
-                                        src={form.coverImage.startsWith('http') ? form.coverImage : `http://localhost:5001${form.coverImage}`}
+                                        src={form.coverImage.startsWith('http') ? form.coverImage : `https://api.demo.arin-africa.org${form.coverImage}`}
                                         alt="Cover preview"
                                         className="w-full max-w-md h-auto rounded-lg shadow-md"
                                     />
@@ -178,7 +178,7 @@ export default function NewCallPage() {
                                     setForm({ ...form, description: html });
                                 }}
                                 placeholder="Enter the call description, requirements, and more..."
-                                uploadUrl="http://localhost:5001/api/call-for-books/upload-description-image"
+                                uploadUrl="https://api.demo.arin-africa.org/api/call-for-books/upload-description-image"
                                 uploadFieldName="image"
                             />
                             <p className="text-xs text-slate-500">

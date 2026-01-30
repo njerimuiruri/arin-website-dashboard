@@ -31,14 +31,14 @@ export default function ViewImpactStory() {
             ) : (
                 <Card className="p-6">
                     {story.image && (
-                        <img src={story.image.startsWith('http') ? story.image : `http://localhost:5001${story.image}`}
+                        <img src={story.image.startsWith('http') ? story.image : `https://api.demo.arin-africa.org${story.image}`}
                             alt="Impact story image" className="mb-4 w-full max-h-64 object-cover rounded" />
                     )}
                     <h1 className="text-2xl font-bold mb-2">{story.title}</h1>
                     <div className="mb-2 text-gray-500 text-sm">{story.date && (new Date(story.date)).toLocaleDateString()}</div>
                     <div className="mb-4 prose" dangerouslySetInnerHTML={{ __html: story.description || '' }} />
                     {story.video && (
-                        <video src={story.video.startsWith('http') ? story.video : `http://localhost:5001${story.video}`}
+                        <video src={story.video.startsWith('http') ? story.video : `https://api.demo.arin-africa.org${story.video}`}
                             controls className="mb-4 w-full max-h-64 rounded" />
                     )}
                     <Link href={`/dashboard/press/impact-stories/${story._id || story.id}/edit`}><Button>Edit</Button></Link>

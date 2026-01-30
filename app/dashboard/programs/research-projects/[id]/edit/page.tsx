@@ -153,7 +153,7 @@ export default function EditProjectPage() {
             // Use the correct upload endpoint from the service
             const formData = new FormData();
             formData.append('coverImage', file);
-            const res = await fetch('http://localhost:5001/api/research-projects/upload-cover-image', {
+            const res = await fetch('https://api.demo.arin-africa.org/api/research-projects/upload-cover-image', {
                 method: 'POST',
                 body: formData,
                 credentials: 'include',
@@ -365,7 +365,7 @@ export default function EditProjectPage() {
                                 setForm(prev => ({ ...prev, description: html }));
                             }}
                             placeholder="Edit detailed project description with images, formatting, and links..."
-                            uploadUrl="http://localhost:5001/api/research-projects/upload-description-image"
+                            uploadUrl="https://api.demo.arin-africa.org/api/research-projects/upload-description-image"
                             uploadFieldName="image"
                         />
                         <p className="text-xs text-slate-500">

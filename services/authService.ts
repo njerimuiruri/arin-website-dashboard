@@ -1,7 +1,7 @@
 // services/authService.ts
 // Handles all authentication API calls using localStorage + Bearer tokens
 
-const API_URL = 'http://localhost:5001';
+const API_URL = 'https://api.demo.arin-africa.org';
 
 /**
  * Store token in localStorage

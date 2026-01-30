@@ -38,7 +38,7 @@ export default function ImprovedTiptapEditor({
   value = '',
   onChange,
   placeholder = 'Start typing your content here...',
-  uploadUrl = 'http://localhost:5001/journal-articles/upload-description-image',
+  uploadUrl = 'https://api.demo.arin-africa.org/journal-articles/upload-description-image',
   uploadFieldName = 'image',
 }: ImprovedTiptapEditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -114,7 +114,7 @@ export default function ImprovedTiptapEditor({
         if (res.status === 404) {
           const mainForm = new FormData();
           mainForm.append('file', file);
-          res = await fetch('http://localhost:5001/research-projects/upload', {
+          res = await fetch('https://api.demo.arin-africa.org/research-projects/upload', {
             method: 'POST',
             body: mainForm,
             credentials: 'include',
@@ -130,7 +130,7 @@ export default function ImprovedTiptapEditor({
         if (data.url) {
           const fullUrl = data.url.startsWith('http')
             ? data.url
-            : `http://localhost:5001${data.url}`;
+            : `https://api.demo.arin-africa.org${data.url}`;
 
           editor.chain().focus().setImage({ src: fullUrl }).run();
         }

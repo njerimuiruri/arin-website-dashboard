@@ -67,7 +67,7 @@ export default function TeamsPage() {
                         {/* Image at top */}
                         <div className="w-full mb-4">
                             <img
-                                src={m.image && m.image.startsWith('http') ? m.image : m.image ? `http://localhost:5001${m.image}` : "/placeholder.png"}
+                                src={m.image && m.image.startsWith('http') ? m.image : m.image ? `https://api.demo.arin-africa.org${m.image}` : "/placeholder.png"}
                                 alt={`${m.firstName} ${m.lastName}`}
                                 className="w-full h-48 object-cover rounded-lg bg-gray-100"
                                 onError={e => { (e.target as HTMLImageElement).src = '/placeholder.png'; }}
@@ -128,7 +128,7 @@ export default function TeamsPage() {
                             {/* Image */}
                             <div className="mb-6">
                                 <img
-                                    src={selectedMember.image ? `http://localhost:5001${selectedMember.image}` : "/placeholder.png"}
+                                    src={selectedMember.image ? `https://api.demo.arin-africa.org${selectedMember.image}` : "/placeholder.png"}
                                     alt={`${selectedMember.firstName} ${selectedMember.lastName}`}
                                     className="w-full h-64 object-cover rounded-lg"
                                 />

@@ -47,7 +47,7 @@ export default function CapacityBuildingProjectsPage() {
     };
     const buildImageUrl = (img?: string) => {
         if (!img) return '';
-        return img.startsWith('http') ? img : `http://localhost:5001${img}`;
+        return img.startsWith('http') ? img : `https://api.demo.arin-africa.org${img}`;
     };
 
     const filteredProjects = useMemo(() => {

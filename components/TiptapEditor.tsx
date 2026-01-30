@@ -70,7 +70,7 @@ export default function TiptapEditor({ value, onChange }) {
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const res = await fetch('http://localhost:5001/research-projects/upload', {
+      const res = await fetch('https://api.demo.arin-africa.org/research-projects/upload', {
         method: 'POST',
         body: formData,
       });

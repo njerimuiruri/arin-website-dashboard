@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:5001/api/research-projects";
+const BASE_URL = "https://api.demo.arin-africa.org/api/research-projects";
 
 export async function getResearchProjects() {
   const res = await fetch(BASE_URL, { credentials: 'include' });

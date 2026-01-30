@@ -67,7 +67,7 @@ const EventDetailPage = () => {
 
     const buildImageUrl = (img?: string) => {
         if (!img) return '';
-        return img.startsWith('http') ? img : `http://localhost:5001${img}`;
+        return img.startsWith('http') ? img : `https://api.demo.arin-africa.org${img}`;
     };
 
     const getCategoryColor = (category: string) => {
@@ -247,7 +247,7 @@ const EventDetailPage = () => {
                                     </div>
                                     <div className="grid gap-3">
                                         {event.availableResources.map((resource: string, idx: number) => {
-                                            const resourceUrl = resource.startsWith('http') ? resource : `http://localhost:5001${resource}`;
+                                            const resourceUrl = resource.startsWith('http') ? resource : `https://api.demo.arin-africa.org${resource}`;
                                             const fileName = resource.split('/').pop() || `Resource ${idx + 1}`;
                                             return (
                                                 <a

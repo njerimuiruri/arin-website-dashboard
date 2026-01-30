@@ -1,5 +1,5 @@
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/api/impact-stories` : "http://localhost:5001/api/impact-stories";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/api/impact-stories` : "https://api.demo.arin-africa.org/api/impact-stories";
 
 export async function getImpactStories() {
   const res = await fetch(BASE_URL, { credentials: 'include' });

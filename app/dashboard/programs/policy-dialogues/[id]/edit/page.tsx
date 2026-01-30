@@ -128,7 +128,7 @@ export default function EditPolicyDialoguePage() {
 
     const buildImageUrl = (path: string) => {
         if (!path) return '';
-        return path.startsWith('http') ? path : `http://localhost:5001${path}`;
+        return path.startsWith('http') ? path : `https://api.demo.arin-africa.org${path}`;
     };
 
     if (loading) {
@@ -258,7 +258,7 @@ export default function EditPolicyDialoguePage() {
                                 <ImprovedTiptapEditor
                                     content={editorContent}
                                     onChange={setEditorContent}
-                                    uploadUrl="http://localhost:5001/policy-dialogue/upload"
+                                    uploadUrl="https://api.demo.arin-africa.org/policy-dialogue/upload"
                                     uploadFieldName="file"
                                 />
                                 <p className="text-xs text-slate-500">{editorContent.length} characters</p>

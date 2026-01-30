@@ -53,7 +53,7 @@ const EditEventPage = () => {
                         availableResources: event.availableResources || [],
                     });
                     if (event.image) {
-                        const imgUrl = event.image.startsWith('http') ? event.image : `http://localhost:5001${event.image}`;
+                        const imgUrl = event.image.startsWith('http') ? event.image : `https://api.demo.arin-africa.org${event.image}`;
                         setImagePreview(imgUrl);
                     }
                 }
@@ -326,7 +326,7 @@ const EditEventPage = () => {
                                     <ImprovedTiptapEditor
                                         value={formData.description}
                                         onChange={handleDescriptionChange}
-                                        uploadUrl="http://localhost:5001/events/upload"
+                                        uploadUrl="https://api.demo.arin-africa.org/events/upload"
                                         uploadFieldName="image"
                                     />
                                 </div>

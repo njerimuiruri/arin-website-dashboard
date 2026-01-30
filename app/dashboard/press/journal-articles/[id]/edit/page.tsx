@@ -171,7 +171,7 @@ export default function EditJournalArticlePage() {
                         <ImprovedTiptapEditor
                             value={form.description}
                             onChange={(html) => setForm(prev => ({ ...prev, description: html }))}
-                            uploadUrl="http://localhost:5001/journal-articles/upload-description-image"
+                            uploadUrl="https://api.demo.arin-africa.org/journal-articles/upload-description-image"
                             placeholder="Write your article description here. You can add images, format text, and more..."
                         />
                     </div>

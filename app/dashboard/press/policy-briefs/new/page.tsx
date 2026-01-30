@@ -110,7 +110,7 @@ export default function AddPolicyBrief() {
                         <ImprovedTiptapEditor
                             value={form.description}
                             onChange={html => setForm(prev => ({ ...prev, description: html }))}
-                            uploadUrl="http://localhost:5001/policy-briefs/upload"
+                            uploadUrl="https://api.demo.arin-africa.org/policy-briefs/upload"
                             uploadFieldName="file"
                             placeholder="Write your policy brief description here. You can add images, format text, and more..."
                         />

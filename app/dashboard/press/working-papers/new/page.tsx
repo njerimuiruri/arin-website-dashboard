@@ -114,7 +114,7 @@ export default function NewWorkingPaperPage() {
                     <ul className="mt-4 space-y-2">
                         {form.availableResources.map((url, idx) => (
                             <li key={idx} className="flex items-center gap-2">
-                                <a href={url.startsWith('http') ? url : `http://localhost:5001${url}`} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline">
+                                <a href={url.startsWith('http') ? url : `https://api.demo.arin-africa.org${url}`} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline">
                                     Resource {idx + 1}
                                 </a>
                                 <Button type="button" size="icon" variant="ghost" onClick={() => handleRemoveResource(idx)}>
@@ -224,7 +224,7 @@ export default function NewWorkingPaperPage() {
                                 {form.image && (
                                     <div className="mt-4">
                                         <img
-                                            src={form.image.startsWith('http') ? form.image : `http://localhost:5001${form.image}`}
+                                            src={form.image.startsWith('http') ? form.image : `https://api.demo.arin-africa.org${form.image}`}
                                             alt="Cover preview"
                                             className="w-full max-w-md h-auto rounded-lg shadow-md"
                                         />
@@ -253,7 +253,7 @@ export default function NewWorkingPaperPage() {
                                     setForm({ ...form, description: html });
                                 }}
                                 placeholder="Enter detailed description with images, formatting, and links..."
-                                uploadUrl="http://localhost:5001/api/working-paper-series/upload"
+                                uploadUrl="https://api.demo.arin-africa.org/api/working-paper-series/upload"
                                 uploadFieldName="file"
                             />
                             <p className="text-xs text-slate-500">

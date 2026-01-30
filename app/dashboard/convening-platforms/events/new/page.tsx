@@ -271,7 +271,7 @@ const NewEventPage = () => {
                                     <ImprovedTiptapEditor
                                         value={formData.description}
                                         onChange={handleDescriptionChange}
-                                        uploadUrl="http://localhost:5001/events/upload"
+                                        uploadUrl="https://api.demo.arin-africa.org/events/upload"
                                         uploadFieldName="image"
                                     />
                                 </div>

@@ -63,7 +63,7 @@ export default function WorkingPapersList() {
                         <div key={item._id} className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
                             {item.image && (
                                 <img
-                                    src={item.image.startsWith('http') ? item.image : `http://localhost:5001${item.image}`}
+                                    src={item.image.startsWith('http') ? item.image : `https://api.demo.arin-africa.org${item.image}`}
                                     alt={item.title}
                                     className="w-full h-40 object-cover"
                                 />
@@ -85,7 +85,7 @@ export default function WorkingPapersList() {
                                         <ul className="list-disc ml-4">
                                             {item.availableResources.map((url: string, idx: number) => (
                                                 <li key={idx}>
-                                                    <a href={url.startsWith('http') ? url : `http://localhost:5001${url}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-xs">Resource {idx + 1}</a>
+                                                    <a href={url.startsWith('http') ? url : `https://api.demo.arin-africa.org${url}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-xs">Resource {idx + 1}</a>
                                                 </li>
                                             ))}
                                         </ul>

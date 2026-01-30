@@ -85,7 +85,7 @@ export default function EditTeamMemberPage() {
                 <div>
                     <label className="block text-sm">Image</label>
                     <input type="file" accept="image/*" onChange={handleImage} />
-                    {form.image && <img src={`http://localhost:5001${form.image}`} alt="Uploaded" className="mt-2 h-20 rounded" />}
+                    {form.image && <img src={`https://api.demo.arin-africa.org${form.image}`} alt="Uploaded" className="mt-2 h-20 rounded" />}
                 </div>
                 <div className="flex gap-2">
                     <button type="submit" disabled={saving} className="px-4 py-2 bg-blue-600 text-white rounded">{saving ? 'Saving...' : 'Save'}</button>

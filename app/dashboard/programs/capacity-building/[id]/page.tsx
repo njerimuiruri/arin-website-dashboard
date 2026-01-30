@@ -11,7 +11,7 @@ export default function CapacityBuildingDetailPage() {
     const params = useParams();
     const router = useRouter();
     const id = params.id as string;
-    
+
     const [project, setProject] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -37,7 +37,7 @@ export default function CapacityBuildingDetailPage() {
 
     const buildImageUrl = (img?: string) => {
         if (!img) return '';
-        return img.startsWith('http') ? img : `http://localhost:5001${img}`;
+        return img.startsWith('http') ? img : `https://api.demo.arin-africa.org${img}`;
     };
 
     const handleDelete = async () => {
@@ -148,7 +148,7 @@ export default function CapacityBuildingDetailPage() {
                         <CardTitle className="text-xl">Project Description</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div 
+                        <div
                             className="prose prose-slate max-w-none"
                             dangerouslySetInnerHTML={{ __html: project.description || '' }}
                         />
@@ -220,7 +220,7 @@ export default function CapacityBuildingDetailPage() {
                         <CardContent>
                             <div className="space-y-2">
                                 {project.availableResources.map((resource: string, idx: number) => {
-                                    const resourceUrl = resource.startsWith('http') ? resource : `http://localhost:5001${resource}`;
+                                    const resourceUrl = resource.startsWith('http') ? resource : `https://api.demo.arin-africa.org${resource}`;
                                     const fileName = resource.split('/').pop() || `Resource ${idx + 1}`;
                                     return (
                                         <a

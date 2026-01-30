@@ -14,7 +14,7 @@ import { createPolicyDialogue, uploadImage, uploadResource } from '@/services/po
 // Simple Calendar Component
 const SimpleCalendar = ({ dateString }: { dateString: string }) => {
     if (!dateString) return null;
-    
+
     const date = new Date(dateString);
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -46,13 +46,12 @@ const SimpleCalendar = ({ dateString }: { dateString: string }) => {
                 {days.map((d, idx) => (
                     <div
                         key={idx}
-                        className={`aspect-square flex items-center justify-center text-sm rounded ${
-                            d === null
+                        className={`aspect-square flex items-center justify-center text-sm rounded ${d === null
                                 ? 'bg-gray-50'
                                 : d === day
                                     ? 'bg-yellow-600 text-white font-bold'
                                     : 'bg-gray-50 text-gray-700'
-                        }`}
+                            }`}
                     >
                         {d}
                     </div>
@@ -139,7 +138,7 @@ export default function NewDialoguePage() {
 
     const buildImageUrl = (path: string) => {
         if (!path) return '';
-        return path.startsWith('http') ? path : `http://localhost:5001${path}`;
+        return path.startsWith('http') ? path : `https://api.demo.arin-africa.org${path}`;
     };
 
     return (
@@ -224,7 +223,7 @@ export default function NewDialoguePage() {
                                 <ImprovedTiptapEditor
                                     value={editorContent}
                                     onChange={setEditorContent}
-                                    uploadUrl="http://localhost:5001/policy-dialogue/upload"
+                                    uploadUrl="https://api.demo.arin-africa.org/policy-dialogue/upload"
                                     uploadFieldName="image"
                                 />
                                 <p className="text-xs text-gray-500">{editorContent.length} characters</p>

@@ -1,6 +1,6 @@
 const getApiUrl = () => {
-  if (typeof window === 'undefined') return 'http://localhost:5001/api';
-  return (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001') + '/api';
+  if (typeof window === 'undefined') return 'https://api.demo.arin-africa.org/api';
+  return (process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.demo.arin-africa.org') + '/api';
 };
 
 const API_BASE_URL = getApiUrl();

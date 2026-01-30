@@ -43,7 +43,7 @@ export default function JournalArticleViewPage() {
 
     const handleDelete = async () => {
         if (!confirm("Are you sure you want to delete this journal article?")) return;
-        
+
         try {
             await journalArticlesService.delete(id);
             router.push("/dashboard/press/journal-articles");
@@ -56,7 +56,7 @@ export default function JournalArticleViewPage() {
     if (error) return <div className="p-8 text-red-600">Error: {error}</div>;
     if (!article) return <div className="p-8">Journal article not found.</div>;
 
-    const dateDisplay = article.datePosted 
+    const dateDisplay = article.datePosted
         ? new Date(article.datePosted).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
         : 'Date not available';
 
@@ -65,8 +65,8 @@ export default function JournalArticleViewPage() {
             {/* Header Section */}
             <div className="mb-6 flex justify-between items-start">
                 <div>
-                    <Link 
-                        href="/dashboard/press/journal-articles" 
+                    <Link
+                        href="/dashboard/press/journal-articles"
                         className="text-pink-600 hover:text-pink-700 text-sm font-medium mb-4 inline-block"
                     >
                         ← Back to Journal Articles
@@ -78,10 +78,10 @@ export default function JournalArticleViewPage() {
             {/* Cover Image */}
             {article.image && (
                 <div className="mb-6">
-                    <img 
-                        src={`http://localhost:5001${article.image}`} 
-                        alt={article.title} 
-                        className="w-full h-96 object-cover rounded-lg shadow-lg" 
+                    <img
+                        src={`https://api.demo.arin-africa.org${article.image}`}
+                        alt={article.title}
+                        className="w-full h-96 object-cover rounded-lg shadow-lg"
                     />
                 </div>
             )}
@@ -92,8 +92,8 @@ export default function JournalArticleViewPage() {
                     <div>
                         <h3 className="text-sm font-semibold text-gray-700 mb-2">Authors</h3>
                         <p className="text-gray-900">
-                            {article.authors && article.authors.length > 0 
-                                ? article.authors.join(", ") 
+                            {article.authors && article.authors.length > 0
+                                ? article.authors.join(", ")
                                 : "No authors listed"}
                         </p>
                     </div>
@@ -113,9 +113,9 @@ export default function JournalArticleViewPage() {
             {/* Description */}
             <div className="mb-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">Description</h2>
-                <div 
+                <div
                     className="prose prose-lg max-w-none text-gray-700 leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: article.description }} 
+                    dangerouslySetInnerHTML={{ __html: article.description }}
                 />
             </div>
 
@@ -127,7 +127,7 @@ export default function JournalArticleViewPage() {
                         {article.availableResources.map((url, i) => (
                             <a
                                 key={i}
-                                href={`http://localhost:5001${url}`}
+                                href={`https://api.demo.arin-africa.org${url}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-3 bg-blue-50 hover:bg-blue-100 px-4 py-3 rounded-lg border border-blue-200 transition-colors group"

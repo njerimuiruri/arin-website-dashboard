@@ -30,7 +30,7 @@ export default function ViewWorkingPaper() {
             <Card className="p-6">
                 {data.image && (
                     <img
-                        src={data.image.startsWith('http') ? data.image : `http://localhost:5001${data.image}`}
+                        src={data.image.startsWith('http') ? data.image : `https://api.demo.arin-africa.org${data.image}`}
                         alt={data.title}
                         className="w-full h-56 object-cover rounded mb-4"
                     />

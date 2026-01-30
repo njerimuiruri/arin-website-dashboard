@@ -196,7 +196,7 @@ export default function EditNewsletter() {
                                 value={editorContent}
                                 onChange={html => { setEditorContent(html); setForm({ ...form, description: html }); }}
                                 placeholder="Enter newsletter content with images, formatting, and links..."
-                                uploadUrl="http://localhost:5001/api/newsletters/upload"
+                                uploadUrl="https://api.demo.arin-africa.org/api/newsletters/upload"
                                 uploadFieldName="file"
                             />
                             <p className="text-xs text-slate-500">{editorContent.replace(/<[^>]*>/g, '').length} characters</p>

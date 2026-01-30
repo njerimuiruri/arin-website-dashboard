@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:5001/api/teams";
+const BASE_URL = "https://api.demo.arin-africa.org/api/teams";
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('arin_access_token');

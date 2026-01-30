@@ -126,21 +126,21 @@ export default function SlateEditor({ value, onChange }) {
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
-    
+
     // Create FormData and upload to your server
     const formData = new FormData();
     formData.append('file', file);
-    
+
     try {
-      const res = await fetch('http://localhost:5001/research-projects/upload', {
+      const res = await fetch('https://api.demo.arin-africa.org/research-projects/upload', {
         method: 'POST',
         body: formData,
       });
       const data = await res.json();
-      
+
       if (data.url) {
         // Use the full URL from server
-        const fullUrl = data.url.startsWith('http') ? data.url : `http://localhost:5001${data.url}`;
+        const fullUrl = data.url.startsWith('http') ? data.url : `https://api.demo.arin-africa.org${data.url}`;
         insertImage(editor, fullUrl);
       }
     } catch (error) {
