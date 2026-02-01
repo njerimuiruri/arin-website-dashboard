@@ -11,22 +11,18 @@ const Editor = dynamic(
   { ssr: false }
 );
 
-export default function WysiwygEditor({ value, onChange }) {
+interface WysiwygEditorProps {
+  value: string;
+  onChange: (value: string) => void;
+}
+
+export default function WysiwygEditor({ value, onChange }: WysiwygEditorProps) {
   const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
-  const isMountedRef = useRef(false);
   const isInitialized = useRef(false);
   const lastValue = useRef(value);
 
   useEffect(() => {
-    isMountedRef.current = true;
-    return () => { isMountedRef.current = false; };
-  }, []);
-
-  // Only initialize once when component mounts or when value changes externally
-  useEffect(() => {
-    if (!isMountedRef.current) return;
-
-    // Skip if already initialized and value hasn't changed externally
+    // Only initialize once when component mounts or when value changes externally
     if (isInitialized.current && value === lastValue.current) return;
 
     if (value && typeof value === 'string' && value.trim()) {
@@ -41,34 +37,34 @@ export default function WysiwygEditor({ value, onChange }) {
             {} // Empty entity map
           );
           const newEditorState = EditorState.createWithContent(contentState);
-          if (isMountedRef.current) setEditorState(newEditorState);
+          setEditorState(newEditorState);
           isInitialized.current = true;
           lastValue.current = value;
         } else {
-          if (isMountedRef.current) setEditorState(EditorState.createEmpty());
+          setEditorState(EditorState.createEmpty());
           isInitialized.current = true;
         }
       } catch (err) {
         console.error('Error converting HTML to Draft.js:', err);
-        if (isMountedRef.current) setEditorState(EditorState.createEmpty());
+        setEditorState(EditorState.createEmpty());
         isInitialized.current = true;
       }
     } else if (!value || value.trim() === '') {
-      if (isMountedRef.current) setEditorState(EditorState.createEmpty());
+      setEditorState(EditorState.createEmpty());
       isInitialized.current = true;
     }
   }, [value]);
 
-  const onEditorStateChange = (newEditorState) => {
+  const onEditorStateChange = (newEditorState: EditorState) => {
     setEditorState(newEditorState);
-    lastValue.current = null; // Mark that content is being edited
+    lastValue.current = ''; // Mark that content is being edited
 
     try {
       const rawContentState = convertToRaw(newEditorState.getCurrentContent());
       // Clean the raw content to remove any null entities
       const cleanRawContent = {
         ...rawContentState,
-        entityMap: Object.keys(rawContentState.entityMap).reduce((acc, key) => {
+        entityMap: Object.keys(rawContentState.entityMap).reduce((acc: any, key) => {
           const entity = rawContentState.entityMap[key];
           if (entity && entity.type && entity.data !== null) {
             acc[key] = entity;
@@ -83,14 +79,6 @@ export default function WysiwygEditor({ value, onChange }) {
       console.error('Error converting Draft.js to HTML:', err);
     }
   };
-
-  if (!isMountedRef.current) {
-    return (
-      <div className="border rounded-md p-2 bg-white min-h-[200px]">
-        <div className="animate-pulse bg-gray-100 h-full rounded"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="border rounded-md p-2 bg-white">

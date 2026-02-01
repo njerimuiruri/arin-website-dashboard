@@ -43,10 +43,10 @@ const SimpleCalendar = ({ dateString }: { dateString: string }) => {
                     <div
                         key={idx}
                         className={`aspect-square flex items-center justify-center text-sm rounded ${d === null
-                                ? 'bg-gray-50'
-                                : d === day
-                                    ? 'bg-yellow-600 text-white font-bold'
-                                    : 'bg-gray-50 text-gray-700'
+                            ? 'bg-gray-50'
+                            : d === day
+                                ? 'bg-yellow-600 text-white font-bold'
+                                : 'bg-gray-50 text-gray-700'
                             }`}
                     >
                         {d}
@@ -60,7 +60,7 @@ const SimpleCalendar = ({ dateString }: { dateString: string }) => {
 export default function DialogueDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const router = useRouter();
-    const [dialogue, setDialogue] = useState(null);
+    const [dialogue, setDialogue] = useState<import("@/services/policyDialoguesService").PolicyDialogue | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
@@ -111,7 +111,7 @@ export default function DialogueDetailsPage({ params }: { params: Promise<{ id: 
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-blue-50 p-6">
+        <div className="min-h-screen bg-linear-to-br from-yellow-50 via-white to-blue-50 p-6">
             <div className="max-w-5xl mx-auto space-y-6">
                 {/* Header */}
                 <div className="flex items-center gap-4">
@@ -123,7 +123,7 @@ export default function DialogueDetailsPage({ params }: { params: Promise<{ id: 
 
                 {/* Main Content */}
                 <Card className="border-0 shadow-lg">
-                    <CardHeader className="bg-gradient-to-r from-yellow-50 to-blue-50 border-b">
+                    <CardHeader className="bg-linear-to-r from-yellow-50 to-blue-50 border-b">
                         <div className="space-y-3">
                             <div className="flex items-start justify-between gap-4">
                                 <div className="flex-1">
@@ -177,7 +177,7 @@ export default function DialogueDetailsPage({ params }: { params: Promise<{ id: 
                                                 rel="noopener noreferrer"
                                                 className="flex items-center gap-3 p-3 bg-yellow-50 hover:bg-yellow-100 rounded-lg border border-yellow-200 transition"
                                             >
-                                                <Download className="h-4 w-4 text-yellow-600 flex-shrink-0" />
+                                                <Download className="h-4 w-4 text-yellow-600 shrink-0" />
                                                 <span className="text-sm text-yellow-900">{fileName}</span>
                                             </a>
                                         );

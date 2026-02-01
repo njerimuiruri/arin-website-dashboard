@@ -6,7 +6,7 @@ import { callForBooksService } from "@/services/callForBooksService";
 import HtmlRenderer from "@/components/HtmlRenderer";
 
 export default function CallForChaptersPage() {
-    const [items, setItems] = useState([]);
+    const [items, setItems] = useState<import("@/services/callForBooksService").CallForBooks[]>([]);
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -38,7 +38,8 @@ export default function CallForChaptersPage() {
         item.title.toLowerCase().includes(search.toLowerCase())
     );
 
-    const getDeadlineStatus = (deadline: string) => {
+    const getDeadlineStatus = (deadline?: string) => {
+        if (!deadline) return "No deadline";
         const now = new Date();
         const deadlineDate = new Date(deadline);
         return deadlineDate > now ? "Open" : "Closed";
@@ -67,40 +68,46 @@ export default function CallForChaptersPage() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filtered.map(item => (
-                        <div key={item._id} className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
-                            {item.image && <img src={item.image} alt={item.title} className="w-full h-40 object-cover" />}
-                            <div className="p-4">
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className={`text-xs px-2 py-1 rounded ${getDeadlineStatus(item.deadline) === 'Open'
+                    {filtered.map(item => {
+                        if (!item._id) return null;
+
+                        return (
+                            <div key={item._id} className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
+                                {item.image && <img src={item.image} alt={item.title} className="w-full h-40 object-cover" />}
+                                <div className="p-4">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className={`text-xs px-2 py-1 rounded ${getDeadlineStatus(item.deadline) === 'Open'
                                             ? 'bg-green-100 text-green-700'
-                                            : 'bg-red-100 text-red-700'
-                                        }`}>
-                                        {getDeadlineStatus(item.deadline)}
-                                    </span>
-                                    <span className="text-xs text-gray-500">
-                                        Deadline: {new Date(item.deadline).toLocaleDateString()}
-                                    </span>
-                                </div>
-                                <h2 className="font-semibold text-lg mb-1 line-clamp-2">{item.title}</h2>
-                                <HtmlRenderer content={item.description} className="text-sm text-gray-600 line-clamp-3 mb-3" />
-                                <div className="flex gap-2">
-                                    <Link href={`/dashboard/press/call-for-chapters/${item._id}`} className="flex-1 text-center px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
-                                        View
-                                    </Link>
-                                    <Link href={`/dashboard/press/call-for-chapters/${item._id}/edit`} className="flex-1 text-center px-3 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700">
-                                        Edit
-                                    </Link>
-                                    <button
-                                        onClick={() => handleDelete(item._id)}
-                                        className="flex-1 px-3 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700"
-                                    >
-                                        Delete
-                                    </button>
+                                            : getDeadlineStatus(item.deadline) === 'Closed'
+                                                ? 'bg-red-100 text-red-700'
+                                                : 'bg-gray-200 text-gray-600'
+                                            }`}>
+                                            {getDeadlineStatus(item.deadline)}
+                                        </span>
+                                        <span className="text-xs text-gray-500">
+                                            Deadline: {item.deadline ? new Date(item.deadline).toLocaleDateString() : "No deadline"}
+                                        </span>
+                                    </div>
+                                    <h2 className="font-semibold text-lg mb-1 line-clamp-2">{item.title}</h2>
+                                    <HtmlRenderer content={item.description} className="text-sm text-gray-600 line-clamp-3 mb-3" />
+                                    <div className="flex gap-2">
+                                        <Link href={`/dashboard/press/call-for-chapters/${item._id}`} className="flex-1 text-center px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                                            View
+                                        </Link>
+                                        <Link href={`/dashboard/press/call-for-chapters/${item._id}/edit`} className="flex-1 text-center px-3 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700">
+                                            Edit
+                                        </Link>
+                                        <button
+                                            onClick={() => handleDelete(item._id!)}
+                                            className="flex-1 px-3 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
         </div>

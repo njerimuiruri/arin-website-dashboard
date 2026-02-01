@@ -8,15 +8,23 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import ImprovedTiptapEditor from '@/components/ImprovedTiptapEditor';
-
+type Newsletter = {
+    title: string;
+    description: string;
+    authors: string[];
+    authorInput: string;
+    image?: string;
+    year?: number;
+    datePosted?: string;
+};
 export default function EditNewsletter() {
     const params = useParams();
     const id = params.id as string;
     const router = useRouter();
-    const [form, setForm] = useState({
+    const [form, setForm] = useState<Newsletter>({
         title: "",
         description: "",
-        authors: [] as string[],
+        authors: [],
         authorInput: "",
         image: "",
         year: new Date().getFullYear(),
@@ -33,7 +41,7 @@ export default function EditNewsletter() {
         if (!id) return;
         setLoading(true);
         newslettersService.getById(id)
-            .then((data) => {
+            .then((data: Partial<Newsletter>) => {
                 setForm({
                     title: data.title || "",
                     description: data.description || "",

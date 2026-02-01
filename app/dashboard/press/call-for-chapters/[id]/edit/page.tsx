@@ -1,48 +1,65 @@
-
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-
-
 import { callForBooksService } from "@/services/callForBooksService";
 import dynamic from "next/dynamic";
 const WysiwygEditor = dynamic(() => import("@/components/WysiwygEditor"), { ssr: false });
 
-
 export default function CallEditPage() {
     const router = useRouter();
     const params = useParams();
-    const { id } = params;
-    const [form, setForm] = useState(null);
+    const id = params.id as string;
+
+    const [form, setForm] = useState<any>({
+        title: "",
+        authors: "",
+        datePosted: "",
+        deadline: "",
+        image: "",
+        description: "",
+    });
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
+        if (!id) return;
+
         let isMounted = true;
         callForBooksService.getById(id)
-            .then(data => { if (isMounted) setForm(data); })
-            .catch(err => { if (isMounted) setError(err.message); })
-            .finally(() => { if (isMounted) setLoading(false); });
+            .then(data => {
+                if (isMounted) setForm({
+                    ...data,
+                    authors: Array.isArray(data.authors) ? data.authors.join(", ") : (data.authors || ""),
+                });
+            })
+            .catch((err: any) => {
+                if (isMounted) setError(err.message);
+            })
+            .finally(() => {
+                if (isMounted) setLoading(false);
+            });
         return () => { isMounted = false; };
     }, [id]);
 
-
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
-    const handleDescriptionChange = (value) => {
-        setForm((prev) => ({ ...prev, description: value }));
+    const handleDescriptionChange = (value: string) => {
+        setForm((prev: any) => ({ ...prev, description: value }));
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!id) return;
+
         setSaving(true);
         try {
-            await callForBooksService.update(id, form);
+            const authorsArray = (form.authors || "").split(",").map((a: string) => a.trim()).filter((a: string) => a);
+            await callForBooksService.update(id, { ...form, authors: authorsArray });
             router.push(`/dashboard/press/call-for-chapters/${id}`);
-        } catch (err) {
+        } catch (err: any) {
             setError(err.message);
         } finally {
             setSaving(false);
@@ -58,6 +75,7 @@ export default function CallEditPage() {
             <h1 className="text-2xl font-bold mb-4">Edit Call for Book Chapter</h1>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <input name="title" value={form.title || ""} onChange={handleChange} placeholder="Title" className="w-full border rounded px-3 py-2" required />
+                <input name="authors" value={form.authors || ""} onChange={handleChange} placeholder="Authors (comma separated)" className="w-full border rounded px-3 py-2" />
                 <input name="datePosted" value={form.datePosted || ""} onChange={handleChange} placeholder="Date Posted" className="w-full border rounded px-3 py-2" />
                 <input name="deadline" value={form.deadline || ""} onChange={handleChange} placeholder="Deadline" className="w-full border rounded px-3 py-2" required />
                 <input name="image" value={form.image || ""} onChange={handleChange} placeholder="Image URL" className="w-full border rounded px-3 py-2" />

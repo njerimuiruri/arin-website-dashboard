@@ -21,7 +21,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { login as loginService } from "@/services/authService";
 
-export function LoginForm({ className, ...props }) {
+import type { HTMLAttributes } from "react";
+
+interface LoginFormProps extends HTMLAttributes<HTMLDivElement> {
+    // Only prop types here
+}
+
+export function LoginForm({ className, ...props }: LoginFormProps) {
     const router = useRouter();
 
     const [isLoading, setIsLoading] = useState(false);
@@ -29,7 +35,7 @@ export function LoginForm({ className, ...props }) {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsLoading(true);
         setError("");
@@ -51,7 +57,11 @@ export function LoginForm({ className, ...props }) {
             router.push("/dashboard/dashboard");
         } catch (err) {
             console.error('❌ Login error:', err);
-            setError(err.message || "Login failed");
+            if (err instanceof Error) {
+                setError(err.message || "Login failed");
+            } else {
+                setError("Login failed");
+            }
             setIsLoading(false);
         }
     };
@@ -115,6 +125,6 @@ export function LoginForm({ className, ...props }) {
                     </form>
                 </CardContent>
             </Card>
-        </div>
+        </div >
     );
 }

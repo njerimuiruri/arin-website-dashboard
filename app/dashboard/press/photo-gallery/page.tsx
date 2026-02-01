@@ -4,14 +4,23 @@ import { Card, Button } from "@/components/ui";
 import Link from "next/link";
 import { getPhotosVideos, deletePhotoVideo } from "@/services/photosVideosService";
 
+
+type Photo = {
+    _id: string;
+    title: string;
+    description: string;
+    type: string;
+};
+
 export default function PhotoGalleryList() {
-    const [photos, setPhotos] = useState([]);
+    const [photos, setPhotos] = useState<Photo[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const fetchPhotos = async () => {
+
+    const fetchPhotos = async (): Promise<void> => {
         setLoading(true);
         const data = await getPhotosVideos();
-        setPhotos(Array.isArray(data) ? data.filter((item) => item.type === 'photo') : []);
+        setPhotos(Array.isArray(data) ? data.filter((item: any) => item.type === 'photo') : []);
         setLoading(false);
     };
 
@@ -19,7 +28,7 @@ export default function PhotoGalleryList() {
         fetchPhotos();
     }, []);
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (id: string) => {
         if (confirm('Are you sure you want to delete this photo?')) {
             await deletePhotoVideo(id);
             fetchPhotos();

@@ -9,11 +9,27 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { getResearchProject, deleteResearchProject } from '@/services/researchProjectService';
 
+interface Project {
+    title: string;
+    date: string;
+    category?: string;
+    status?: string;
+    description?: string | any[];
+    tags?: string[];
+    collaborators?: string[];
+    duration?: string;
+    budget?: string;
+    fundingSource?: string;
+    projectTeam?: (string | { _id?: string; id?: string; name?: string })[];
+    createdDate?: string;
+    lastUpdated?: string;
+}
+
 export default function ViewProjectDetailsPage() {
     const params = useParams();
     const id = typeof params === 'object' && params !== null ? params.id : params;
     const router = useRouter();
-    const [project, setProject] = useState(null);
+    const [project, setProject] = useState<Project | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [deleting, setDeleting] = useState(false);
@@ -29,7 +45,11 @@ export default function ViewProjectDetailsPage() {
                 const data = await getResearchProject(id.toString());
                 setProject(data);
             } catch (err) {
-                setError(err.message || "Failed to load project");
+                if (err instanceof Error) {
+                    setError(err.message || "Failed to load project");
+                } else {
+                    setError("Failed to load project");
+                }
             } finally {
                 setLoading(false);
             }
@@ -42,16 +62,21 @@ export default function ViewProjectDetailsPage() {
         if (!window.confirm("Are you sure you want to delete this project? This action cannot be undone.")) return;
         setDeleting(true);
         try {
+            if (!id || typeof id !== 'string') throw new Error('Invalid project ID');
             await deleteResearchProject(id);
             router.push("/dashboard/programs/research-projects");
         } catch (err) {
-            setError(err.message || "Failed to delete project");
+            if (err instanceof Error) {
+                setError(err.message || "Failed to delete project");
+            } else {
+                setError("Failed to delete project");
+            }
         } finally {
             setDeleting(false);
         }
     };
 
-    const getStatusColor = (status) => {
+    const getStatusColor = (status: string) => {
         switch (status) {
             case 'Ongoing': return 'bg-green-100 text-green-800 border-green-300';
             case 'Completed': return 'bg-slate-100 text-slate-800 border-slate-300';
@@ -60,7 +85,7 @@ export default function ViewProjectDetailsPage() {
         }
     };
 
-    const renderDescription = (description) => {
+    const renderDescription = (description: string | any[] | undefined) => {
         if (!description) return <p className="text-slate-500">No description available.</p>;
 
         // If it's a string
@@ -71,7 +96,7 @@ export default function ViewProjectDetailsPage() {
                 if (Array.isArray(parsed)) {
                     // Convert Slate JSON to plain text for display
                     const text = parsed
-                        .map(n => n.children?.map?.(c => c.text).join('') || '')
+                        .map((n: any) => n.children?.map?.((c: any) => c.text).join('') || '')
                         .join('\n');
                     return <p className="whitespace-pre-wrap">{text}</p>;
                 }
@@ -86,7 +111,7 @@ export default function ViewProjectDetailsPage() {
         // If it's already an array (legacy Slate format)
         if (Array.isArray(description)) {
             const text = description
-                .map(n => n.children?.map?.(c => c.text).join('') || '')
+                .map((n: any) => n.children?.map?.((c: any) => c.text).join('') || '')
                 .join('\n');
             return <p className="whitespace-pre-wrap">{text}</p>;
         }
@@ -256,16 +281,16 @@ export default function ViewProjectDetailsPage() {
                             <CardContent>
                                 <div className="space-y-3">
                                     {Array.isArray(project.projectTeam) && project.projectTeam.length > 0 ? (
-                                        project.projectTeam.map((member: any, index: number) => (
-                                            <div key={member._id || member.id || index} className="flex items-center gap-3">
+                                        project.projectTeam.map((member, index) => (
+                                            <div key={typeof member === 'object' && member !== null ? (member._id || member.id || index) : index} className="flex items-center gap-3">
                                                 <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center text-white font-semibold">
                                                     {typeof member === 'string'
-                                                        ? member.split(' ').map((n: string) => n[0]).join('').slice(0, 2)
-                                                        : (member.name || '').split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
+                                                        ? member.split(' ').map((n) => n[0]).join('').slice(0, 2)
+                                                        : ((member?.name || '').split(' ').map((n) => n[0]).join('').slice(0, 2))}
                                                 </div>
                                                 <div>
                                                     <div className="text-sm font-medium text-slate-900">
-                                                        {typeof member === 'string' ? member : member.name || 'Unnamed'}
+                                                        {typeof member === 'string' ? member : (member?.name || 'Unnamed')}
                                                     </div>
                                                     <div className="text-xs text-slate-500">Researcher</div>
                                                 </div>

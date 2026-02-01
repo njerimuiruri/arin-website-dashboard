@@ -7,7 +7,7 @@ import ImprovedTiptapEditor from "@/components/ImprovedTiptapEditor";
 interface Book {
     _id?: string;
     title: string;
-    authors?: string[];
+    authors?: string;
     description: string;
     image?: string;
     datePosted?: string;
@@ -27,6 +27,7 @@ export default function EditBookPage() {
     const [error, setError] = useState<string | null>(null);
     const [form, setForm] = useState<Book>({
         title: "",
+        authors: "",
         description: "",
     });
 
@@ -40,7 +41,7 @@ export default function EditBookPage() {
             const data = await booksService.getById(id);
             setForm({
                 ...data,
-                authors: data.authors || [],
+                authors: Array.isArray(data.authors) ? data.authors.join(", ") : (data.authors || ""),
                 availableResources: data.availableResources || [],
             });
             setError(null);
@@ -58,7 +59,7 @@ export default function EditBookPage() {
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        
+
         try {
             setUploadingImage(true);
             const { url } = await booksService.uploadImage(file);
@@ -73,7 +74,7 @@ export default function EditBookPage() {
     const handleResourceUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        
+
         try {
             setUploadingResource(true);
             const { url } = await booksService.uploadResource(file);
@@ -104,16 +105,10 @@ export default function EditBookPage() {
 
         try {
             setSaving(true);
-            const authorsArray = typeof form.authors === 'string' 
-                ? form.authors.split(",").map(a => a.trim()).filter(a => a)
-                : (form.authors || []);
-            
+            const authorsArray = (form.authors || "").split(",").map(a => a.trim()).filter(a => a);
             await booksService.update(id, {
-                title: form.title,
+                ...form,
                 authors: authorsArray,
-                datePosted: form.datePosted,
-                description: form.description,
-                image: form.image || undefined,
                 availableResources: form.availableResources || []
             });
             router.push(`/dashboard/press/books/${id}`);
@@ -133,37 +128,35 @@ export default function EditBookPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                     <label className="block text-sm font-medium mb-2">Title *</label>
-                    <input 
-                        name="title" 
-                        value={form.title} 
-                        onChange={handleChange} 
-                        placeholder="Book title" 
-                        className="w-full border rounded px-3 py-2" 
-                        required 
+                    <input
+                        name="title"
+                        value={form.title}
+                        onChange={handleChange}
+                        placeholder="Book title"
+                        className="w-full border rounded px-3 py-2"
+                        required
                     />
                 </div>
 
                 <div>
                     <label className="block text-sm font-medium mb-2">Authors</label>
-                    <input 
-                        value={(form.authors || []).join(", ")}
-                        onChange={(e) => setForm(prev => ({
-                            ...prev,
-                            authors: e.target.value.split(",").map(a => a.trim()).filter(a => a)
-                        }))}
-                        placeholder="Author 1, Author 2, Author 3" 
-                        className="w-full border rounded px-3 py-2" 
+                    <input
+                        name="authors"
+                        value={form.authors || ""}
+                        onChange={handleChange}
+                        placeholder="Author 1, Author 2, Author 3"
+                        className="w-full border rounded px-3 py-2"
                     />
                 </div>
 
                 <div>
                     <label className="block text-sm font-medium mb-2">Date Posted</label>
-                    <input 
-                        name="datePosted" 
+                    <input
+                        name="datePosted"
                         type="date"
-                        value={form.datePosted ? form.datePosted.split("T")[0] : ""} 
-                        onChange={handleChange} 
-                        className="w-full border rounded px-3 py-2" 
+                        value={form.datePosted ? form.datePosted.split("T")[0] : ""}
+                        onChange={handleChange}
+                        className="w-full border rounded px-3 py-2"
                     />
                 </div>
 
@@ -177,12 +170,12 @@ export default function EditBookPage() {
 
                 <div>
                     <label className="block text-sm font-medium mb-2">Cover Image</label>
-                    <input 
+                    <input
                         type="file"
                         accept="image/*"
                         onChange={handleImageUpload}
                         disabled={uploadingImage}
-                        className="w-full border rounded px-3 py-2" 
+                        className="w-full border rounded px-3 py-2"
                     />
                     {uploadingImage && <p className="text-sm text-gray-500 mt-1">Uploading image...</p>}
                     {form.image && (
@@ -192,12 +185,12 @@ export default function EditBookPage() {
 
                 <div>
                     <label className="block text-sm font-medium mb-2">PDF Resources</label>
-                    <input 
+                    <input
                         type="file"
                         accept=".pdf"
                         onChange={handleResourceUpload}
                         disabled={uploadingResource}
-                        className="w-full border rounded px-3 py-2" 
+                        className="w-full border rounded px-3 py-2"
                     />
                     {uploadingResource && <p className="text-sm text-gray-500 mt-1">Uploading PDF...</p>}
                     {(form.availableResources || []).length > 0 && (
@@ -213,14 +206,14 @@ export default function EditBookPage() {
                 </div>
 
                 <div className="flex gap-4 pt-4">
-                    <button 
-                        type="submit" 
+                    <button
+                        type="submit"
                         disabled={saving}
                         className="px-6 py-2 bg-pink-600 text-white rounded hover:bg-pink-700 disabled:opacity-50"
                     >
                         {saving ? "Saving..." : "Save Changes"}
                     </button>
-                    <button 
+                    <button
                         type="button"
                         onClick={() => router.back()}
                         className="px-6 py-2 border rounded hover:bg-gray-50"

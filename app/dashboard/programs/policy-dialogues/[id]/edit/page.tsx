@@ -21,8 +21,9 @@ export default function EditPolicyDialoguePage() {
     const [form, setForm] = useState({
         title: "",
         date: "",
-        status: "Ongoing" as string,
+        status: "Ongoing" as "Ongoing" | "Completed" | "Incomplete" | undefined,
         description: "",
+        excerpt: "", // Added excerpt property
         image: "",
         availableResources: [] as string[],
     });
@@ -39,12 +40,13 @@ export default function EditPolicyDialoguePage() {
     useEffect(() => {
         async function fetchDialogue() {
             try {
-                const data = await getPolicyDialogue(id);
+                const data = await getPolicyDialogue(id) as any;
                 setForm({
                     title: data.title || "",
                     date: data.date || "",
-                    status: data.status || "Ongoing",
+                    status: (data.status as "Ongoing" | "Completed" | "Incomplete") || "Ongoing",
                     description: data.description || "",
+                    excerpt: data.excerpt || "", // Set excerpt property
                     image: data.image || "",
                     availableResources: data.availableResources || [],
                 });
@@ -64,7 +66,7 @@ export default function EditPolicyDialoguePage() {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
-    const handleStatusChange = (val: string) => {
+    const handleStatusChange = (val: "Ongoing" | "Completed" | "Incomplete") => {
         setForm({ ...form, status: val });
     };
 
@@ -219,6 +221,17 @@ export default function EditPolicyDialoguePage() {
                                     placeholder="e.g., Climate Finance Policy Dialogue"
                                 />
                             </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="excerpt">Excerpt</Label>
+                                <Input
+                                    id="excerpt"
+                                    name="excerpt"
+                                    value={form.excerpt}
+                                    onChange={handleChange}
+                                    placeholder="Provide a brief one-paragraph summary for the dialogue card..."
+                                    className="min-h-20 resize-none"
+                                />
+                            </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
@@ -256,7 +269,7 @@ export default function EditPolicyDialoguePage() {
                             <div className="space-y-2">
                                 <Label htmlFor="description">Description *</Label>
                                 <ImprovedTiptapEditor
-                                    content={editorContent}
+                                    value={editorContent}
                                     onChange={setEditorContent}
                                     uploadUrl="https://api.demo.arin-africa.org/policy-dialogue/upload"
                                     uploadFieldName="file"

@@ -171,7 +171,7 @@ export default function DashboardPage() {
         }
     ];
 
-    const getEventTypeColor = (type) => {
+    const getEventTypeColor = (type: string) => {
         switch (type) {
             case 'Conference': return 'bg-blue-100 text-blue-800';
             case 'Webinar': return 'bg-purple-100 text-purple-800';
@@ -180,7 +180,7 @@ export default function DashboardPage() {
         }
     };
 
-    const getStatusColor = (status) => {
+    const getStatusColor = (status: string) => {
         switch (status) {
             case 'Active': return 'bg-emerald-100 text-emerald-800';
             case 'Reviewing': return 'bg-yellow-100 text-yellow-800';
@@ -191,7 +191,7 @@ export default function DashboardPage() {
     };
 
     return (
-        <div className="p-8 space-y-8 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
+        <div className="p-8 space-y-8 bg-linear-to-br from-slate-50 to-blue-50 min-h-screen">
             {/* Header */}
             <div>
                 <h1 className="text-4xl font-bold text-slate-900">Dashboard Overview</h1>
@@ -242,8 +242,8 @@ export default function DashboardPage() {
                         <div className="space-y-4">
                             {upcomingEvents.map((event) => (
                                 <div key={event.id} className="flex items-start gap-4 p-4 rounded-lg border bg-white hover:shadow-md transition-shadow">
-                                    <div className="flex-shrink-0">
-                                        <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                                    <div className="shrink-0">
+                                        <div className="h-12 w-12 rounded-lg bg-linear-to-br from-blue-500 to-purple-500 flex items-center justify-center">
                                             {event.type === 'Webinar' ? (
                                                 <Video className="h-6 w-6 text-white" />
                                             ) : event.type === 'Conference' ? (
@@ -305,7 +305,7 @@ export default function DashboardPage() {
                         <div className="space-y-4">
                             {recentActivity.map((activity, idx) => (
                                 <div key={idx} className="flex items-start gap-3">
-                                    <div className={`h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0 ${activity.type === 'user' ? 'bg-blue-100' :
+                                    <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 ${activity.type === 'user' ? 'bg-blue-100' :
                                         activity.type === 'project' ? 'bg-emerald-100' :
                                             activity.type === 'application' ? 'bg-purple-100' :
                                                 'bg-orange-100'

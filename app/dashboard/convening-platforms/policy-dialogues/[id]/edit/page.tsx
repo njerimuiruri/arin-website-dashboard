@@ -26,7 +26,7 @@ export default function EditDialoguePage({ params }: { params: Promise<{ id: str
         date: "",
         status: "Ongoing",
         image: "",
-        availableResources: []
+        availableResources: [] as string[]
     });
 
     useEffect(() => {
@@ -59,23 +59,23 @@ export default function EditDialoguePage({ params }: { params: Promise<{ id: str
         fetchDialogue();
     }, [id]);
 
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setForm(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleStatusChange = (value) => {
+    const handleStatusChange = (value: string) => {
         setForm(prev => ({ ...prev, status: value }));
     };
 
-    const handleImageUpload = async (e) => {
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
         setUploading(true);
         try {
             const path = await uploadImage(file);
-            setForm(prev => ({ ...prev, image: path }));
+            setForm(prev => ({ ...prev, image: path.url }));
             setError("");
         } catch (err) {
             setError("Failed to upload image");
@@ -85,7 +85,7 @@ export default function EditDialoguePage({ params }: { params: Promise<{ id: str
         }
     };
 
-    const handleResourceUpload = async (e) => {
+    const handleResourceUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
@@ -94,7 +94,7 @@ export default function EditDialoguePage({ params }: { params: Promise<{ id: str
             const path = await uploadResource(file);
             setForm(prev => ({
                 ...prev,
-                availableResources: [...prev.availableResources, path]
+                availableResources: [...prev.availableResources, path.url]
             }));
             setError("");
         } catch (err) {
@@ -105,14 +105,14 @@ export default function EditDialoguePage({ params }: { params: Promise<{ id: str
         }
     };
 
-    const handleRemoveResource = (resourcePath) => {
+    const handleRemoveResource = (resourcePath: string) => {
         setForm(prev => ({
             ...prev,
             availableResources: prev.availableResources.filter(r => r !== resourcePath)
         }));
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!form.title.trim()) {
             setError("Title is required");
@@ -124,7 +124,7 @@ export default function EditDialoguePage({ params }: { params: Promise<{ id: str
             await updatePolicyDialogue(id, {
                 title: form.title,
                 date: form.date,
-                status: form.status,
+                status: form.status as "Ongoing" | "Completed" | "Incomplete",
                 image: form.image,
                 description: editorContent,
                 availableResources: form.availableResources
@@ -147,7 +147,7 @@ export default function EditDialoguePage({ params }: { params: Promise<{ id: str
     if (error && !form.title) return <div className="p-8 text-center text-red-600">{error}</div>;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-blue-50 p-6">
+        <div className="min-h-screen bg-linear-to-br from-yellow-50 via-white to-blue-50 p-6">
             <div className="max-w-5xl mx-auto space-y-6">
                 {/* Header */}
                 <div className="flex items-center gap-4">

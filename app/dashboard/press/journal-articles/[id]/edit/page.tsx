@@ -10,8 +10,11 @@ interface JournalArticle {
     description: string;
     authors?: string[];
     datePosted?: string;
+    date?: string;
     image?: string;
+    coverImage?: string;
     availableResources?: string[];
+    resources?: string[];
 }
 
 export default function EditJournalArticlePage() {
@@ -41,7 +44,7 @@ export default function EditJournalArticlePage() {
     const loadArticle = async () => {
         try {
             setLoading(true);
-            const data = await journalArticlesService.getById(id);
+            const data = await journalArticlesService.getById(id) as JournalArticle;
             setForm({
                 title: data.title || "",
                 authors: data.authors || [],
@@ -63,7 +66,7 @@ export default function EditJournalArticlePage() {
         if (!file) return;
         try {
             setUploadingImage(true);
-            const { url } = await journalArticlesService.uploadCoverImage(file);
+            const { url } = await journalArticlesService.uploadImage(file);
             setForm(prev => ({ ...prev, coverImage: url }));
         } catch (err) {
             alert(err instanceof Error ? err.message : "Image upload failed");
@@ -108,8 +111,7 @@ export default function EditJournalArticlePage() {
                 title: form.title,
                 authors: form.authors,
                 description: form.description,
-                date: form.date,
-                coverImage: form.coverImage || undefined,
+                datePosted: form.date,
                 resources: form.resources || []
             });
             router.push(`/dashboard/press/journal-articles/${id}`);

@@ -21,15 +21,18 @@ export default function EditCapacityBuildingPage() {
     const [form, setForm] = useState({
         title: "",
         date: "",
+        duration: "",
         location: "",
         status: "Ongoing" as string,
         category: "",
         description: "",
+        excerpt: "", // Added excerpt property
         image: "",
         objectives: [] as string[],
         partners: [] as string[],
         outcomes: [] as string[],
         availableResources: [] as string[],
+        participants: "", // Added participants property
     });
 
     const [objectiveInput, setObjectiveInput] = useState("");
@@ -52,15 +55,18 @@ export default function EditCapacityBuildingPage() {
                 setForm({
                     title: data.title || "",
                     date: data.date || "",
+                    duration: data.duration || "",
                     location: data.location || "",
                     status: data.status || "Ongoing",
                     category: data.category || "",
                     description: data.description || "",
+                    excerpt: data.excerpt || "", // Set excerpt property
                     image: data.image || "",
                     objectives: data.objectives || [],
                     partners: data.partners || [],
                     outcomes: data.outcomes || [],
                     availableResources: data.availableResources || [],
+                    participants: data.participants || "", // Updated participants property
                 });
                 setEditorContent(data.description || '');
             } catch (err: any) {
@@ -74,7 +80,7 @@ export default function EditCapacityBuildingPage() {
         }
     }, [id]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 

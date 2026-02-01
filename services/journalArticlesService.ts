@@ -8,11 +8,24 @@ export interface JournalArticle {
   image?: string;
   authors?: string[];
   datePosted?: string;
+  date?: string;
   availableResources?: string[];
   year?: number;
+  resources?: string[];
+  coverImage?: string;
 }
 
 export const journalArticlesService = {
+  async uploadCoverImage(file: File): Promise<{ url: string }> {
+    const formData = new FormData();
+    formData.append('coverImage', file);
+    const response = await fetch(`${API_BASE_URL}/journal-articles/upload-cover-image`, {
+      method: 'POST',
+      body: formData,
+    });
+    if (!response.ok) throw new Error('Failed to upload cover image');
+    return response.json();
+  },
   async uploadDescriptionImage(file: File): Promise<{ url: string }> {
     const formData = new FormData();
     formData.append('image', file);

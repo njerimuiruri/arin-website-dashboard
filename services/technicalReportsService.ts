@@ -8,6 +8,7 @@ export interface TechnicalReport {
   datePosted?: string;
   availableResources?: string[];
   year?: number;
+  authors?: string[];
 }
 
 export const technicalReportsService = {

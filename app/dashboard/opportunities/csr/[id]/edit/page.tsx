@@ -16,7 +16,11 @@ const csrActivities = [
     }
 ];
 
-export default function EditCSRPage({ params }) {
+interface EditCSRPageProps {
+    params: { id: string };
+}
+
+export default function EditCSRPage({ params }: EditCSRPageProps) {
     const router = useRouter();
     const item = csrActivities.find((i) => i.id === params.id);
     const [form, setForm] = useState(item ? {
@@ -39,10 +43,12 @@ export default function EditCSRPage({ params }) {
         category: ""
     });
     if (!item) return <div className="p-8">CSR Activity not found.</div>;
-    const handleChange = (e) => {
+    const handleChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         // Here you would normally update the CSR activity
         router.push(`/dashboard/opportunities/csr/${item.id}`);

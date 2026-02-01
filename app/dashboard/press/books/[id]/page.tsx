@@ -16,10 +16,13 @@ interface Book {
     year?: number;
 }
 
-export default function BookViewPage() {
-    const params = useParams();
+interface BookViewPageProps {
+    params: { id: string };
+}
+
+export default function BookViewPage({ params }: BookViewPageProps) {
     const router = useRouter();
-    const id = params.id as string;
+    const id = params.id;
     const [book, setBook] = useState<Book | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);

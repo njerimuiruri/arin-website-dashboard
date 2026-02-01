@@ -17,7 +17,7 @@ export default function CreatePolicyDialoguePage() {
     const [form, setForm] = useState({
         title: "",
         date: "",
-        status: "Ongoing" as string,
+        status: "Ongoing" as "Ongoing" | "Completed" | "Incomplete" | undefined,
         description: "",
         image: "",
         availableResources: [] as string[],
@@ -33,7 +33,7 @@ export default function CreatePolicyDialoguePage() {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
-    const handleStatusChange = (val: string) => {
+    const handleStatusChange = (val: "Ongoing" | "Completed" | "Incomplete") => {
         setForm({ ...form, status: val });
     };
 
@@ -170,7 +170,7 @@ export default function CreatePolicyDialoguePage() {
                             <div className="space-y-2">
                                 <Label htmlFor="description">Description *</Label>
                                 <ImprovedTiptapEditor
-                                    content={editorContent}
+                                    value={editorContent}
                                     onChange={setEditorContent}
                                     uploadUrl="https://api.demo.arin-africa.org/policy-dialogue/upload"
                                     uploadFieldName="file"

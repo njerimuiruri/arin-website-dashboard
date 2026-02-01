@@ -1,10 +1,10 @@
 "use client";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { newslettersService } from "@/services/newslettersService";
+import { newslettersService, Newsletter } from "@/services/newslettersService";
 
 export default function NewslettersList() {
-    const [items, setItems] = useState([]);
+    const [items, setItems] = useState<Newsletter[]>([]);
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -21,7 +21,9 @@ export default function NewslettersList() {
             .finally(() => setLoading(false));
     }, []);
 
-    const handleDelete = async (id: string) => {
+
+    const handleDelete = async (id?: string) => {
+        if (!id) return;
         if (confirm("Are you sure you want to delete this newsletter?")) {
             try {
                 await newslettersService.delete(id);
@@ -66,21 +68,25 @@ export default function NewslettersList() {
                                 <h2 className="font-semibold text-lg mb-1 line-clamp-2">{item.title}</h2>
                                 <p className="text-sm text-gray-600 line-clamp-3 mb-3">{item.description.replace(/<[^>]*>/g, '')}</p>
                                 <div className="text-xs text-gray-500 mb-4">
-                                    {new Date(item.datePosted).toLocaleDateString()}
+                                    {item.datePosted ? new Date(item.datePosted).toLocaleDateString() : "N/A"}
                                 </div>
                                 <div className="flex gap-2">
-                                    <Link href={`/dashboard/press/newsletters/${item._id}`} className="flex-1 text-center px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
-                                        View
-                                    </Link>
-                                    <Link href={`/dashboard/press/newsletters/${item._id}/edit`} className="flex-1 text-center px-3 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700">
-                                        Edit
-                                    </Link>
-                                    <button
-                                        onClick={() => handleDelete(item._id)}
-                                        className="flex-1 px-3 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700"
-                                    >
-                                        Delete
-                                    </button>
+                                    {item._id && (
+                                        <>
+                                            <Link href={`/dashboard/press/newsletters/${item._id}`} className="flex-1 text-center px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                                                View
+                                            </Link>
+                                            <Link href={`/dashboard/press/newsletters/${item._id}/edit`} className="flex-1 text-center px-3 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700">
+                                                Edit
+                                            </Link>
+                                            <button
+                                                onClick={() => handleDelete(item._id)}
+                                                className="flex-1 px-3 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+                                            >
+                                                Delete
+                                            </button>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         </div>

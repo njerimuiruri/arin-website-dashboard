@@ -13,7 +13,7 @@ export default function AddPolicyBrief() {
         title: "",
         description: "",
         datePosted: "",
-        coverImage: "",
+        image: "",
         availableResources: [] as string[],
     });
 
@@ -23,7 +23,7 @@ export default function AddPolicyBrief() {
         try {
             setUploadingImage(true);
             const { url } = await policyBriefsService.uploadImage(file);
-            setForm(prev => ({ ...prev, coverImage: url }));
+            setForm(prev => ({ ...prev, image: url }));
         } catch (err) {
             alert(err instanceof Error ? err.message : "Image upload failed");
         } finally {
@@ -67,7 +67,7 @@ export default function AddPolicyBrief() {
                 title: form.title,
                 description: form.description,
                 datePosted: form.datePosted || new Date().toISOString(),
-                coverImage: form.coverImage || undefined,
+                image: form.image || undefined,
                 availableResources: form.availableResources,
             });
             router.push("/dashboard/press/policy-briefs");
@@ -128,9 +128,9 @@ export default function AddPolicyBrief() {
                         className="w-full border border-gray-300 rounded-lg px-4 py-2.5 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
                     />
                     {uploadingImage && <p className="text-sm text-pink-600 mt-2">Uploading image...</p>}
-                    {form.coverImage && (
+                    {form.image && (
                         <div className="mt-3">
-                            <img src={form.coverImage} alt="Preview" className="h-48 w-auto object-cover rounded-lg shadow-md" />
+                            <img src={form.image} alt="Preview" className="h-48 w-auto object-cover rounded-lg shadow-md" />
                         </div>
                     )}
                 </div>

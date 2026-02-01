@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { newsBriefsService } from "@/services/newsBriefsService";
 
 export default function NewsBriefsPage() {
-    const [items, setItems] = useState([]);
+    const [items, setItems] = useState<import("@/services/newsBriefsService").NewsBrief[]>([]);
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -72,8 +72,8 @@ export default function NewsBriefsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filtered.map(item => (
                         <div key={item._id} className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
-                            {(item.image || item.coverImage) && (
-                                <img src={item.image || item.coverImage} alt={item.title} className="w-full h-40 object-cover" />
+                            {item.image && (
+                                <img src={item.image} alt={item.title} className="w-full h-40 object-cover" />
                             )}
                             <div className="p-4">
                                 <h2 className="font-semibold text-lg mb-1 line-clamp-2">{item.title}</h2>
@@ -96,7 +96,7 @@ export default function NewsBriefsPage() {
                                         Edit
                                     </Link>
                                     <button
-                                        onClick={() => handleDelete(item._id)}
+                                        onClick={() => item._id && handleDelete(item._id)}
                                         className="flex-1 px-3 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700"
                                     >
                                         Delete

@@ -12,18 +12,19 @@ import { Badge } from '@/components/ui/badge';
 import { getResearchProject, updateResearchProject } from '@/services/researchProjectService';
 
 export default function EditProjectPage() {
-    const { id } = useParams();
+    const params = useParams();
+    const id = typeof params === 'object' && params !== null ? params.id : params;
     const router = useRouter();
     const [form, setForm] = useState({
         title: "",
         date: "",
         category: "",
         description: "",
-        projectTeam: [],
-        teamMembers: [],
+        projectTeam: [] as string[],
+        teamMembers: [] as any[],
         coverImage: "",
     });
-    const [teamMembers, setTeamMembers] = useState([]);
+    const [teamMembers, setTeamMembers] = useState<any[]>([]);
     const [coverImage, setCoverImage] = useState("");
 
     useEffect(() => {
@@ -31,29 +32,44 @@ export default function EditProjectPage() {
             setLoading(true);
             setError("");
             try {
+                if (!id || typeof id !== 'string') throw new Error('Invalid project ID');
                 const data = await getResearchProject(id);
+                // For TipTap, we expect HTML strings
+                // If backend stores Slate JSON, we need to convert it
+                let htmlDescription = '';
+                if (data.description) {
+                    // If description is HTML, use as is
+                    htmlDescription = data.description;
+                    // If description is Slate JSON, convert to HTML here (not implemented)
+                }
                 const projectData = {
                     title: data.title || "",
                     date: data.date || "",
                     category: data.category || "",
-                    description: data.description || "",
+                    description: htmlDescription,
                     projectTeam: Array.isArray(data.projectTeam) ? data.projectTeam : [],
-                    image: data.image || ""
+                    teamMembers: data.teamMembers || [],
+                    coverImage: data.coverImage || ""
                 };
                 setForm(projectData);
+                setEditorContent(htmlDescription);
                 setTeamMembers(data.teamMembers || []);
                 setCoverImage(data.coverImage || "");
             } catch (err) {
                 console.error('Error fetching project:', err);
-                setError(err.message || "Failed to load project");
+                if (err instanceof Error) {
+                    setError(err.message || "Failed to load project");
+                } else {
+                    setError("Failed to load project");
+                }
             } finally {
                 setLoading(false);
             }
         }
-        if (id) fetchProject();
+        if (id && typeof id === 'string') fetchProject();
     }, [id]);
 
-    async function handleUpdate(updates) {
+    async function handleUpdate(updates: Record<string, any>) {
         const res = await fetch(`/api/research-projects/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -63,73 +79,20 @@ export default function EditProjectPage() {
         setForm(prev => ({ ...prev, ...updated }));
         setTeamMembers(updated.teamMembers || []);
         setCoverImage(updated.coverImage || "");
+        if (updated.description) {
+            setEditorContent(updated.description);
+        }
     }
 
-    // Example usage in your form:
-    // handleUpdate({ teamMembers: newTeamMembers })
-    // handleUpdate({ coverImage: newImageUrl })
-    // });
+
     const [authorInput, setAuthorInput] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [saving, setSaving] = useState(false);
     const [imageUploading, setImageUploading] = useState(false);
-    // TipTap uses HTML strings, not Slate objects
     const [editorContent, setEditorContent] = useState('');
 
-    useEffect(() => {
-        async function fetchProject() {
-            setLoading(true);
-            setError("");
-            try {
-                const data = await getResearchProject(id);
-
-                // For TipTap, we expect HTML strings
-                // If backend stores Slate JSON, we need to convert it
-                let htmlDescription = '';
-                if (data.description) {
-                    if (typeof data.description === 'string') {
-                        // Could be HTML or JSON string
-                        if (data.description.startsWith('[') || data.description.startsWith('{')) {
-                            // Likely Slate JSON - convert to plain text for now
-                            try {
-                                const parsed = JSON.parse(data.description);
-                                if (Array.isArray(parsed)) {
-                                    htmlDescription = parsed
-                                        .map(n => n.children?.map?.(c => c.text).join('') || '')
-                                        .join('<br>');
-                                }
-                            } catch {
-                                htmlDescription = data.description;
-                            }
-                        } else {
-                            // Already HTML or plain text
-                            htmlDescription = data.description;
-                        }
-                    }
-                }
-
-                const projectData = {
-                    title: data.title || "",
-                    date: data.date || "",
-                    category: data.category || "",
-                    description: data.description || "",
-                    projectTeam: Array.isArray(data.projectTeam) ? data.projectTeam : [],
-                    image: data.image || ""
-                };
-                setForm(projectData);
-                setEditorContent(htmlDescription);
-            } catch (err) {
-                console.error('Error fetching project:', err);
-                setError(err.message || "Failed to load project");
-            } finally {
-                setLoading(false);
-            }
-        }
-        if (id) fetchProject();
-    }, [id]);
-
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
@@ -140,11 +103,11 @@ export default function EditProjectPage() {
         }
     };
 
-    const handleRemoveAuthor = (author) => {
+    const handleRemoveAuthor = (author: string) => {
         setForm({ ...form, projectTeam: form.projectTeam.filter(a => a !== author) });
     };
 
-    const handleProjectImageUpload = async (e) => {
+    const handleProjectImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
         setImageUploading(true);
@@ -163,7 +126,11 @@ export default function EditProjectPage() {
             setForm(prev => ({ ...prev, coverImage: data.url }));
             setCoverImage(data.url);
         } catch (err) {
-            setError(err.message || 'Image upload failed');
+            if (err instanceof Error) {
+                setError(err.message || 'Image upload failed');
+            } else {
+                setError('Image upload failed');
+            }
         } finally {
             setImageUploading(false);
         }
@@ -173,11 +140,16 @@ export default function EditProjectPage() {
         setSaving(true);
         setError("");
         try {
+            if (!id || typeof id !== 'string') throw new Error('Invalid project ID');
             await updateResearchProject(id, { ...form, teamMembers, coverImage });
             alert('Project updated successfully!');
             router.push('/dashboard/programs/research-projects');
         } catch (err) {
-            setError(err.message || 'Failed to update project');
+            if (err instanceof Error) {
+                setError(err.message || 'Failed to update project');
+            } else {
+                setError('Failed to update project');
+            }
         } finally {
             setSaving(false);
         }
@@ -318,7 +290,7 @@ export default function EditProjectPage() {
                                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-600"></div>
                                 )}
                             </div>
-                            {form.image && (
+                            {form.coverImage && (
                                 <div className="mt-4 relative w-full max-w-md">
                                     <img
                                         src={coverImage || form.coverImage}

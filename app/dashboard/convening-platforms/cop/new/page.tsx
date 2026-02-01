@@ -5,9 +5,17 @@ import { ArrowLeft, Upload, FileText } from 'lucide-react';
 import ImprovedTiptapEditor from '@/components/ImprovedTiptapEditor';
 import { createCop, uploadCopImage, uploadCopResource } from "@/services/copService";
 
+interface CopFormData {
+    title: string;
+    description: string;
+    image: string;
+    date: string;
+    availableResources: string[];
+}
+
 export default function NewCopPage() {
     const router = useRouter();
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<CopFormData>({
         title: '',
         description: '',
         image: '',
@@ -48,7 +56,7 @@ export default function NewCopPage() {
     const handleRemoveResource = (index: number) => {
         setFormData(prev => ({
             ...prev,
-            availableResources: prev.availableResources?.filter((_, i) => i !== index),
+            availableResources: prev.availableResources?.filter((_, i) => i !== index) || [],
         }));
     };
 
@@ -168,7 +176,7 @@ export default function NewCopPage() {
                 {/* Available Resources */}
                 <div>
                     <label className="block text-sm font-medium mb-2">Available Resources (Optional)</label>
-                    
+
                     {/* Upload PDF Option */}
                     <div className="mb-3">
                         <label className="flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-200">

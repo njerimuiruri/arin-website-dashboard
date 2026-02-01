@@ -23,10 +23,10 @@ export default function EditNewsBriefPage() {
                 const data = await newsBriefsService.getById(id);
                 setForm({
                     title: data.title || "",
-                    author: data.author || "",
+                    authors: Array.isArray(data.authors) ? data.authors.join(", ") : (data.authors || ""),
                     datePosted: data.datePosted ? data.datePosted.slice(0, 10) : "",
                     description: data.description || "",
-                    coverImage: data.coverImage || "",
+                    image: data.image || "",
                     availableResources: data.availableResources || [],
                 });
                 setError(null);
@@ -49,7 +49,7 @@ export default function EditNewsBriefPage() {
         try {
             setUploadingCover(true);
             const { url } = await newsBriefsService.uploadImage(file);
-            setForm((prev: any) => ({ ...prev, coverImage: url }));
+            setForm((prev: any) => ({ ...prev, image: url }));
         } catch (err) {
             setError("Cover image upload failed");
         } finally {
@@ -86,7 +86,14 @@ export default function EditNewsBriefPage() {
         setSaving(true);
         setError(null);
         try {
-            await newsBriefsService.update(id, form);
+            // Convert authors string to array before sending
+            const submitData = {
+                ...form,
+                authors: form.authors
+                    ? form.authors.split(",").map((a: string) => a.trim()).filter((a: string) => a)
+                    : [],
+            };
+            await newsBriefsService.update(id, submitData);
             router.push(`/dashboard/press/news-briefs/${id}`);
         } catch (err: any) {
             setError(err.message || "Failed to update news brief");
@@ -103,7 +110,7 @@ export default function EditNewsBriefPage() {
             <h1 className="text-2xl font-bold mb-4">Edit News Brief</h1>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <input name="title" value={form.title} onChange={handleInput} placeholder="Title" className="w-full border rounded px-3 py-2" required />
-                <input name="author" value={form.author} onChange={handleInput} placeholder="Author" className="w-full border rounded px-3 py-2" required />
+                <input name="authors" value={form.authors} onChange={handleInput} placeholder="Authors (comma separated)" className="w-full border rounded px-3 py-2" required />
                 <input name="datePosted" value={form.datePosted} onChange={handleInput} type="date" className="w-full border rounded px-3 py-2" required />
                 <div>
                     <label className="block mb-1 font-semibold">Description</label>
@@ -119,7 +126,7 @@ export default function EditNewsBriefPage() {
                     <label className="block mb-1 font-semibold">Cover Image</label>
                     <input type="file" accept="image/*" onChange={handleCoverUpload} />
                     {uploadingCover && <span className="text-xs text-gray-500 ml-2">Uploading...</span>}
-                    {form.coverImage && <img src={form.coverImage} alt="cover" className="w-full h-40 object-cover mt-2 rounded" />}
+                    {form.image && <img src={form.image} alt="cover" className="w-full h-40 object-cover mt-2 rounded" />}
                 </div>
                 <div>
                     <label className="block mb-1 font-semibold">Available Resources (PDF)</label>

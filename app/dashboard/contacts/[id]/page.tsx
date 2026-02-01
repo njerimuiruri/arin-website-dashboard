@@ -200,7 +200,7 @@ export default function ContactDetailPage() {
                                 Submitted Date
                             </label>
                             <p className="text-lg text-gray-700">
-                                {new Date(contact.submittedAt || contact.createdAt).toLocaleString()}
+                                {new Date(contact.submittedAt || contact.createdAt || new Date()).toLocaleString()}
                             </p>
                         </div>
                     </div>
@@ -237,8 +237,8 @@ export default function ContactDetailPage() {
                             </a>
                         )}
                     </div>
-                </div>
-            </div>
-        </div>
+                </div >
+            </div >
+        </div >
     );
 }

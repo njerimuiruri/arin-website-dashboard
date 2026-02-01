@@ -47,10 +47,10 @@ const SimpleCalendar = ({ dateString }: { dateString: string }) => {
                     <div
                         key={idx}
                         className={`aspect-square flex items-center justify-center text-sm rounded ${d === null
-                                ? 'bg-gray-50'
-                                : d === day
-                                    ? 'bg-yellow-600 text-white font-bold'
-                                    : 'bg-gray-50 text-gray-700'
+                            ? 'bg-gray-50'
+                            : d === day
+                                ? 'bg-yellow-600 text-white font-bold'
+                                : 'bg-gray-50 text-gray-700'
                             }`}
                     >
                         {d}
@@ -64,13 +64,20 @@ const SimpleCalendar = ({ dateString }: { dateString: string }) => {
 export default function NewDialoguePage() {
     const router = useRouter();
 
-    const [form, setForm] = useState({
+    const [form, setForm] = useState<{
+        title: string;
+        date: string;
+        status: 'Ongoing' | 'Completed' | 'Incomplete' | undefined;
+        description: string;
+        image: string;
+        availableResources: string[];
+    }>({
         title: "",
         date: "",
-        status: "Ongoing" as string,
+        status: "Ongoing",
         description: "",
         image: "",
-        availableResources: [] as string[],
+        availableResources: [],
     });
 
     const [saving, setSaving] = useState(false);
@@ -83,7 +90,7 @@ export default function NewDialoguePage() {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
-    const handleStatusChange = (val: string) => {
+    const handleStatusChange = (val: 'Ongoing' | 'Completed' | 'Incomplete') => {
         setForm({ ...form, status: val });
     };
 
@@ -142,7 +149,7 @@ export default function NewDialoguePage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-blue-50 p-6">
+        <div className="min-h-screen bg-linear-to-br from-yellow-50 via-white to-blue-50 p-6">
             <div className="max-w-5xl mx-auto space-y-6">
                 {/* Header */}
                 <div className="flex items-center gap-4">

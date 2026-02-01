@@ -97,6 +97,8 @@ const NewEventPage = () => {
                 ...formData,
                 image: imagePath,
                 availableResources: resourcePaths,
+                status: formData.status as "Upcoming" | "Past",
+                category: formData.category as "Conference" | "Workshop" | "Webinar" | "Dialogue" | "Friday Reviews",
             };
 
             await createEvent(eventData);

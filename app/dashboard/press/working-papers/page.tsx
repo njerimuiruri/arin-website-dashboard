@@ -1,10 +1,10 @@
 "use client";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { workingPaperSeriesService } from "@/services/workingPaperSeriesService";
+import { workingPaperSeriesService, WorkingPaperSeries } from "@/services/workingPaperSeriesService";
 
-export default function WorkingPapersList() {
-    const [items, setItems] = useState([]);
+export default function WorkingPapersPage() {
+    const [items, setItems] = useState<WorkingPaperSeries[]>([]);
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -59,55 +59,59 @@ export default function WorkingPapersList() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filtered.map(item => (
-                        <div key={item._id} className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
-                            {item.image && (
-                                <img
-                                    src={item.image.startsWith('http') ? item.image : `https://api.demo.arin-africa.org${item.image}`}
-                                    alt={item.title}
-                                    className="w-full h-40 object-cover"
-                                />
-                            )}
-                            <div className="p-4">
-                                <h2 className="font-semibold text-lg mb-1 line-clamp-2">{item.title}</h2>
-                                <div className="text-sm text-gray-600 line-clamp-3 mb-3 prose max-w-none" dangerouslySetInnerHTML={{ __html: item.description || "<em>No description provided.</em>" }} />
-                                {item.authors && item.authors.length > 0 && (
-                                    <p className="text-xs text-gray-500 mb-3">
-                                        Authors: {item.authors.join(", ")}
-                                    </p>
+                    {filtered.map(item => {
+                        if (!item._id) return null;
+
+                        return (
+                            <div key={item._id} className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
+                                {item.image && (
+                                    <img
+                                        src={item.image.startsWith('http') ? item.image : `https://api.demo.arin-africa.org${item.image}`}
+                                        alt={item.title}
+                                        className="w-full h-40 object-cover"
+                                    />
                                 )}
-                                <div className="text-xs text-gray-500 mb-4">
-                                    {new Date(item.datePosted).toLocaleDateString()}
-                                </div>
-                                {item.availableResources && item.availableResources.length > 0 && (
-                                    <div className="mb-2">
-                                        <span className="font-semibold text-xs text-gray-700">Resources:</span>
-                                        <ul className="list-disc ml-4">
-                                            {item.availableResources.map((url: string, idx: number) => (
-                                                <li key={idx}>
-                                                    <a href={url.startsWith('http') ? url : `https://api.demo.arin-africa.org${url}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-xs">Resource {idx + 1}</a>
-                                                </li>
-                                            ))}
-                                        </ul>
+                                <div className="p-4">
+                                    <h2 className="font-semibold text-lg mb-1 line-clamp-2">{item.title}</h2>
+                                    <div className="text-sm text-gray-600 line-clamp-3 mb-3 prose max-w-none" dangerouslySetInnerHTML={{ __html: item.description || "<em>No description provided.</em>" }} />
+                                    {item.authors && item.authors.length > 0 && (
+                                        <p className="text-xs text-gray-500 mb-3">
+                                            Authors: {item.authors.join(", ")}
+                                        </p>
+                                    )}
+                                    <div className="text-xs text-gray-500 mb-4">
+                                        {item.datePosted ? new Date(item.datePosted).toLocaleDateString() : "N/A"}
                                     </div>
-                                )}
-                                <div className="flex gap-2">
-                                    <Link href={`/dashboard/press/working-papers/${item._id}`} className="flex-1 text-center px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
-                                        View
-                                    </Link>
-                                    <Link href={`/dashboard/press/working-papers/${item._id}/edit`} className="flex-1 text-center px-3 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700">
-                                        Edit
-                                    </Link>
-                                    <button
-                                        onClick={() => handleDelete(item._id)}
-                                        className="flex-1 px-3 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700"
-                                    >
-                                        Delete
-                                    </button>
+                                    {item.availableResources && item.availableResources.length > 0 && (
+                                        <div className="mb-2">
+                                            <span className="font-semibold text-xs text-gray-700">Resources:</span>
+                                            <ul className="list-disc ml-4">
+                                                {item.availableResources.map((url: string, idx: number) => (
+                                                    <li key={idx}>
+                                                        <a href={url.startsWith('http') ? url : `https://api.demo.arin-africa.org${url}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-xs">Resource {idx + 1}</a>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+                                    <div className="flex gap-2">
+                                        <Link href={`/dashboard/press/working-papers/${item._id}`} className="flex-1 text-center px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                                            View
+                                        </Link>
+                                        <Link href={`/dashboard/press/working-papers/${item._id}/edit`} className="flex-1 text-center px-3 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700">
+                                            Edit
+                                        </Link>
+                                        <button
+                                            onClick={() => handleDelete(item._id!)}
+                                            className="flex-1 px-3 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
         </div>

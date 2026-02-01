@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { workingPaperSeriesService } from "@/services/workingPaperSeriesService";
+import { workingPaperSeriesService, WorkingPaperSeries } from "@/services/workingPaperSeriesService";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -9,7 +9,7 @@ import Link from "next/link";
 export default function ViewWorkingPaper() {
     const { id } = useParams();
     const router = useRouter();
-    const [data, setData] = useState(null);
+    const [data, setData] = useState<WorkingPaperSeries | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 

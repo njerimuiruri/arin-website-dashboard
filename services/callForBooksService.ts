@@ -9,6 +9,7 @@ export interface CallForBooks {
   datePosted?: string;
   availableResources?: string[];
   year?: number;
+  authors?: string[];
 }
 
 export const callForBooksService = {

@@ -1,7 +1,19 @@
 import React from "react";
 import Link from "next/link";
 
-const csrActivities = [
+interface CSRActivity {
+    id: string;
+    title: string;
+    date: string;
+    year: string;
+    author: string;
+    excerpt: string;
+    tags: string[];
+    image: string;
+    category: string;
+}
+
+const csrActivities: CSRActivity[] = [
     {
         id: 'odhong-football-club',
         title: 'The Inauguration of Odhong Football Club in Nyakach-Kisumu County by the ARIN Convener Dr. Joanes Atela',
@@ -15,9 +27,19 @@ const csrActivities = [
     }
 ];
 
-export default function CSRViewPage({ params }) {
+interface CSRViewPageProps {
+    params: {
+        id: string;
+    };
+}
+
+export default function CSRViewPage({ params }: CSRViewPageProps) {
     const item = csrActivities.find(i => i.id === params.id);
-    if (!item) return <div className="p-8">CSR Activity not found.</div>;
+
+    if (!item) {
+        return <div className="p-8">CSR Activity not found.</div>;
+    }
+
     return (
         <div className="p-8 max-w-2xl mx-auto">
             <img src={item.image} alt={item.title} className="w-full h-64 object-cover rounded mb-4" />

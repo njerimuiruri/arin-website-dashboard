@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import React from "react";
 
 export default function NewCSRPage() {
     const router = useRouter();
@@ -14,14 +15,17 @@ export default function NewCSRPage() {
         image: "",
         category: ""
     });
-    const handleChange = (e) => {
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
-    const handleSubmit = (e) => {
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         // Here you would normally save the new CSR activity
         router.push("/dashboard/opportunities/csr");
     };
+
     return (
         <div className="p-8 max-w-xl mx-auto">
             <h1 className="text-2xl font-bold mb-4">Add New CSR Activity</h1>
