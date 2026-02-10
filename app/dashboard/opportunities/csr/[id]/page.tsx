@@ -1,31 +1,8 @@
-import React from "react";
+
+"use client";
+import React, { useEffect, useState, use as useUnwrap } from "react";
 import Link from "next/link";
-
-interface CSRActivity {
-    id: string;
-    title: string;
-    date: string;
-    year: string;
-    author: string;
-    excerpt: string;
-    tags: string[];
-    image: string;
-    category: string;
-}
-
-const csrActivities: CSRActivity[] = [
-    {
-        id: 'odhong-football-club',
-        title: 'The Inauguration of Odhong Football Club in Nyakach-Kisumu County by the ARIN Convener Dr. Joanes Atela',
-        date: 'May 31, 2021',
-        year: '2021',
-        author: 'ARIN Team',
-        excerpt: 'In support of youth empowerment, the ARIN Convener Dr Joanes Atela was joined by ARIN…',
-        tags: ['Youth Empowerment', 'Sports', 'Community Development'],
-        image: 'https://images.unsplash.com/photo-1575361204480-aadea25e6e68?w=800&q=80',
-        category: 'Youth Empowerment'
-    }
-];
+import { getCsr } from '@/services/csrService';
 
 interface CSRViewPageProps {
     params: {
@@ -34,30 +11,71 @@ interface CSRViewPageProps {
 }
 
 export default function CSRViewPage({ params }: CSRViewPageProps) {
-    const item = csrActivities.find(i => i.id === params.id);
+    // Unwrap params if it's a Promise (Next.js app directory)
+    // @ts-ignore
+    const actualParams = typeof params.then === 'function' ? useUnwrap(params) : params;
+    const [csr, setCsr] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    if (!item) {
+    useEffect(() => {
+        if (!actualParams?.id) {
+            setError('Invalid CSR ID.');
+            setLoading(false);
+            return;
+        }
+        async function fetchCsr() {
+            try {
+                const data = await getCsr(actualParams.id);
+                if (!data) {
+                    setError('CSR Activity not found.');
+                } else {
+                    setCsr(data);
+                }
+            } catch (err: any) {
+                setError('Failed to load CSR.');
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchCsr();
+    }, [actualParams.id]);
+
+    if (loading) {
+        return <div className="p-8">Loading...</div>;
+    }
+    if (error) {
+        return <div className="p-8 text-red-600">{error}</div>;
+    }
+    if (!csr) {
         return <div className="p-8">CSR Activity not found.</div>;
     }
 
     return (
         <div className="p-8 max-w-2xl mx-auto">
-            <img src={item.image} alt={item.title} className="w-full h-64 object-cover rounded mb-4" />
+            {csr.image && (
+                <img src={csr.image.startsWith('http') ? csr.image : `https://api.demo.arin-africa.org${csr.image}`}
+                    alt={csr.title}
+                    className="w-full h-64 object-cover rounded mb-4" />
+            )}
             <div className="flex justify-between items-center mb-2">
-                <span className="text-xs bg-pink-100 text-pink-700 px-2 py-1 rounded">{item.category}</span>
-                <span className="text-xs text-gray-500">{item.date}</span>
+                <span className="text-xs text-gray-500">{csr.date ? (csr.date.substring(0, 10)) : ''}</span>
+                <Link href={`/dashboard/opportunities/csr/${csr._id}/edit`} className="px-3 py-1 bg-pink-600 text-white rounded hover:bg-pink-700 text-xs">Edit</Link>
             </div>
-            <h1 className="text-2xl font-bold mb-2">{item.title}</h1>
-            <p className="text-gray-700 mb-4">{item.excerpt}</p>
-            <div className="flex flex-wrap gap-1 mb-2">
-                {item.tags.map(tag => (
-                    <span key={tag} className="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded">{tag}</span>
-                ))}
-            </div>
-            <div className="flex justify-between items-center mt-6">
-                <span className="text-xs text-gray-400">By {item.author}</span>
-                <Link href={`/dashboard/opportunities/csr/${item.id}/edit`} className="px-3 py-1 bg-pink-600 text-white rounded hover:bg-pink-700 text-xs">Edit</Link>
-            </div>
+            <h1 className="text-2xl font-bold mb-4">{csr.title}</h1>
+            <div className="prose prose-lg max-w-none mb-8" dangerouslySetInnerHTML={{ __html: csr.description || '' }} />
+            {csr.availableResources && csr.availableResources.length > 0 && (
+                <div className="mt-8">
+                    <h2 className="text-lg font-semibold mb-2">Available Resources</h2>
+                    <ul className="list-disc pl-6">
+                        {csr.availableResources.map((url: string, idx: number) => (
+                            <li key={idx}>
+                                <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Resource {idx + 1}</a>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
         </div>
     );
 }

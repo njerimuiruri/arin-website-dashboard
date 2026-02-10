@@ -138,7 +138,7 @@ export async function login(email: string, password: string) {
 export async function getCurrentUser() {
   try {
     console.log('👤 getCurrentUser called');
-    const res = await fetchWithAuth(`${API_URL}/auth/me`, {
+    const res = await fetchWithAuth(`${API_URL}/api/auth/me`, {
       method: 'GET',
     });
 
@@ -151,7 +151,7 @@ export async function getCurrentUser() {
       if (refreshed) {
         console.log('   ✅ Token refreshed - retrying request');
         // Retry with new token
-        const retryRes = await fetchWithAuth(`${API_URL}/auth/me`, {
+        const retryRes = await fetchWithAuth(`${API_URL}/api/auth/me`, {
           method: 'GET',
         });
         if (retryRes.ok) {
@@ -190,7 +190,7 @@ export async function refreshTokens(): Promise<boolean> {
       return false;
     }
 
-    const res = await fetch(`${API_URL}/auth/refresh`, {
+    const res = await fetch(`${API_URL}/api/auth/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refresh_token: refreshToken }),
@@ -222,7 +222,7 @@ export async function refreshTokens(): Promise<boolean> {
  */
 export async function logout() {
   try {
-    const res = await fetchWithAuth(`${API_URL}/auth/logout`, {
+    const res = await fetchWithAuth(`${API_URL}/api/auth/logout`, {
       method: 'POST',
     });
 
