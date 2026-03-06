@@ -64,6 +64,14 @@ export default function EditTechnicalReport() {
         setForm({ ...form, authors: form.authors.filter(a => a !== author) });
     };
 
+    // Resource handlers
+    const handleRemoveResource = (idx: number) => {
+        setForm(prev => ({
+            ...prev,
+            availableResources: prev.availableResources.filter((_, i) => i !== idx),
+        }));
+    };
+
     // Image upload
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -243,27 +251,67 @@ export default function EditTechnicalReport() {
                     {/* Available Resources */}
                     <Card className="border-2 shadow-lg">
                         <CardHeader>
-                            <CardTitle>Available Resources (PDFs, etc.)</CardTitle>
+                            <CardTitle>Available Resources (PDFs)</CardTitle>
+                            <CardDescription>
+                                {form.availableResources.length} resource{form.availableResources.length !== 1 ? 's' : ''} attached.
+                                Click <strong>Remove</strong> to delete a resource, then upload a replacement if needed.
+                            </CardDescription>
                         </CardHeader>
-                        <CardContent>
-                            <Input
-                                id="resource"
-                                type="file"
-                                accept="application/pdf"
-                                onChange={handleResourceUpload}
-                                className="h-12 border-2 focus:border-blue-500"
-                            />
-                            {resourceUploading && <p className="text-sm text-gray-600">Uploading...</p>}
+                        <CardContent className="space-y-4">
+                            {/* Existing resources list */}
                             {form.availableResources.length > 0 && (
-                                <ul className="mt-2 space-y-2">
-                                    {form.availableResources.map((url, idx) => (
-                                        <li key={idx} className="flex items-center gap-2">
-                                            <Paperclip className="w-4 h-4 text-blue-600" />
-                                            <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline">Resource {idx + 1}</a>
-                                        </li>
-                                    ))}
+                                <ul className="space-y-2">
+                                    {form.availableResources.map((url, idx) => {
+                                        const filename = decodeURIComponent(url.split('/').pop()?.split('?')[0] || `Resource ${idx + 1}`);
+                                        return (
+                                            <li key={idx} className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                                <Paperclip className="w-4 h-4 text-blue-600 shrink-0" />
+                                                <a
+                                                    href={url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-700 underline text-sm flex-1 truncate"
+                                                    title={filename}
+                                                >
+                                                    {filename}
+                                                </a>
+                                                <Button
+                                                    type="button"
+                                                    variant="destructive"
+                                                    size="sm"
+                                                    onClick={() => handleRemoveResource(idx)}
+                                                    className="shrink-0"
+                                                >
+                                                    <X className="w-4 h-4 mr-1" />
+                                                    Remove
+                                                </Button>
+                                            </li>
+                                        );
+                                    })}
                                 </ul>
                             )}
+
+                            {/* Upload new resource */}
+                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 space-y-2">
+                                <Label htmlFor="resource" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                    <Upload className="w-4 h-4" />
+                                    Upload New Resource (PDF, max 10MB)
+                                </Label>
+                                <Input
+                                    id="resource"
+                                    type="file"
+                                    accept="application/pdf"
+                                    onChange={handleResourceUpload}
+                                    className="h-12 border-2 focus:border-blue-500"
+                                    disabled={resourceUploading}
+                                />
+                                {resourceUploading && (
+                                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                                        <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                                        Uploading resource...
+                                    </div>
+                                )}
+                            </div>
                         </CardContent>
                     </Card>
 
