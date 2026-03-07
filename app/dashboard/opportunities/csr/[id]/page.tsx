@@ -3,6 +3,7 @@
 import React, { useEffect, useState, use as useUnwrap } from "react";
 import Link from "next/link";
 import { getCsr } from '@/services/csrService';
+import { getCloudinaryDownloadUrl, getResourceFilename, isValidResourceUrl } from "@/lib/utils";
 
 interface CSRViewPageProps {
     params: {
@@ -68,9 +69,9 @@ export default function CSRViewPage({ params }: CSRViewPageProps) {
                 <div className="mt-8">
                     <h2 className="text-lg font-semibold mb-2">Available Resources</h2>
                     <ul className="list-disc pl-6">
-                        {csr.availableResources.map((url: string, idx: number) => (
+                        {csr.availableResources.filter(isValidResourceUrl).map((url: string, idx: number) => (
                             <li key={idx}>
-                                <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Resource {idx + 1}</a>
+                                <a href={getCloudinaryDownloadUrl(url)} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{getResourceFilename(url) || `Resource ${idx + 1}`}</a>
                             </li>
                         ))}
                     </ul>

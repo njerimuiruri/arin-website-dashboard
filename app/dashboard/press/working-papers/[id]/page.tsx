@@ -5,6 +5,7 @@ import { workingPaperSeriesService, WorkingPaperSeries } from "@/services/workin
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { getCloudinaryDownloadUrl, getResourceFilename, isValidResourceUrl } from "@/lib/utils";
 
 export default function ViewWorkingPaper() {
     const { id } = useParams();
@@ -54,9 +55,9 @@ export default function ViewWorkingPaper() {
                         <div className="mb-4">
                             <span className="font-semibold">Resources:</span>
                             <ul className="list-disc ml-6">
-                                {data.availableResources.map((url: string, idx: number) => (
+                                {data.availableResources.filter(isValidResourceUrl).map((url: string, idx: number) => (
                                     <li key={idx}>
-                                        <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Resource {idx + 1}</a>
+                                        <a href={getCloudinaryDownloadUrl(url)} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{getResourceFilename(url)}</a>
                                     </li>
                                 ))}
                             </ul>

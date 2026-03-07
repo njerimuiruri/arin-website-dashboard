@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { policyBriefsService } from "@/services/policyBriefsService";
+import { getCloudinaryDownloadUrl, getResourceFilename, isValidResourceUrl } from "@/lib/utils";
 
 export default function ViewPolicyBrief() {
     const params = useParams();
@@ -44,10 +45,10 @@ export default function ViewPolicyBrief() {
                     <div className="mb-4">
                         <h2 className="font-semibold mb-2">Resources</h2>
                         <ul className="list-disc pl-5">
-                            {brief.availableResources.map((url: string, i: number) => (
+                            {brief.availableResources.filter(isValidResourceUrl).map((url: string, i: number) => (
                                 <li key={i}>
-                                    <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                        {url.split("/").pop()}
+                                    <a href={getCloudinaryDownloadUrl(url)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                        {getResourceFilename(url)}
                                     </a>
                                 </li>
                             ))}

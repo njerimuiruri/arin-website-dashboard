@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { booksService } from "@/services/booksService";
 import HtmlRenderer from "@/components/HtmlRenderer";
+import { getCloudinaryDownloadUrl, getResourceFilename, isValidResourceUrl } from "@/lib/utils";
 
 interface Book {
     _id?: string;
@@ -91,10 +92,10 @@ export default function BookViewPage({ params }: BookViewPageProps) {
                 <div className="mb-6 p-4 bg-gray-50 rounded">
                     <span className="font-semibold text-gray-700 block mb-2">Available Resources:</span>
                     <ul className="space-y-2">
-                        {book.availableResources.map((url, i) => (
+                        {book.availableResources.filter(isValidResourceUrl).map((url, i) => (
                             <li key={i}>
-                                <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm flex items-center gap-2">
-                                    📄 {url.split("/").pop()}
+                                <a href={getCloudinaryDownloadUrl(url)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm flex items-center gap-2">
+                                    📄 {getResourceFilename(url)}
                                 </a>
                             </li>
                         ))}

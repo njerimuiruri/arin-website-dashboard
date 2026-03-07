@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { technicalReportsService, TechnicalReport } from "@/services/technicalReportsService";
 import { Button, Card } from "@/components/ui";
 import Link from "next/link";
+import { getCloudinaryDownloadUrl, getResourceFilename, isValidResourceUrl } from "@/lib/utils";
 
 export default function ViewTechnicalReport() {
     const params = useParams();
@@ -45,9 +46,9 @@ export default function ViewTechnicalReport() {
                     <div className="mt-6">
                         <h2 className="text-lg font-semibold mb-2">Resources</h2>
                         <ul className="list-disc pl-6 space-y-2">
-                            {report.availableResources.map((url, idx) => (
+                            {report.availableResources.filter(isValidResourceUrl).map((url, idx) => (
                                 <li key={idx}>
-                                    <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline">Resource {idx + 1}</a>
+                                    <a href={getCloudinaryDownloadUrl(url)} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline">{getResourceFilename(url)}</a>
                                 </li>
                             ))}
                         </ul>

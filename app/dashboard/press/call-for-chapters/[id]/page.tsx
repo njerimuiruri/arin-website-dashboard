@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { callForBooksService } from "@/services/callForBooksService";
 import HtmlRenderer from "@/components/HtmlRenderer";
+import { getCloudinaryDownloadUrl, getResourceFilename, isValidResourceUrl } from "@/lib/utils";
 
 interface CallViewPageProps {
     params: Promise<{ id: string }>;
@@ -42,10 +43,10 @@ export default async function CallViewPage({ params }: CallViewPageProps) {
                 <div className="mb-4">
                     <h2 className="font-semibold mb-1">Available Resources:</h2>
                     <ul className="list-disc list-inside">
-                        {item.availableResources.map((url: string, idx: number) => (
+                        {item.availableResources.filter(isValidResourceUrl).map((url: string, idx: number) => (
                             <li key={idx}>
-                                <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
-                                    Resource {idx + 1}
+                                <a href={getCloudinaryDownloadUrl(url)} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                                    {getResourceFilename(url) || `Resource ${idx + 1}`}
                                 </a>
                             </li>
                         ))}

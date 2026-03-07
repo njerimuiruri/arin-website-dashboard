@@ -4,6 +4,7 @@ import { Button, Card } from "@/components/ui";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { blogsService, Blog } from '@/services/blogsService';
+import { getCloudinaryDownloadUrl, getResourceFilename, isValidResourceUrl } from "@/lib/utils";
 
 export default function ViewBlog() {
     const params = useParams();
@@ -41,8 +42,8 @@ export default function ViewBlog() {
                     <div className="mb-2">
                         Resources:
                         <ul className="list-disc ml-6">
-                            {blog.availableResources.map((url, idx) => (
-                                <li key={idx}><a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Resource {idx + 1}</a></li>
+                            {blog.availableResources.filter(isValidResourceUrl).map((url, idx) => (
+                                <li key={idx}><a href={getCloudinaryDownloadUrl(url)} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{getResourceFilename(url) || `Resource ${idx + 1}`}</a></li>
                             ))}
                         </ul>
                     </div>

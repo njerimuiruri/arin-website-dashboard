@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { journalArticlesService } from "@/services/journalArticlesService";
+import { getCloudinaryDownloadUrl, getResourceFilename, isValidResourceUrl } from "@/lib/utils";
 
 interface JournalArticle {
     _id?: string;
@@ -124,10 +125,10 @@ export default function JournalArticleViewPage() {
                 <div className="mb-6">
                     <h2 className="text-xl font-bold text-gray-900 mb-4">Available Resources</h2>
                     <div className="space-y-2">
-                        {article.availableResources.map((url, i) => (
+                        {article.availableResources.filter(isValidResourceUrl).map((url, i) => (
                             <a
                                 key={i}
-                                href={`https://api.demo.arin-africa.org${url}`}
+                                href={getCloudinaryDownloadUrl(url.startsWith('http') ? url : `https://api.demo.arin-africa.org${url}`)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-3 bg-blue-50 hover:bg-blue-100 px-4 py-3 rounded-lg border border-blue-200 transition-colors group"
@@ -136,7 +137,7 @@ export default function JournalArticleViewPage() {
                                     <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
                                 </svg>
                                 <span className="text-blue-700 font-medium group-hover:underline">
-                                    {url.split("/").pop()}
+                                    {getResourceFilename(url)}
                                 </span>
                                 <svg className="w-4 h-4 text-blue-600 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />

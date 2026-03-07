@@ -9,7 +9,7 @@ export default function EditTeamMemberPage() {
     const params = useParams();
     const id = params?.id as string;
 
-    const [form, setForm] = useState({ firstName: "", lastName: "", role: "", bio: "", image: "" });
+    const [form, setForm] = useState({ firstName: "", lastName: "", role: "", category: "", bio: "", image: "" });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
@@ -18,7 +18,7 @@ export default function EditTeamMemberPage() {
         const load = async () => {
             try {
                 const data = await getTeamMember(id);
-                setForm({ firstName: data.firstName, lastName: data.lastName, role: data.role, bio: data.bio || "", image: data.image || "" });
+                setForm({ firstName: data.firstName, lastName: data.lastName, role: data.role, category: data.category || "", bio: data.bio || "", image: data.image || "" });
             } catch (e: any) {
                 setError(e.message || "Failed to load");
             } finally { setLoading(false); }
@@ -73,6 +73,19 @@ export default function EditTeamMemberPage() {
                 <div>
                     <label className="block text-sm">Role</label>
                     <input name="role" value={form.role} onChange={handleChange} className="mt-1 w-full border rounded p-2" required />
+                </div>
+                <div>
+                    <label className="block text-sm">Category</label>
+                    <select name="category" value={form.category} onChange={e => setForm(prev => ({ ...prev, category: e.target.value }))} className="mt-1 w-full border rounded p-2" required>
+                        <option value="">Select a category</option>
+                        <option value="Leadership">Leadership</option>
+                        <option value="Focal Point">Focal Point</option>
+                        <option value="Researchers">Researchers</option>
+                        <option value="Communication">Communication</option>
+                        <option value="IT">IT</option>
+                        <option value="Administration">Administration</option>
+                        <option value="Finance">Finance</option>
+                    </select>
                 </div>
                 <div>
                     <label className="block text-sm">Bio</label>

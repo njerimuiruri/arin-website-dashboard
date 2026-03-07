@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { annualReportsService } from "@/services/annualReportsService";
 import HtmlRenderer from "@/components/HtmlRenderer";
+import { getCloudinaryDownloadUrl, getResourceFilename, isValidResourceUrl } from "@/lib/utils";
 
 export default function AnnualReportViewPage() {
     const params = useParams();
@@ -77,10 +78,10 @@ export default function AnnualReportViewPage() {
                 <div className="mb-6 p-4 bg-gray-50 rounded">
                     <span className="font-semibold text-gray-700 block mb-2">Available Resources:</span>
                     <ul className="space-y-2">
-                        {report.availableResources.map((url: string, i: number) => (
+                        {report.availableResources.filter(isValidResourceUrl).map((url: string, i: number) => (
                             <li key={i}>
-                                <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm flex items-center gap-2">
-                                    📄 {url.split("/").pop()}
+                                <a href={getCloudinaryDownloadUrl(url)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm flex items-center gap-2">
+                                    📄 {getResourceFilename(url)}
                                 </a>
                             </li>
                         ))}
