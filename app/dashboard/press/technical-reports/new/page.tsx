@@ -9,6 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import ImprovedTiptapEditor from '@/components/ImprovedTiptapEditor';
 
+const CATEGORIES = ['Technical Reports', 'Workshop Reports', 'Webinar Reports'];
+
 export default function AddTechnicalReport() {
     const [form, setForm] = useState({
         title: "",
@@ -18,6 +20,7 @@ export default function AddTechnicalReport() {
         image: "",
         availableResources: [] as string[],
         datePosted: "",
+        category: "",
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -84,6 +87,7 @@ export default function AddTechnicalReport() {
             image: form.image,
             availableResources: form.availableResources,
             datePosted: form.datePosted || new Date().toISOString(),
+            category: form.category,
         };
         try {
             await technicalReportsService.create(payload);
@@ -139,6 +143,26 @@ export default function AddTechnicalReport() {
                                 className="text-lg h-12 border-2 focus:border-blue-500"
                                 required
                             />
+                        </CardContent>
+                    </Card>
+
+                    {/* Category */}
+                    <Card className="border-2 shadow-lg">
+                        <CardHeader>
+                            <CardTitle>Category</CardTitle>
+                            <CardDescription>Select the report category</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <select
+                                value={form.category}
+                                onChange={e => setForm({ ...form, category: e.target.value })}
+                                className="w-full h-12 border-2 border-gray-200 rounded-md px-3 focus:border-blue-500 focus:outline-none bg-white text-gray-900"
+                            >
+                                <option value="">-- Select Category --</option>
+                                {CATEGORIES.map(cat => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
+                            </select>
                         </CardContent>
                     </Card>
 
