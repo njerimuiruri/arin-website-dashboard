@@ -17,9 +17,14 @@ interface WysiwygEditorProps {
 }
 
 export default function WysiwygEditor({ value, onChange }: WysiwygEditorProps) {
+  const [isMounted, setIsMounted] = useState(false);
   const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
   const isInitialized = useRef(false);
   const lastValue = useRef(value);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     // Only initialize once when component mounts or when value changes externally
@@ -79,6 +84,8 @@ export default function WysiwygEditor({ value, onChange }: WysiwygEditorProps) {
       console.error('Error converting Draft.js to HTML:', err);
     }
   };
+
+  if (!isMounted) return <div className="border rounded-md p-2 bg-white min-h-[150px]" />;
 
   return (
     <div className="border rounded-md p-2 bg-white">

@@ -287,6 +287,7 @@ export default function EditTechnicalReport() {
                             {form.availableResources.length > 0 && (
                                 <ul className="space-y-2">
                                     {form.availableResources.map((url, idx) => {
+                                        if (!url) return null;
                                         const filename = decodeURIComponent(url.split('/').pop()?.split('?')[0] || `Resource ${idx + 1}`);
                                         return (
                                             <li key={idx} className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
