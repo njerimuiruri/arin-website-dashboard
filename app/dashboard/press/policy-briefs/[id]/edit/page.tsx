@@ -31,7 +31,7 @@ export default function EditPolicyBrief() {
                     description: data.description || "",
                     datePosted: data.datePosted ? data.datePosted.split("T")[0] : "",
                     image: data.image || "",
-                    availableResources: data.availableResources || [],
+                    availableResources: (data.availableResources || []).filter(Boolean),
                 });
                 setError(null);
             } catch (err) {
@@ -63,10 +63,12 @@ export default function EditPolicyBrief() {
         try {
             setUploadingResource(true);
             const { url } = await policyBriefsService.uploadResource(file);
-            setForm(prev => ({
-                ...prev,
-                availableResources: [...prev.availableResources, url]
-            }));
+            if (url) {
+                setForm(prev => ({
+                    ...prev,
+                    availableResources: [...prev.availableResources, url]
+                }));
+            }
         } catch (err) {
             alert(err instanceof Error ? err.message : "File upload failed");
         } finally {
@@ -94,7 +96,7 @@ export default function EditPolicyBrief() {
                 description: form.description,
                 datePosted: form.datePosted || new Date().toISOString(),
                 image: form.image || undefined,
-                availableResources: form.availableResources,
+                availableResources: form.availableResources.filter(Boolean),
             });
             router.push(`/dashboard/press/policy-briefs/${id}`);
         } catch (err) {
@@ -182,7 +184,7 @@ export default function EditPolicyBrief() {
                                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
                                         </svg>
-                                        {url.split("/").pop()}
+                                        {(url ?? "").split("/").pop() || "Unknown file"}
                                     </span>
                                     <button
                                         type="button"
