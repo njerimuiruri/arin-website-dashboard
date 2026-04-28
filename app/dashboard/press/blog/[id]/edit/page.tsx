@@ -5,6 +5,18 @@ import { useRouter, useParams } from "next/navigation";
 import { blogsService, Blog } from '@/services/blogsService';
 import ImprovedTiptapEditor from '@/components/ImprovedTiptapEditor';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.demo.arin-africa.org';
+
+function resolveResourceUrl(url: string): string {
+    if (!url) return url;
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return `${API_BASE_URL}${url}`;
+}
+
+function getResourceFileName(url: string): string {
+    return decodeURIComponent(url.split('/').pop() || url);
+}
+
 export default function EditBlog() {
     const params = useParams();
     const router = useRouter();
@@ -53,6 +65,10 @@ export default function EditBlog() {
     };
     const handleRemoveAuthor = (author: string) => {
         setForm({ ...form, authors: form.authors.filter(a => a !== author) });
+    };
+
+    const handleRemoveResource = (idx: number) => {
+        setForm(f => ({ ...f, availableResources: f.availableResources.filter((_, i) => i !== idx) }));
     };
 
     // Image upload

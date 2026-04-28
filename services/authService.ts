@@ -1,7 +1,7 @@
 // services/authService.ts
 // Handles all authentication API calls using localStorage + Bearer tokens
 
-const API_URL = 'https://api.demo.arin-africa.org';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.demo.arin-africa.org';
 
 /**
  * Store token in localStorage
@@ -61,9 +61,9 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
   console.log('   URL:', url);
   console.log('   Token found:', token ? `${token.substring(0, 20)}...` : 'NO TOKEN');
   
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...options.headers,
+    ...(options.headers as Record<string, string>),
   };
   
   if (token) {

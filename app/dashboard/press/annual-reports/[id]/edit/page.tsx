@@ -228,10 +228,10 @@ export default function EditAnnualReportPage() {
                 <div className="flex gap-4 pt-4">
                     <button
                         type="submit"
-                        disabled={saving}
+                        disabled={saving || uploadingResource || uploadingImage}
                         className="px-6 py-2 bg-pink-600 text-white rounded hover:bg-pink-700 disabled:opacity-50"
                     >
-                        {saving ? "Updating..." : "Update Annual Report"}
+                        {saving ? "Updating..." : uploadingResource ? "Waiting for PDF upload..." : uploadingImage ? "Waiting for image upload..." : "Update Annual Report"}
                     </button>
                     <button
                         type="button"

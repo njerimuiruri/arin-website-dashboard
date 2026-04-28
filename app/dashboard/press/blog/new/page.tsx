@@ -5,6 +5,18 @@ import { useRouter } from "next/navigation";
 import { blogsService } from '@/services/blogsService';
 import ImprovedTiptapEditor from '@/components/ImprovedTiptapEditor';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.demo.arin-africa.org';
+
+function resolveResourceUrl(url: string): string {
+    if (!url) return url;
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return `${API_BASE_URL}${url}`;
+}
+
+function getResourceFileName(url: string): string {
+    return decodeURIComponent(url.split('/').pop() || url);
+}
+
 export default function AddBlog() {
     const [form, setForm] = useState({
         title: "",
@@ -31,6 +43,10 @@ export default function AddBlog() {
     };
     const handleRemoveAuthor = (author: string) => {
         setForm({ ...form, authors: form.authors.filter(a => a !== author) });
+    };
+
+    const handleRemoveResource = (idx: number) => {
+        setForm(f => ({ ...f, availableResources: f.availableResources.filter((_, i) => i !== idx) }));
     };
 
     // Image upload
@@ -121,9 +137,19 @@ export default function AddBlog() {
                     <label className="block font-medium mb-1">Available Resources (PDFs)</label>
                     <Input type="file" accept="application/pdf" onChange={handleResourceUpload} />
                     {resourceUploading && <span className="text-sm text-gray-500 ml-2">Uploading...</span>}
-                    <ul className="mt-2 space-y-1">
+                    <ul className="mt-2 space-y-2">
                         {form.availableResources.map((url, idx) => (
-                            <li key={idx}><a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Resource {idx + 1}</a></li>
+                            <li key={idx} className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                                <a href={resolveResourceUrl(url)} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-sm truncate flex-1">
+                                    {getResourceFileName(url)}
+                                </a>
+                                <button
+                                    type="button"
+                                    onClick={() => handleRemoveResource(idx)}
+                                    className="shrink-0 text-red-500 hover:text-red-700 font-bold text-lg leading-none"
+                                    title="Remove resource"
+                                >&times;</button>
+                            </li>
                         ))}
                     </ul>
                 </div>

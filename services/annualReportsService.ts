@@ -30,20 +30,29 @@ export const annualReportsService = {
   },
 
   async uploadResource(file: File): Promise<{ url: string }> {
+    // Step 1: get signed upload params from the backend (fast, no file transfer)
+    const sigRes = await fetch(`${API_BASE_URL}/annual-reports/sign-upload`);
+    if (!sigRes.ok) throw new Error('Failed to get upload signature');
+    const { signature, timestamp, api_key, cloud_name, folder, resource_type } = await sigRes.json();
+
+    // Step 2: upload directly from the browser to Cloudinary (no backend involved)
     const formData = new FormData();
-    formData.append('resource', file);
-    
-    const response = await fetch(`${API_BASE_URL}/annual-reports/upload-resource`, {
-      method: 'POST',
-      body: formData,
-    });
-    if (!response.ok) throw new Error('Failed to upload PDF resource');
-    const data = await response.json();
-    // Ensure full URL if backend returns relative path
-    if (data.url && !data.url.startsWith('http')) {
-      data.url = `${API_BASE_URL}${data.url}`;
+    formData.append('file', file);
+    formData.append('api_key', api_key);
+    formData.append('timestamp', String(timestamp));
+    formData.append('signature', signature);
+    formData.append('folder', folder);
+
+    const uploadRes = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloud_name}/${resource_type}/upload`,
+      { method: 'POST', body: formData }
+    );
+    if (!uploadRes.ok) {
+      const err = await uploadRes.json().catch(() => ({}));
+      throw new Error(err?.error?.message || 'Cloudinary upload failed');
     }
-    return data;
+    const data = await uploadRes.json();
+    return { url: data.secure_url };
   },
 
   async create(data: AnnualReport): Promise<AnnualReport> {

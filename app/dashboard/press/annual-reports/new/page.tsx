@@ -192,10 +192,10 @@ export default function NewAnnualReportPage() {
                 <div className="flex gap-4 pt-4">
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || uploadingResource || uploadingImage}
                         className="px-6 py-2 bg-pink-600 text-white rounded hover:bg-pink-700 disabled:opacity-50"
                     >
-                        {loading ? "Creating..." : "Create Annual Report"}
+                        {loading ? "Creating..." : uploadingResource ? "Waiting for PDF upload..." : uploadingImage ? "Waiting for image upload..." : "Create Annual Report"}
                     </button>
                     <button
                         type="button"
