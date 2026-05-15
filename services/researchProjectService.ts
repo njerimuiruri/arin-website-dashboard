@@ -1,4 +1,4 @@
-const BASE_URL = "https://api.demo.arin-africa.org/api/research-projects";
+const BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://api.demo.arin-africa.org') + '/api/research-projects';
 
 export async function getResearchProjects() {
   const res = await fetch(BASE_URL, { credentials: 'include' });
@@ -20,7 +20,7 @@ export async function createResearchProject(data: any) {
     body: JSON.stringify(data),
   });
   if (!res.ok) {
-    let errorData = {};
+    let errorData: { message?: string } = {};
     try {
       errorData = await res.json();
     } catch (e) {

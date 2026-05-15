@@ -1,4 +1,4 @@
-const BASE_URL = "https://api.demo.arin-africa.org/api/capacity-building";
+const BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://api.demo.arin-africa.org') + '/api/capacity-building';
 
 export async function getCapacityProjects() {
   const res = await fetch(BASE_URL, { credentials: 'include' });

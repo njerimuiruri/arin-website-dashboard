@@ -19,11 +19,13 @@ function ResearchProjectsPage() {
     const [categoryFilter, setCategoryFilter] = useState('all');
     const [statusFilter, setStatusFilter] = useState('all');
     const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+    const [mounted, setMounted] = useState(false);
 
     // Get all unique statuses from projects
     const statuses = ['all', ...new Set(projects.map((p: any) => p.status))];
 
     useEffect(() => {
+        setMounted(true);
         setLoading(true);
         getResearchProjects()
             .then(data => setProjects(data))
@@ -98,33 +100,35 @@ function ResearchProjectsPage() {
                                 className="pl-10"
                             />
                         </div>
-                        <div className="flex gap-4">
-                            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                                <SelectTrigger className="w-50">
-                                    <Filter className="mr-2 h-4 w-4" />
-                                    <SelectValue placeholder="Category" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {categories.map(cat => (
-                                        <SelectItem key={`cat-${cat}`} value={cat}>
-                                            {cat === 'all' ? 'All Categories' : cat}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <Select value={statusFilter} onValueChange={setStatusFilter}>
-                                <SelectTrigger className="w-45">
-                                    <SelectValue placeholder="Status" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {statuses.map(status => (
-                                        <SelectItem key={`status-${status}`} value={status}>
-                                            {status === 'all' ? 'All Statuses' : status}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+                        {mounted && (
+                            <div className="flex gap-4">
+                                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                                    <SelectTrigger className="w-50">
+                                        <Filter className="mr-2 h-4 w-4" />
+                                        <SelectValue placeholder="Category" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {categories.map(cat => (
+                                            <SelectItem key={`cat-${cat}`} value={cat}>
+                                                {cat === 'all' ? 'All Categories' : cat}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                    <SelectTrigger className="w-45">
+                                        <SelectValue placeholder="Status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {statuses.map(status => (
+                                            <SelectItem key={`status-${status}`} value={status}>
+                                                {status === 'all' ? 'All Statuses' : status}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
                     </div>
                 </CardContent>
             </Card>

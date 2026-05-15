@@ -1,4 +1,4 @@
-const API_URL = 'https://api.demo.arin-africa.org/api';
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || 'https://api.demo.arin-africa.org') + '/api';
 
 // Helper function to format date for API
 function formatDateForAPI(dateString: string): string {
