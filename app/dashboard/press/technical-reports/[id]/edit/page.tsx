@@ -83,7 +83,7 @@ export default function EditTechnicalReport() {
         try {
             setUploading(true);
             const res = await technicalReportsService.uploadImage(file);
-            setForm({ ...form, image: res.url });
+            setForm(prev => ({ ...prev, image: res.url }));
         } catch (err: any) {
             setError(err.message || 'Image upload failed');
         } finally {
@@ -98,7 +98,7 @@ export default function EditTechnicalReport() {
         try {
             setResourceUploading(true);
             const res = await technicalReportsService.uploadResource(file);
-            setForm({ ...form, availableResources: [...form.availableResources, res.url] });
+            setForm(prev => ({ ...prev, availableResources: [...prev.availableResources, res.url] }));
         } catch (err: any) {
             setError(err.message || 'Resource upload failed');
         } finally {
@@ -264,7 +264,7 @@ export default function EditTechnicalReport() {
                         <CardContent>
                             <ImprovedTiptapEditor
                                 value={editorContent}
-                                onChange={html => { setEditorContent(html); setForm({ ...form, description: html }); }}
+                                onChange={html => { setEditorContent(html); setForm(prev => ({ ...prev, description: html })); }}
                                 placeholder="Enter detailed description with images, formatting, and links..."
                                 uploadUrl="https://api.demo.arin-africa.org/api/technical-reports/upload"
                                 uploadFieldName="file"
