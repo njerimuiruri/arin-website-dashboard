@@ -108,7 +108,7 @@ export default function EditTeamMemberPage() {
                     >
                         <option value="">Select a category</option>
                         <option value="Executive Director">Executive Director</option>
-                        <option value="Focal Points">Focal Points and their Assistants</option>
+                        <option value="Focal Points">Regional Focal Points</option>
                         <option value="Secretariat">Secretariat Staff</option>
                     </select>
                 </div>
