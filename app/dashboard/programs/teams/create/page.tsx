@@ -70,8 +70,6 @@ export default function CreateTeamMemberPage() {
                         <option value="Executive Director">Executive Director</option>
                         <option value="Focal Points">Focal Points and their Assistants</option>
                         <option value="Secretariat">Secretariat Staff</option>
-                        <option value="Fellows">Fellows</option>
-                        <option value="Senior Experts">Senior Experts</option>
                     </select>
                 </div>
                 <div>
