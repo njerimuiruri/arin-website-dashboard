@@ -88,6 +88,10 @@ export async function uploadImage(file: File) {
     credentials: 'include',
   });
 
-  if (!res.ok) throw new Error('Failed to upload image');
+  if (!res.ok) {
+    let msg = `Upload failed (HTTP ${res.status})`;
+    try { const err = await res.json(); msg = err.message || msg; } catch {}
+    throw new Error(msg);
+  }
   return res.json();
 }
