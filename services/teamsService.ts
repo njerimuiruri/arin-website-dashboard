@@ -57,6 +57,25 @@ export async function deleteTeamMember(id: string) {
   return res.json();
 }
 
+export async function reorderTeamMembers(ids: string[]) {
+  const token = localStorage.getItem('arin_access_token');
+  const res = await fetch(`${BASE_URL}/reorder`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    },
+    credentials: 'include',
+    body: JSON.stringify({ ids }),
+  });
+  if (!res.ok) {
+    let msg = `HTTP ${res.status}`;
+    try { const err = await res.json(); msg = err.message || msg; } catch {}
+    throw new Error(msg);
+  }
+  return res.json();
+}
+
 export async function uploadImage(file: File) {
   const token = localStorage.getItem('arin_access_token');
   const formData = new FormData();
