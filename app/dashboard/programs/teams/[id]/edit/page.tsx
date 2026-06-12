@@ -78,13 +78,11 @@ export default function EditTeamMemberPage() {
                     <label className="block text-sm">Category</label>
                     <select name="category" value={form.category} onChange={e => setForm(prev => ({ ...prev, category: e.target.value }))} className="mt-1 w-full border rounded p-2" required>
                         <option value="">Select a category</option>
-                        <option value="Leadership">Leadership</option>
-                        <option value="Focal Point">Focal Point</option>
-                        <option value="Researchers">Researchers</option>
-                        <option value="Communication">Communication</option>
-                        <option value="IT">IT</option>
-                        <option value="Administration">Administration</option>
-                        <option value="Finance">Finance</option>
+                        <option value="Executive Director">Executive Director</option>
+                        <option value="Focal Points">Focal Points and their Assistants</option>
+                        <option value="Secretariat">Secretariat Staff</option>
+                        <option value="Fellows">Fellows</option>
+                        <option value="Senior Experts">Senior Experts</option>
                     </select>
                 </div>
                 <div>
