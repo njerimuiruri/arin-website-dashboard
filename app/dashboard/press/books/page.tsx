@@ -27,7 +27,8 @@ export default function BooksPage() {
         try {
             setLoading(true);
             const data = await booksService.getAll();
-            setBooks(data);
+            const sorted = [...data].sort((a, b) => new Date(b.datePosted || 0).getTime() - new Date(a.datePosted || 0).getTime());
+            setBooks(sorted);
             setError(null);
         } catch (err) {
             setError(err instanceof Error ? err.message : "Failed to load books");
