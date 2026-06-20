@@ -11,6 +11,7 @@ interface Book {
     description: string;
     image?: string;
     year?: number;
+    embargoDate?: string;
 }
 
 export default function BooksPage() {
@@ -86,7 +87,14 @@ export default function BooksPage() {
                             {item.image && <img src={item.image} alt={item.title} className="w-full h-40 object-cover" />}
                             <div className="p-4">
                                 <div className="flex justify-between items-center mb-2">
-                                    <span className="text-xs bg-pink-100 text-pink-700 px-2 py-1 rounded">Book</span>
+                                    <div className="flex gap-1 flex-wrap">
+                                        <span className="text-xs bg-pink-100 text-pink-700 px-2 py-1 rounded">Book</span>
+                                        {item.embargoDate && new Date(item.embargoDate) > new Date() && (
+                                            <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded font-medium">
+                                                Embargoed until {new Date(item.embargoDate).toLocaleDateString()}
+                                            </span>
+                                        )}
+                                    </div>
                                     {item.datePosted && <span className="text-xs text-gray-500">{new Date(item.datePosted).toLocaleDateString()}</span>}
                                 </div>
                                 <h2 className="font-semibold text-lg mb-1 line-clamp-2">{item.title}</h2>

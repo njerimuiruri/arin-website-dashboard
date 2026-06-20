@@ -13,6 +13,9 @@ interface Book {
     datePosted?: string;
     availableResources?: string[];
     year?: number;
+    embargoDate?: string;
+    price?: number;
+    currency?: string;
 }
 
 export default function EditBookPage() {
@@ -158,6 +161,48 @@ export default function EditBookPage() {
                         onChange={handleChange}
                         className="w-full border rounded px-3 py-2"
                     />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium mb-2">Embargo Date</label>
+                    <input
+                        name="embargoDate"
+                        type="date"
+                        value={form.embargoDate ? form.embargoDate.split("T")[0] : ""}
+                        onChange={handleChange}
+                        className="w-full border rounded px-3 py-2"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">If set, this book will be marked as embargoed until this date.</p>
+                </div>
+
+                <div className="flex gap-3">
+                    <div className="flex-1">
+                        <label className="block text-sm font-medium mb-2">Price</label>
+                        <input
+                            name="price"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={form.price ?? ""}
+                            onChange={e => setForm({ ...form, price: e.target.value ? parseFloat(e.target.value) : undefined })}
+                            placeholder="e.g. 30"
+                            className="w-full border rounded px-3 py-2"
+                        />
+                    </div>
+                    <div className="w-28">
+                        <label className="block text-sm font-medium mb-2">Currency</label>
+                        <select
+                            name="currency"
+                            value={form.currency || "USD"}
+                            onChange={e => setForm({ ...form, currency: e.target.value })}
+                            className="w-full border rounded px-3 py-2"
+                        >
+                            <option value="USD">USD</option>
+                            <option value="KES">KES</option>
+                            <option value="NGN">NGN</option>
+                            <option value="GHS">GHS</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div>

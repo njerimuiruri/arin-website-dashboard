@@ -9,6 +9,9 @@ export interface Book {
   datePosted?: string;
   availableResources?: string[];
   year?: number;
+  embargoDate?: string;
+  price?: number;
+  currency?: string;
 }
 
 export const booksService = {

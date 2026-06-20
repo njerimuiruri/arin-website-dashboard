@@ -13,7 +13,10 @@ export default function NewBookPage() {
         datePosted: new Date().toISOString().split("T")[0],
         description: "",
         image: "",
-        resources: [] as string[]
+        resources: [] as string[],
+        embargoDate: "",
+        price: "",
+        currency: "USD"
     });
     const [uploadingImage, setUploadingImage] = useState(false);
     const [uploadingResource, setUploadingResource] = useState(false);
@@ -70,7 +73,10 @@ export default function NewBookPage() {
                 datePosted: form.datePosted,
                 description: form.description,
                 image: form.image || undefined,
-                availableResources: form.resources
+                availableResources: form.resources,
+                embargoDate: form.embargoDate || undefined,
+                price: form.price ? parseFloat(form.price) : undefined,
+                currency: form.currency || "USD"
             });
             router.push("/dashboard/press/books");
         } catch (err) {
@@ -109,13 +115,55 @@ export default function NewBookPage() {
 
                 <div>
                     <label className="block text-sm font-medium mb-2">Date Posted</label>
-                    <input 
-                        name="datePosted" 
+                    <input
+                        name="datePosted"
                         type="date"
-                        value={form.datePosted} 
-                        onChange={handleChange} 
-                        className="w-full border rounded px-3 py-2" 
+                        value={form.datePosted}
+                        onChange={handleChange}
+                        className="w-full border rounded px-3 py-2"
                     />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium mb-2">Embargo Date</label>
+                    <input
+                        name="embargoDate"
+                        type="date"
+                        value={form.embargoDate}
+                        onChange={handleChange}
+                        className="w-full border rounded px-3 py-2"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">If set, this book will be marked as embargoed until this date.</p>
+                </div>
+
+                <div className="flex gap-3">
+                    <div className="flex-1">
+                        <label className="block text-sm font-medium mb-2">Price</label>
+                        <input
+                            name="price"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={form.price}
+                            onChange={handleChange}
+                            placeholder="e.g. 30"
+                            className="w-full border rounded px-3 py-2"
+                        />
+                    </div>
+                    <div className="w-28">
+                        <label className="block text-sm font-medium mb-2">Currency</label>
+                        <select
+                            name="currency"
+                            value={form.currency}
+                            onChange={e => setForm({ ...form, currency: e.target.value })}
+                            className="w-full border rounded px-3 py-2"
+                        >
+                            <option value="USD">USD</option>
+                            <option value="KES">KES</option>
+                            <option value="NGN">NGN</option>
+                            <option value="GHS">GHS</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div>
