@@ -16,7 +16,8 @@ export default function NewBookPage() {
         resources: [] as string[],
         embargoDate: "",
         price: "",
-        currency: "USD"
+        currency: "USD",
+        resourcesPublic: true,
     });
     const [uploadingImage, setUploadingImage] = useState(false);
     const [uploadingResource, setUploadingResource] = useState(false);
@@ -76,7 +77,8 @@ export default function NewBookPage() {
                 availableResources: form.resources,
                 embargoDate: form.embargoDate || undefined,
                 price: form.price ? parseFloat(form.price) : undefined,
-                currency: form.currency || "USD"
+                currency: form.currency || "USD",
+                resourcesPublic: form.resourcesPublic,
             });
             router.push("/dashboard/press/books");
         } catch (err) {
@@ -206,6 +208,24 @@ export default function NewBookPage() {
                             ))}
                         </ul>
                     )}
+                </div>
+
+                <div className="flex items-center gap-3 p-4 border rounded bg-gray-50">
+                    <input
+                        type="checkbox"
+                        id="resourcesPublic"
+                        checked={form.resourcesPublic}
+                        onChange={e => setForm({ ...form, resourcesPublic: e.target.checked })}
+                        className="w-4 h-4 accent-pink-600"
+                    />
+                    <div>
+                        <label htmlFor="resourcesPublic" className="text-sm font-medium cursor-pointer">
+                            Show resources publicly on the book page
+                        </label>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                            Uncheck this to hide the "Available Resources" download section from visitors. Useful for paid books.
+                        </p>
+                    </div>
                 </div>
 
                 <div className="flex gap-4 pt-4">

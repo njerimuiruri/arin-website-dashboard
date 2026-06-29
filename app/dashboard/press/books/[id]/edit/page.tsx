@@ -16,6 +16,7 @@ interface Book {
     embargoDate?: string;
     price?: number;
     currency?: string;
+    resourcesPublic?: boolean;
 }
 
 export default function EditBookPage() {
@@ -46,6 +47,7 @@ export default function EditBookPage() {
                 ...data,
                 authors: Array.isArray(data.authors) ? data.authors.join(", ") : (data.authors || ""),
                 availableResources: data.availableResources || [],
+                resourcesPublic: data.resourcesPublic !== false,
             });
             setError(null);
         } catch (err) {
@@ -248,6 +250,24 @@ export default function EditBookPage() {
                             ))}
                         </ul>
                     )}
+                </div>
+
+                <div className="flex items-center gap-3 p-4 border rounded bg-gray-50">
+                    <input
+                        type="checkbox"
+                        id="resourcesPublic"
+                        checked={form.resourcesPublic !== false}
+                        onChange={e => setForm({ ...form, resourcesPublic: e.target.checked })}
+                        className="w-4 h-4 accent-pink-600"
+                    />
+                    <div>
+                        <label htmlFor="resourcesPublic" className="text-sm font-medium cursor-pointer">
+                            Show resources publicly on the book page
+                        </label>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                            Uncheck this to hide the "Available Resources" download section from visitors. Useful for paid books.
+                        </p>
+                    </div>
                 </div>
 
                 <div className="flex gap-4 pt-4">
