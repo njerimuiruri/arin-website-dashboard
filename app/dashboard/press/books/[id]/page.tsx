@@ -356,18 +356,6 @@ export default function BookViewPage() {
                             </div>
                         )}
 
-                        {/* Payment methods */}
-                        {book.price && (
-                            <div className="mt-2">
-                                <p className="text-xs text-gray-400 mb-2">Payment Methods</p>
-                                <div className="flex items-center gap-3">
-                                    <span className="border rounded px-2 py-1 text-xs font-bold text-blue-800 tracking-widest">VISA</span>
-                                    <span className="border rounded px-2 py-1 text-xs font-bold text-red-600">MC</span>
-                                    <span className="border rounded px-2 py-1 text-xs font-bold text-green-700">M-PESA</span>
-                                    <span className="border rounded px-2 py-1 text-xs font-bold text-blue-500">Paystack</span>
-                                </div>
-                            </div>
-                        )}
 
                         {/* Admin actions */}
                         <div className="flex gap-3 mt-6 pt-4 border-t">

@@ -73,6 +73,7 @@ export function ArinSidebar() {
                             <SidebarMenuSubButton href="/dashboard/press/publishing-academy">Publishing Academy</SidebarMenuSubButton>
                             <SidebarMenuSubButton href="/dashboard/press/annual-reports">Annual Reports</SidebarMenuSubButton>
                             <SidebarMenuSubButton href="/dashboard/press/books">Books</SidebarMenuSubButton>
+                            <SidebarMenuSubButton href="/dashboard/press/books/purchases">Book Purchases</SidebarMenuSubButton>
                             <SidebarMenuSubButton href="/dashboard/press/journal-articles">Journal Articles</SidebarMenuSubButton>
                             <SidebarMenuSubButton href="/dashboard/press/policy-briefs">Policy Briefs</SidebarMenuSubButton>
                             <SidebarMenuSubButton href="/dashboard/press/news-briefs">News Briefs</SidebarMenuSubButton>

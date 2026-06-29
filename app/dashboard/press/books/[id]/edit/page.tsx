@@ -253,10 +253,10 @@ export default function EditBookPage() {
                 <div className="flex gap-4 pt-4">
                     <button
                         type="submit"
-                        disabled={saving}
+                        disabled={saving || uploadingResource || uploadingImage}
                         className="px-6 py-2 bg-pink-600 text-white rounded hover:bg-pink-700 disabled:opacity-50"
                     >
-                        {saving ? "Saving..." : "Save Changes"}
+                        {uploadingResource ? "Uploading PDF..." : uploadingImage ? "Uploading Image..." : saving ? "Saving..." : "Save Changes"}
                     </button>
                     <button
                         type="button"
