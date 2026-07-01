@@ -153,7 +153,7 @@ export default function EditPolicyBrief() {
                         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
                             <div className="px-5 py-3 border-b border-gray-100 flex items-center gap-2">
                                 <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Content *</span>
-                                <span className="text-xs text-gray-400">— Use the toolbar to format text, insert images, tables, and more</span>
+                                <span className="text-xs text-gray-400"> Use the toolbar to format text, insert images, tables, and more</span>
                             </div>
                             <ImprovedTiptapEditor
                                 value={form.description}

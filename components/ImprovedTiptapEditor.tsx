@@ -422,7 +422,7 @@ export default function ImprovedTiptapEditor({
           </Button>
         </div>
 
-        {/* Table — Insert button */}
+        {/* Table  Insert button */}
         <div className="flex gap-1">
           <Button type="button" size="sm" variant="ghost"
             onClick={insertTable}
@@ -458,7 +458,7 @@ export default function ImprovedTiptapEditor({
         onChange={handleImageUpload}
       />
 
-      {/* Image alignment bar — visible when an image is selected */}
+      {/* Image alignment bar  visible when an image is selected */}
       {isImageSelected && (
         <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-50 border-b border-purple-200">
           <ImagePlus className="h-3.5 w-3.5 text-purple-600 shrink-0" />
@@ -481,7 +481,7 @@ export default function ImprovedTiptapEditor({
         </div>
       )}
 
-      {/* Table toolbar — visible only when cursor is inside a table */}
+      {/* Table toolbar  visible only when cursor is inside a table */}
       {isInTable && (
         <div className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 border-b border-blue-200">
           <TableIcon className="h-3.5 w-3.5 text-blue-600 shrink-0" />

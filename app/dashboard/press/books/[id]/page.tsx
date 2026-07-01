@@ -108,7 +108,7 @@ export default function BookViewPage() {
         handler.openIframe();
     };
 
-    const sku = book?._id ? `BK${book._id.slice(-11).toUpperCase()}` : "—";
+    const sku = book?._id ? `BK${book._id.slice(-11).toUpperCase()}` : "";
     const isEmbargoed = book?.embargoDate && new Date(book.embargoDate) > new Date();
     const validResources = (book?.availableResources || []).filter(isValidResourceUrl);
 
@@ -146,7 +146,7 @@ export default function BookViewPage() {
                             {payModal === "buy" ? "Buy Now" : "Add to Cart"}
                         </h2>
                         <p className="text-sm text-gray-500 mb-4">
-                            {book.title} × {quantity} —{" "}
+                            {book.title} × {quantity} {" "}
                             <span className="font-semibold text-gray-800">
                                 {formatPrice((book.price || 0) * quantity, book.currency)}
                             </span>
@@ -185,7 +185,7 @@ export default function BookViewPage() {
                 </Link>
 
                 <div className="flex flex-col md:flex-row gap-8 mt-4">
-                    {/* Left — cover image */}
+                    {/* Left  cover image */}
                     <div className="md:w-[45%] shrink-0">
                         <div className="relative border rounded-xl overflow-hidden bg-gray-50 flex items-center justify-center min-h-85">
                             {book.image ? (
@@ -214,7 +214,7 @@ export default function BookViewPage() {
                         </div>
                     </div>
 
-                    {/* Right — details */}
+                    {/* Right  details */}
                     <div className="flex-1 min-w-0">
                         <h1 className="text-2xl font-bold text-gray-900 leading-snug mb-2">{book.title}</h1>
 

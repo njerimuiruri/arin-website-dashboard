@@ -44,7 +44,7 @@ interface TimelinePoint {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function formatDate(d?: string) {
-    if (!d) return '—';
+    if (!d) return '';
     try { return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); }
     catch { return d; }
 }
@@ -500,7 +500,7 @@ export default function DashboardPage() {
                     <Card className="lg:col-span-2">
                         <CardHeader>
                             <CardTitle className="text-base">Publications Over Time</CardTitle>
-                            <CardDescription>Monthly publications added — last 6 months</CardDescription>
+                            <CardDescription>Monthly publications added  last 6 months</CardDescription>
                         </CardHeader>
                         <CardContent>
                             {loading ? <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-slate-400" /></div>

@@ -191,7 +191,7 @@ export default function TeamsPage() {
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-semibold">Teams</h1>
-                    <p className="text-sm text-gray-500 mt-1">Drag cards to reorder — order reflects on the website</p>
+                    <p className="text-sm text-gray-500 mt-1">Drag cards to reorder  order reflects on the website</p>
                 </div>
                 <div className="flex items-center gap-3">
                     {saving && <span className="text-sm text-blue-600">Saving order…</span>}
