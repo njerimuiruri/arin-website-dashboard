@@ -21,8 +21,9 @@ function ResearchProjectsPage() {
     const [expanded, setExpanded] = useState<Record<string, boolean>>({});
     const [mounted, setMounted] = useState(false);
 
-    // Get all unique statuses from projects
-    const statuses = ['all', ...new Set(projects.map((p: any) => p.status))];
+    // Get all unique statuses from projects (skip empty/missing values —
+    // Radix's Select throws if an item's value is an empty string)
+    const statuses = ['all', ...new Set(projects.map((p: any) => p.status).filter(Boolean))];
 
     useEffect(() => {
         setMounted(true);
@@ -33,7 +34,8 @@ function ResearchProjectsPage() {
             .finally(() => setLoading(false));
     }, []);
 
-    const categories = ['all', ...new Set(projects.map((p: any) => p.category))];
+    // Skip empty/missing categories — Radix's Select throws if an item's value is an empty string
+    const categories = ['all', ...new Set(projects.map((p: any) => p.category).filter(Boolean))];
 
     // Normalize projects to always have an id field (from _id if needed)
     const normalizedProjects = useMemo(() => {

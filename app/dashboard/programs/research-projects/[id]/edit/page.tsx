@@ -3,13 +3,21 @@ import { useEffect, useState } from "react";
 // ...existing code...
 import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft, Save, FileText, Calendar, FolderOpen, Info, X, Upload, ImagePlus } from "lucide-react";
+import { ArrowLeft, Save, FileText, Calendar, FolderOpen, Info, X, Upload, ImagePlus, Target, Layers, Paperclip, Images, Link2, Sparkles, Flag, TrendingUp, Landmark } from "lucide-react";
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import ImprovedTiptapEditor from '@/components/ImprovedTiptapEditor';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { getResearchProject, updateResearchProject } from '@/services/researchProjectService';
+import TagListEditor from '@/components/research-projects/TagListEditor';
+import ResourcesManager, { ResourceItem } from '@/components/research-projects/ResourcesManager';
+import GalleryManager, { GalleryItem } from '@/components/research-projects/GalleryManager';
+import RelatedInitiativesManager, { RelatedInitiative } from '@/components/research-projects/RelatedInitiativesManager';
+import AbstractsManager, { AbstractItem } from '@/components/research-projects/AbstractsManager';
+import ThemesManager, { ThemeItem } from '@/components/research-projects/ThemesManager';
+import OrgLogosManager, { OrgItem } from '@/components/research-projects/OrgLogosManager';
 
 export default function EditProjectPage() {
     const params = useParams();
@@ -26,6 +34,20 @@ export default function EditProjectPage() {
     });
     const [teamMembers, setTeamMembers] = useState<any[]>([]);
     const [coverImage, setCoverImage] = useState("");
+    const [objectives, setObjectives] = useState<string[]>([]);
+    const [focusAreas, setFocusAreas] = useState<string[]>([]);
+    const [goal, setGoal] = useState('');
+    const [outputs, setOutputs] = useState('');
+    const [longTermOutcome, setLongTermOutcome] = useState('');
+    const [intermediateOutcomes, setIntermediateOutcomes] = useState<string[]>([]);
+    const [funders, setFunders] = useState<OrgItem[]>([]);
+    const [partners, setPartners] = useState<OrgItem[]>([]);
+    const [themes, setThemes] = useState<ThemeItem[]>([]);
+    const [resources, setResources] = useState<ResourceItem[]>([]);
+    const [gallery, setGallery] = useState<GalleryItem[]>([]);
+    const [relatedInitiatives, setRelatedInitiatives] = useState<RelatedInitiative[]>([]);
+    const [abstracts, setAbstracts] = useState<AbstractItem[]>([]);
+    const themeNames = themes.map((t) => t.name);
 
     useEffect(() => {
         async function fetchProject() {
@@ -55,6 +77,19 @@ export default function EditProjectPage() {
                 setEditorContent(htmlDescription);
                 setTeamMembers(data.teamMembers || []);
                 setCoverImage(data.coverImage || "");
+                setObjectives(Array.isArray(data.objectives) ? data.objectives : []);
+                setFocusAreas(Array.isArray(data.focusAreas) ? data.focusAreas : []);
+                setGoal(data.goal || '');
+                setOutputs(typeof data.outputs === 'string' ? data.outputs : '');
+                setLongTermOutcome(data.longTermOutcome || '');
+                setIntermediateOutcomes(Array.isArray(data.intermediateOutcomes) ? data.intermediateOutcomes : []);
+                setFunders(Array.isArray(data.funders) ? data.funders : []);
+                setPartners(Array.isArray(data.partners) ? data.partners : []);
+                setThemes(Array.isArray(data.themes) ? data.themes : []);
+                setResources(Array.isArray(data.resources) ? data.resources : []);
+                setGallery(Array.isArray(data.gallery) ? data.gallery : []);
+                setRelatedInitiatives(Array.isArray(data.relatedInitiatives) ? data.relatedInitiatives : []);
+                setAbstracts(Array.isArray(data.abstracts) ? data.abstracts : []);
             } catch (err) {
                 console.error('Error fetching project:', err);
                 if (err instanceof Error) {
@@ -141,7 +176,24 @@ export default function EditProjectPage() {
         setError("");
         try {
             if (!id || typeof id !== 'string') throw new Error('Invalid project ID');
-            await updateResearchProject(id, { ...form, teamMembers, coverImage });
+            await updateResearchProject(id, {
+                ...form,
+                teamMembers: form.projectTeam,
+                coverImage,
+                objectives,
+                focusAreas,
+                goal,
+                outputs,
+                longTermOutcome,
+                intermediateOutcomes,
+                funders,
+                partners,
+                themes,
+                resources,
+                gallery,
+                relatedInitiatives,
+                abstracts,
+            });
             alert('Project updated successfully!');
             router.push('/dashboard/programs/research-projects');
         } catch (err) {
@@ -343,6 +395,213 @@ export default function EditProjectPage() {
                         <p className="text-xs text-slate-500">
                             {editorContent.replace(/<[^>]*>/g, '').length} characters
                         </p>
+                    </CardContent>
+                </Card>
+
+                {/* Project Goal */}
+                <Card className="border-2 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <CardHeader className="bg-linear-to-r from-rose-50 to-orange-50 border-b">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-rose-600 rounded-lg">
+                                <Flag className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-2xl">Project Goal</CardTitle>
+                                <CardDescription>Shown as its own highlighted section, right after the description</CardDescription>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                        <Textarea
+                            value={goal}
+                            onChange={(e) => setGoal(e.target.value)}
+                            placeholder="e.g. To build a cadre of mathematical AI skills in academia and policy spaces..."
+                            className="border-2 focus:border-rose-500 min-h-24"
+                        />
+                    </CardContent>
+                </Card>
+
+                {/* Objectives & Focus Areas */}
+                <Card className="border-2 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <CardHeader className="bg-linear-to-r from-sky-50 to-blue-50 border-b">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-sky-600 rounded-lg">
+                                <Target className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-2xl">Objectives & Focus Areas</CardTitle>
+                                <CardDescription>Bullet points shown in the "About the Project" section</CardDescription>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="space-y-6 pt-6">
+                        <div className="space-y-3">
+                            <Label className="text-base font-semibold">Objectives</Label>
+                            <TagListEditor items={objectives} onChange={setObjectives} placeholder="Type an objective and press Enter" />
+                        </div>
+                        <div className="space-y-3">
+                            <Label className="text-base font-semibold flex items-center gap-2">
+                                <Layers className="h-4 w-4 text-sky-600" /> Key Focus Areas
+                            </Label>
+                            <TagListEditor items={focusAreas} onChange={setFocusAreas} placeholder="Type a focus area and press Enter" />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Outcomes */}
+                <Card className="border-2 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <CardHeader className="bg-linear-to-r from-emerald-50 to-lime-50 border-b">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-emerald-600 rounded-lg">
+                                <TrendingUp className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-2xl">Outputs & Outcomes</CardTitle>
+                                <CardDescription>Shown as their own section, right after Objectives</CardDescription>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="space-y-6 pt-6">
+                        <div className="space-y-3">
+                            <Label className="text-base font-semibold">Outputs</Label>
+                            <div className="border-2 rounded-md overflow-hidden focus-within:border-emerald-500">
+                                <ImprovedTiptapEditor
+                                    value={outputs}
+                                    onChange={setOutputs}
+                                    placeholder="e.g. Evidence Synthesis Report: A comprehensive review of existing capacity-building initiatives..."
+                                    uploadUrl="https://api.demo.arin-africa.org/api/research-projects/upload-description-image"
+                                    uploadFieldName="image"
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-3">
+                            <Label className="text-base font-semibold">Long-term Outcome</Label>
+                            <Textarea
+                                value={longTermOutcome}
+                                onChange={(e) => setLongTermOutcome(e.target.value)}
+                                placeholder="e.g. Strengthened skill sets and decision-support systems for..."
+                                className="border-2 focus:border-emerald-500 min-h-20"
+                            />
+                        </div>
+                        <div className="space-y-3">
+                            <Label className="text-base font-semibold">Intermediate Outcomes</Label>
+                            <TagListEditor items={intermediateOutcomes} onChange={setIntermediateOutcomes} placeholder="Type an intermediate outcome and press Enter" />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Funders & Partners */}
+                <Card className="border-2 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <CardHeader className="bg-linear-to-r from-teal-50 to-cyan-50 border-b">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-teal-600 rounded-lg">
+                                <Landmark className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-2xl">Funders & Partners</CardTitle>
+                                <CardDescription>Shown with logos in their own section on the project page</CardDescription>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="space-y-6 pt-6">
+                        <div className="space-y-3">
+                            <Label className="text-base font-semibold">Funder(s)</Label>
+                            <OrgLogosManager items={funders} onChange={setFunders} namePlaceholder="Funder name, e.g. International Development Research Centre (Canada)" />
+                        </div>
+                        <div className="space-y-3">
+                            <Label className="text-base font-semibold">Partners</Label>
+                            <OrgLogosManager items={partners} onChange={setPartners} namePlaceholder="Partner organisation name" />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Themes */}
+                <Card className="border-2 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <CardHeader className="bg-linear-to-r from-amber-50 to-yellow-50 border-b">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-amber-600 rounded-lg">
+                                <Sparkles className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-2xl">Themes</CardTitle>
+                                <CardDescription>Named sub-topics (e.g. "AI for Climate Resilience") that group Resources and Abstracts onto their own tab</CardDescription>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                        <ThemesManager items={themes} onChange={setThemes} />
+                    </CardContent>
+                </Card>
+
+                {/* Resources */}
+                <Card className="border-2 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <CardHeader className="bg-linear-to-r from-blue-50 to-cyan-50 border-b">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-blue-600 rounded-lg">
+                                <Paperclip className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-2xl">Resources & Presentations</CardTitle>
+                                <CardDescription>PDFs, reports, presentations, toolkits and other downloadable files</CardDescription>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                        <ResourcesManager items={resources} onChange={setResources} themes={themeNames} />
+                    </CardContent>
+                </Card>
+
+                {/* Gallery */}
+                <Card className="border-2 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <CardHeader className="bg-linear-to-r from-purple-50 to-fuchsia-50 border-b">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-purple-600 rounded-lg">
+                                <Images className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-2xl">Gallery</CardTitle>
+                                <CardDescription>Optional photos shown in a gallery on the project page</CardDescription>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                        <GalleryManager items={gallery} onChange={setGallery} />
+                    </CardContent>
+                </Card>
+
+                {/* Abstracts */}
+                <Card className="border-2 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <CardHeader className="bg-linear-to-r from-indigo-50 to-violet-50 border-b">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-indigo-600 rounded-lg">
+                                <FileText className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-2xl">Abstracts</CardTitle>
+                                <CardDescription>Optional student/researcher abstract submissions shown as cards on the project page</CardDescription>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                        <AbstractsManager items={abstracts} onChange={setAbstracts} themes={themeNames} />
+                    </CardContent>
+                </Card>
+
+                {/* Related Initiatives */}
+                <Card className="border-2 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <CardHeader className="bg-linear-to-r from-amber-50 to-orange-50 border-b">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-amber-600 rounded-lg">
+                                <Link2 className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-2xl">Related Initiatives</CardTitle>
+                                <CardDescription>Link out to associated programmes, e.g. ARIN Publishing Academy</CardDescription>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                        <RelatedInitiativesManager items={relatedInitiatives} onChange={setRelatedInitiatives} />
                     </CardContent>
                 </Card>
 

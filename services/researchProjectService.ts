@@ -80,3 +80,65 @@ export async function uploadDescriptionImage(file: File) {
   if (!res.ok) throw new Error('Failed to upload description image');
   return res.json();
 }
+
+export async function uploadResourceFile(file: File) {
+  const formData = new FormData();
+  formData.append('resource', file);
+
+  const res = await fetch(`${BASE_URL}/upload-resource`, {
+    method: 'POST',
+    body: formData,
+    credentials: 'include',
+  });
+
+  if (!res.ok) {
+    let errorData: { message?: string } = {};
+    try { errorData = await res.json(); } catch { }
+    throw new Error(errorData.message || 'Failed to upload resource file');
+  }
+  return res.json();
+}
+
+export async function uploadGalleryImage(file: File) {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const res = await fetch(`${BASE_URL}/upload-gallery-image`, {
+    method: 'POST',
+    body: formData,
+    credentials: 'include',
+  });
+
+  if (!res.ok) throw new Error('Failed to upload gallery image');
+  return res.json();
+}
+
+export async function uploadAbstractImage(file: File) {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const res = await fetch(`${BASE_URL}/upload-abstract-image`, {
+    method: 'POST',
+    body: formData,
+    credentials: 'include',
+  });
+
+  if (!res.ok) throw new Error('Failed to upload abstract image');
+  return res.json();
+}
+
+export async function uploadOrgLogo(file: File) {
+  // Reuses the generic gallery image upload endpoint — a funder/partner
+  // logo has the same constraints (image file, 5MB limit) as a gallery image.
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const res = await fetch(`${BASE_URL}/upload-gallery-image`, {
+    method: 'POST',
+    body: formData,
+    credentials: 'include',
+  });
+
+  if (!res.ok) throw new Error('Failed to upload logo');
+  return res.json();
+}
