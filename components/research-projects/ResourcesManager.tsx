@@ -3,8 +3,8 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { FileText, Pencil, Trash2, Upload, X } from "lucide-react";
-import { uploadResourceFile } from "@/services/researchProjectService";
+import { FileText, ImagePlus, Pencil, Trash2, Upload, X } from "lucide-react";
+import { uploadResourceFile, uploadResourceImage } from "@/services/researchProjectService";
 
 export interface ResourceItem {
     url: string;
@@ -12,6 +12,7 @@ export interface ResourceItem {
     description?: string;
     type?: string;
     group?: string;
+    image?: string;
 }
 
 export const RESOURCE_TYPE_OPTIONS = [
@@ -30,11 +31,12 @@ interface ResourcesManagerProps {
     themes?: string[];
 }
 
-const emptyDraft: ResourceItem = { url: "", title: "", description: "", type: "pdf", group: "" };
+const emptyDraft: ResourceItem = { url: "", title: "", description: "", type: "pdf", group: "", image: "" };
 
 export default function ResourcesManager({ items, onChange, themes = [] }: ResourcesManagerProps) {
     const [draft, setDraft] = useState<ResourceItem>(emptyDraft);
     const [uploading, setUploading] = useState(false);
+    const [imageUploading, setImageUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
@@ -50,6 +52,21 @@ export default function ResourcesManager({ items, onChange, themes = [] }: Resou
             setError(err.message || "Failed to upload file");
         } finally {
             setUploading(false);
+        }
+    };
+
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setError(null);
+        try {
+            setImageUploading(true);
+            const res = await uploadResourceImage(file);
+            setDraft((d) => ({ ...d, image: res.url }));
+        } catch (err: any) {
+            setError(err.message || "Failed to upload image");
+        } finally {
+            setImageUploading(false);
         }
     };
 
@@ -96,8 +113,12 @@ export default function ResourcesManager({ items, onChange, themes = [] }: Resou
                                 editingIndex === idx ? "bg-blue-50 border-blue-300" : "bg-slate-50 border-slate-100"
                             }`}
                         >
-                            <div className="p-2 bg-blue-100 rounded-lg text-blue-700 shrink-0">
-                                <FileText className="h-5 w-5" />
+                            <div className="w-10 h-10 rounded-lg overflow-hidden bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+                                {res.image ? (
+                                    <img src={res.image} alt={res.title} className="w-full h-full object-cover" />
+                                ) : (
+                                    <FileText className="h-5 w-5" />
+                                )}
                             </div>
                             <div className="flex-1 min-w-0">
                                 <p className="font-semibold text-slate-800 truncate">{res.title}</p>
@@ -160,6 +181,23 @@ export default function ResourcesManager({ items, onChange, themes = [] }: Resou
                     placeholder="Short description shown on the resource card (optional)"
                     className="border-2 focus:border-blue-500"
                 />
+
+                <div className="flex flex-wrap items-center gap-3">
+                    <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        disabled={imageUploading}
+                        className="h-11 border-2 focus:border-blue-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 max-w-sm"
+                    />
+                    {imageUploading && <span className="text-sm text-slate-500 flex items-center gap-1"><ImagePlus className="h-4 w-4 animate-pulse" /> Uploading image...</span>}
+                    {draft.image && !imageUploading && (
+                        <span className="flex items-center gap-2 text-sm text-emerald-600 font-medium">
+                            <img src={draft.image} alt="" className="w-8 h-8 rounded-md object-cover border border-emerald-200" />
+                            Cover image ready ✓
+                        </span>
+                    )}
+                </div>
 
                 <div>
                     <select

@@ -127,6 +127,22 @@ export async function uploadAbstractImage(file: File) {
   return res.json();
 }
 
+export async function uploadResourceImage(file: File) {
+  // Reuses the generic gallery image upload endpoint — a resource cover
+  // image has the same constraints (image file, 5MB limit) as a gallery image.
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const res = await fetch(`${BASE_URL}/upload-gallery-image`, {
+    method: 'POST',
+    body: formData,
+    credentials: 'include',
+  });
+
+  if (!res.ok) throw new Error('Failed to upload resource image');
+  return res.json();
+}
+
 export async function uploadOrgLogo(file: File) {
   // Reuses the generic gallery image upload endpoint — a funder/partner
   // logo has the same constraints (image file, 5MB limit) as a gallery image.
