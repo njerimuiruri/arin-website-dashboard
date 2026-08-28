@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 // ...existing code...
 import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft, Save, FileText, Calendar, FolderOpen, Info, X, Upload, ImagePlus, Target, Layers, Paperclip, Images, Link2, Sparkles, Flag, TrendingUp, Landmark } from "lucide-react";
+import { ArrowLeft, Save, FileText, Calendar, FolderOpen, Info, X, Upload, ImagePlus, Target, Layers, Paperclip, Images, Link2, Sparkles, Flag, TrendingUp, Landmark, ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import ImprovedTiptapEditor from '@/components/ImprovedTiptapEditor';
@@ -16,7 +17,7 @@ import ResourcesManager, { ResourceItem } from '@/components/research-projects/R
 import GalleryManager, { GalleryItem } from '@/components/research-projects/GalleryManager';
 import RelatedInitiativesManager, { RelatedInitiative } from '@/components/research-projects/RelatedInitiativesManager';
 import AbstractsManager, { AbstractItem } from '@/components/research-projects/AbstractsManager';
-import ThemesManager, { ThemeItem } from '@/components/research-projects/ThemesManager';
+import { ThemeItem } from '@/components/research-projects/ThemesManager';
 import OrgLogosManager, { OrgItem } from '@/components/research-projects/OrgLogosManager';
 
 export default function EditProjectPage() {
@@ -523,13 +524,25 @@ export default function EditProjectPage() {
                                 <Sparkles className="h-5 w-5 text-white" />
                             </div>
                             <div>
-                                <CardTitle className="text-2xl">Themes</CardTitle>
-                                <CardDescription>Named sub-topics (e.g. "AI for Climate Resilience") that group Resources and Abstracts onto their own tab</CardDescription>
+                                <CardTitle className="text-2xl">Project Areas</CardTitle>
+                                <CardDescription>Named sub-topics (e.g. "AI for Climate Resilience"), each with its own page — overview, learning modules, and resources</CardDescription>
                             </div>
                         </div>
                     </CardHeader>
                     <CardContent className="pt-6">
-                        <ThemesManager items={themes} onChange={setThemes} />
+                        <div className="flex items-center justify-between p-5 bg-amber-50/60 rounded-lg border-2 border-dashed border-amber-200">
+                            <p className="text-sm text-slate-600">
+                                {themes.length} project area{themes.length === 1 ? '' : 's'} on this project. Project areas are managed on their own page, with learning modules and resources.
+                            </p>
+                            {typeof id === 'string' && (
+                                <Link
+                                    href={`/dashboard/programs/research-projects/${id}/themes`}
+                                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-amber-700 hover:text-amber-800 shrink-0"
+                                >
+                                    Manage Project Areas <ArrowRight className="h-4 w-4" />
+                                </Link>
+                            )}
+                        </div>
                     </CardContent>
                 </Card>
 

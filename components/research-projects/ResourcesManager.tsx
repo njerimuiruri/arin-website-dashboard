@@ -29,11 +29,12 @@ interface ResourcesManagerProps {
     items: ResourceItem[];
     onChange: (items: ResourceItem[]) => void;
     themes?: string[];
+    hideGroupField?: boolean;
 }
 
 const emptyDraft: ResourceItem = { url: "", title: "", description: "", type: "pdf", group: "", image: "" };
 
-export default function ResourcesManager({ items, onChange, themes = [] }: ResourcesManagerProps) {
+export default function ResourcesManager({ items, onChange, themes = [], hideGroupField = false }: ResourcesManagerProps) {
     const [draft, setDraft] = useState<ResourceItem>(emptyDraft);
     const [uploading, setUploading] = useState(false);
     const [imageUploading, setImageUploading] = useState(false);
@@ -199,23 +200,25 @@ export default function ResourcesManager({ items, onChange, themes = [] }: Resou
                     )}
                 </div>
 
-                <div>
-                    <select
-                        value={draft.group || ""}
-                        onChange={(e) => setDraft((d) => ({ ...d, group: e.target.value }))}
-                        className="h-11 w-full border-2 focus:border-blue-500 rounded-md px-3"
-                    >
-                        <option value="">No theme — general resources</option>
-                        {themes.map((name) => (
-                            <option key={name} value={name}>{name}</option>
-                        ))}
-                    </select>
-                    <p className="text-xs text-slate-500 mt-1.5">
-                        {themes.length > 0
-                            ? "Pick a theme to move this resource onto that theme's own tab on the project page."
-                            : "No themes yet — add one in the Themes card above to group resources under it."}
-                    </p>
-                </div>
+                {!hideGroupField && (
+                    <div>
+                        <select
+                            value={draft.group || ""}
+                            onChange={(e) => setDraft((d) => ({ ...d, group: e.target.value }))}
+                            className="h-11 w-full border-2 focus:border-blue-500 rounded-md px-3"
+                        >
+                            <option value="">No theme — general resources</option>
+                            {themes.map((name) => (
+                                <option key={name} value={name}>{name}</option>
+                            ))}
+                        </select>
+                        <p className="text-xs text-slate-500 mt-1.5">
+                            {themes.length > 0
+                                ? "Pick a theme to move this resource onto that theme's own tab on the project page."
+                                : "No themes yet — add one in the Themes card above to group resources under it."}
+                        </p>
+                    </div>
+                )}
 
                 <div className="flex flex-wrap items-center gap-3">
                     <Input

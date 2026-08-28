@@ -14,7 +14,7 @@ import ResourcesManager, { ResourceItem } from '@/components/research-projects/R
 import GalleryManager, { GalleryItem } from '@/components/research-projects/GalleryManager';
 import RelatedInitiativesManager, { RelatedInitiative } from '@/components/research-projects/RelatedInitiativesManager';
 import AbstractsManager, { AbstractItem } from '@/components/research-projects/AbstractsManager';
-import ThemesManager, { ThemeItem } from '@/components/research-projects/ThemesManager';
+import { ThemeItem } from '@/components/research-projects/ThemesManager';
 import OrgLogosManager, { OrgItem } from '@/components/research-projects/OrgLogosManager';
 
 export default function NewResearchProjectPage() {
@@ -432,13 +432,15 @@ export default function NewResearchProjectPage() {
                                     <Sparkles className="h-5 w-5 text-white" />
                                 </div>
                                 <div>
-                                    <CardTitle className="text-2xl">Themes</CardTitle>
-                                    <CardDescription>Named sub-topics (e.g. "AI for Climate Resilience") that group Resources and Abstracts onto their own tab</CardDescription>
+                                    <CardTitle className="text-2xl">Project Areas</CardTitle>
+                                    <CardDescription>Named sub-topics (e.g. "AI for Climate Resilience"), each with its own page — overview, learning modules, and resources</CardDescription>
                                 </div>
                             </div>
                         </CardHeader>
                         <CardContent className="pt-6">
-                            <ThemesManager items={themes} onChange={setThemes} />
+                            <p className="text-sm text-slate-500 p-5 bg-amber-50/60 rounded-lg border-2 border-dashed border-amber-200">
+                                Save this project first — project areas are managed on their own page once the project exists.
+                            </p>
                         </CardContent>
                     </Card>
 
