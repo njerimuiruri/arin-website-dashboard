@@ -20,6 +20,7 @@ export default function EditWorkingPaper() {
         image: "",
         availableResources: [] as string[],
     });
+    const [authorsInput, setAuthorsInput] = useState("");
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -39,6 +40,7 @@ export default function EditWorkingPaper() {
                     image: data.image || "",
                     availableResources: data.availableResources || [],
                 });
+                setAuthorsInput((data.authors || []).join(", "));
                 setEditorContent(data.description || '');
             })
             .catch((err) => setError(err.message))
@@ -94,6 +96,7 @@ export default function EditWorkingPaper() {
             description: form.description,
             image: form.image,
             availableResources: form.availableResources,
+            authors: authorsInput.split(",").map((a) => a.trim()).filter(Boolean),
         };
         try {
             await workingPaperSeriesService.update(id as string, payload);

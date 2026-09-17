@@ -19,6 +19,7 @@ export default function NewWorkingPaperPage() {
         image: "",
         availableResources: [] as string[],
     });
+    const [authorsInput, setAuthorsInput] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
@@ -74,6 +75,7 @@ export default function NewWorkingPaperPage() {
             description: form.description,
             image: form.image,
             availableResources: form.availableResources,
+            authors: authorsInput.split(",").map((a) => a.trim()).filter(Boolean),
         };
         try {
             await workingPaperSeriesService.create(payload);
@@ -193,6 +195,20 @@ export default function NewWorkingPaperPage() {
                                     onChange={handleChange}
                                     className="h-12 border-2 focus:border-blue-500 transition-all"
                                 />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="authors" className="text-base font-semibold">
+                                    Authors
+                                </Label>
+                                <Input
+                                    id="authors"
+                                    name="authors"
+                                    value={authorsInput}
+                                    onChange={(e) => setAuthorsInput(e.target.value)}
+                                    placeholder="e.g., Jane Doe, John Smith"
+                                    className="h-12 border-2 focus:border-blue-500 transition-all"
+                                />
+                                <p className="text-xs text-slate-500">Separate multiple authors with commas</p>
                             </div>
                         </CardContent>
                     </Card>
