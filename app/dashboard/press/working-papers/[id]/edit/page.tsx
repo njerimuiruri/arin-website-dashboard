@@ -19,6 +19,7 @@ export default function EditWorkingPaper() {
         description: "",
         image: "",
         availableResources: [] as string[],
+        category: "General",
     });
     const [authorsInput, setAuthorsInput] = useState("");
     const [loading, setLoading] = useState(false);
@@ -39,6 +40,7 @@ export default function EditWorkingPaper() {
                     description: data.description || "",
                     image: data.image || "",
                     availableResources: data.availableResources || [],
+                    category: data.category || "General",
                 });
                 setAuthorsInput((data.authors || []).join(", "));
                 setEditorContent(data.description || '');
@@ -97,6 +99,7 @@ export default function EditWorkingPaper() {
             image: form.image,
             availableResources: form.availableResources,
             authors: authorsInput.split(",").map((a) => a.trim()).filter(Boolean),
+            category: form.category,
         };
         try {
             await workingPaperSeriesService.update(id as string, payload);
@@ -219,6 +222,36 @@ export default function EditWorkingPaper() {
                                     onChange={handleChange}
                                     className="h-12 border-2 focus:border-blue-500 transition-all"
                                 />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="authors" className="text-base font-semibold">
+                                    Authors
+                                </Label>
+                                <Input
+                                    id="authors"
+                                    name="authors"
+                                    value={authorsInput}
+                                    onChange={(e) => setAuthorsInput(e.target.value)}
+                                    placeholder="e.g., Jane Doe, John Smith"
+                                    className="h-12 border-2 focus:border-blue-500 transition-all"
+                                />
+                                <p className="text-xs text-slate-500">Separate multiple authors with commas</p>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="category" className="text-base font-semibold">
+                                    Category
+                                </Label>
+                                <select
+                                    id="category"
+                                    name="category"
+                                    value={form.category}
+                                    onChange={handleChange}
+                                    className="h-12 w-full border-2 rounded-md px-3 focus:border-blue-500 transition-all bg-white text-sm"
+                                >
+                                    <option value="General">General</option>
+                                    <option value="SDG">SDG</option>
+                                </select>
+                                <p className="text-xs text-slate-500">Used to group related papers on the website</p>
                             </div>
                         </CardContent>
                     </Card>

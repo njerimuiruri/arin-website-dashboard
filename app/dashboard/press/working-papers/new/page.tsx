@@ -18,6 +18,7 @@ export default function NewWorkingPaperPage() {
         description: "",
         image: "",
         availableResources: [] as string[],
+        category: "General",
     });
     const [authorsInput, setAuthorsInput] = useState("");
     const [loading, setLoading] = useState(false);
@@ -76,6 +77,7 @@ export default function NewWorkingPaperPage() {
             image: form.image,
             availableResources: form.availableResources,
             authors: authorsInput.split(",").map((a) => a.trim()).filter(Boolean),
+            category: form.category,
         };
         try {
             await workingPaperSeriesService.create(payload);
@@ -209,6 +211,22 @@ export default function NewWorkingPaperPage() {
                                     className="h-12 border-2 focus:border-blue-500 transition-all"
                                 />
                                 <p className="text-xs text-slate-500">Separate multiple authors with commas</p>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="category" className="text-base font-semibold">
+                                    Category
+                                </Label>
+                                <select
+                                    id="category"
+                                    name="category"
+                                    value={form.category}
+                                    onChange={handleChange}
+                                    className="h-12 w-full border-2 rounded-md px-3 focus:border-blue-500 transition-all bg-white text-sm"
+                                >
+                                    <option value="General">General</option>
+                                    <option value="SDG">SDG</option>
+                                </select>
+                                <p className="text-xs text-slate-500">Used to group related papers on the website</p>
                             </div>
                         </CardContent>
                     </Card>

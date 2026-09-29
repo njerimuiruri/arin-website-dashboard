@@ -9,6 +9,7 @@ export interface WorkingPaperSeries {
   datePosted?: string;
   availableResources?: string[];
   year?: number;
+  category?: string;
 }
 
 export const workingPaperSeriesService = {
