@@ -131,7 +131,17 @@ export default function AddBlog() {
                     <label className="block font-medium mb-1">Image</label>
                     <Input type="file" accept="image/*" onChange={handleImageUpload} />
                     {uploading && <span className="text-sm text-gray-500 ml-2">Uploading...</span>}
-                    {form.image && <img src={form.image} alt="Blog" className="mt-2 max-h-32 rounded" />}
+                    {form.image && (
+                        <div className="mt-2 flex items-start gap-2">
+                            <img src={resolveResourceUrl(form.image)} alt="Blog" className="max-h-32 rounded" />
+                            <button
+                                type="button"
+                                onClick={() => setForm(f => ({ ...f, image: "" }))}
+                                className="shrink-0 text-red-500 hover:text-red-700 font-bold text-lg leading-none"
+                                title="Remove image"
+                            >&times;</button>
+                        </div>
+                    )}
                 </div>
                 <div>
                     <label className="block font-medium mb-1">Available Resources (PDFs)</label>

@@ -156,15 +156,35 @@ export default function EditBlog() {
                     <label className="block font-medium mb-1">Image</label>
                     <Input type="file" accept="image/*" onChange={handleImageUpload} />
                     {uploading && <span className="text-sm text-gray-500 ml-2">Uploading...</span>}
-                    {form.image && <img src={form.image} alt="Blog" className="mt-2 max-h-32 rounded" />}
+                    {form.image && (
+                        <div className="mt-2 flex items-start gap-2">
+                            <img src={resolveResourceUrl(form.image)} alt="Blog" className="max-h-32 rounded" />
+                            <button
+                                type="button"
+                                onClick={() => setForm(f => ({ ...f, image: "" }))}
+                                className="shrink-0 text-red-500 hover:text-red-700 font-bold text-lg leading-none"
+                                title="Remove image"
+                            >&times;</button>
+                        </div>
+                    )}
                 </div>
                 <div>
                     <label className="block font-medium mb-1">Available Resources (PDFs)</label>
                     <Input type="file" accept="application/pdf" onChange={handleResourceUpload} />
                     {resourceUploading && <span className="text-sm text-gray-500 ml-2">Uploading...</span>}
-                    <ul className="mt-2 space-y-1">
+                    <ul className="mt-2 space-y-2">
                         {form.availableResources.map((url, idx) => (
-                            <li key={idx}><a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Resource {idx + 1}</a></li>
+                            <li key={idx} className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                                <a href={resolveResourceUrl(url)} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-sm truncate flex-1">
+                                    {getResourceFileName(url)}
+                                </a>
+                                <button
+                                    type="button"
+                                    onClick={() => handleRemoveResource(idx)}
+                                    className="shrink-0 text-red-500 hover:text-red-700 font-bold text-lg leading-none"
+                                    title="Remove resource"
+                                >&times;</button>
+                            </li>
                         ))}
                     </ul>
                 </div>
