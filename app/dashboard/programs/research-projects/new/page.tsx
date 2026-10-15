@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { createResearchProject, uploadImage } from '@/services/researchProjectService';
-import { ArrowLeft, Save, FileText, Calendar, FolderOpen, Info, X, Upload, Bold, Italic, List, ListOrdered, ImagePlus, Target, Layers, Paperclip, Images, Link2, Sparkles, Flag, TrendingUp, Landmark } from "lucide-react";
+import { ArrowLeft, Save, FileText, Calendar, Info, X, Upload, Bold, Italic, List, ListOrdered, ImagePlus, Target, Layers, Paperclip, Images, Link2, Sparkles, Flag, TrendingUp, Landmark } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -16,21 +16,15 @@ import RelatedInitiativesManager, { RelatedInitiative } from '@/components/resea
 import AbstractsManager, { AbstractItem } from '@/components/research-projects/AbstractsManager';
 import { ThemeItem } from '@/components/research-projects/ThemesManager';
 import OrgLogosManager, { OrgItem } from '@/components/research-projects/OrgLogosManager';
+import ProjectClassificationFields, { ProjectStatus } from '@/components/research-projects/ProjectClassificationFields';
 
 export default function NewResearchProjectPage() {
-    const CATEGORY_OPTIONS = [
-        'Finance',
-        'Environment',
-        'Health',
-        'Sustainability',
-        'Energy',
-        'Water',
-        'Agriculture',
-    ];
     const [form, setForm] = useState({
         title: "",
         date: "",
         category: "",
+        status: "" as ProjectStatus,
+        endYear: "",
         description: "",
         projectTeam: [] as string[],
         image: "",
@@ -104,6 +98,8 @@ export default function NewResearchProjectPage() {
             title: form.title,
             date: form.date,
             category: form.category,
+            status: form.status || undefined,
+            endYear: form.endYear ? Number(form.endYear) : undefined,
             description: form.description,
             author: form.projectTeam.join(', '), // backend expects 'author' as string
             teamMembers: form.projectTeam,
@@ -199,42 +195,29 @@ export default function NewResearchProjectPage() {
                                 />
                             </div>
 
-                            {/* Date and Category */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <Label htmlFor="date" className="text-base font-semibold flex items-center gap-2">
-                                        <Calendar className="h-4 w-4 text-blue-600" />
-                                        Project Date <span className="text-red-500">*</span>
-                                    </Label>
-                                    <Input
-                                        id="date"
-                                        name="date"
-                                        type="date"
-                                        value={form.date}
-                                        onChange={handleChange}
-                                        className="h-12 border-2 focus:border-blue-500 transition-all"
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="category" className="text-base font-semibold flex items-center gap-2">
-                                        <FolderOpen className="h-4 w-4 text-blue-600" />
-                                        Category (optional)
-                                    </Label>
-                                    <select
-                                        id="category"
-                                        name="category"
-                                        value={form.category}
-                                        onChange={handleChange}
-                                        className="h-12 border-2 focus:border-blue-500 transition-all rounded-md px-3"
-                                    >
-                                        <option value="">No category</option>
-                                        {CATEGORY_OPTIONS.map(opt => (
-                                            <option key={opt} value={opt}>{opt}</option>
-                                        ))}
-                                    </select>
-                                </div>
+                            {/* Start date */}
+                            <div className="space-y-2 md:w-1/3">
+                                <Label htmlFor="date" className="text-base font-semibold flex items-center gap-2">
+                                    <Calendar className="h-4 w-4 text-blue-600" />
+                                    Start Date <span className="text-red-500">*</span>
+                                </Label>
+                                <Input
+                                    id="date"
+                                    name="date"
+                                    type="date"
+                                    value={form.date}
+                                    onChange={handleChange}
+                                    className="h-12 border-2 focus:border-blue-500 transition-all"
+                                />
                             </div>
+
+                            {/* Focus area, status, end year: drive the website's Research Projects menu */}
+                            <ProjectClassificationFields
+                                category={form.category}
+                                status={form.status}
+                                endYear={form.endYear}
+                                onChange={(field, value) => setForm(prev => ({ ...prev, [field]: value }))}
+                            />
                         </CardContent>
                     </Card>
                     {/* Main Project Image */}

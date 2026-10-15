@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 // ...existing code...
 import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft, Save, FileText, Calendar, FolderOpen, Info, X, Upload, ImagePlus, Target, Layers, Paperclip, Images, Link2, Sparkles, Flag, TrendingUp, Landmark, ArrowRight } from "lucide-react";
+import { ArrowLeft, Save, FileText, Calendar, Info, X, Upload, ImagePlus, Target, Layers, Paperclip, Images, Link2, Sparkles, Flag, TrendingUp, Landmark, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -19,6 +19,7 @@ import RelatedInitiativesManager, { RelatedInitiative } from '@/components/resea
 import AbstractsManager, { AbstractItem } from '@/components/research-projects/AbstractsManager';
 import { ThemeItem } from '@/components/research-projects/ThemesManager';
 import OrgLogosManager, { OrgItem } from '@/components/research-projects/OrgLogosManager';
+import ProjectClassificationFields, { ProjectStatus } from '@/components/research-projects/ProjectClassificationFields';
 
 export default function EditProjectPage() {
     const params = useParams();
@@ -28,6 +29,8 @@ export default function EditProjectPage() {
         title: "",
         date: "",
         category: "",
+        status: "" as ProjectStatus,
+        endYear: "",
         description: "",
         projectTeam: [] as string[],
         teamMembers: [] as any[],
@@ -67,8 +70,10 @@ export default function EditProjectPage() {
                 }
                 const projectData = {
                     title: data.title || "",
-                    date: data.date || "",
+                    date: (data.date || "").slice(0, 10),
                     category: data.category || "",
+                    status: (data.status || "") as ProjectStatus,
+                    endYear: data.endYear ? String(data.endYear) : "",
                     description: htmlDescription,
                     projectTeam: Array.isArray(data.projectTeam) ? data.projectTeam : [],
                     teamMembers: data.teamMembers || [],
@@ -179,6 +184,8 @@ export default function EditProjectPage() {
             if (!id || typeof id !== 'string') throw new Error('Invalid project ID');
             await updateResearchProject(id, {
                 ...form,
+                status: form.status || null,
+                endYear: form.endYear ? Number(form.endYear) : null,
                 teamMembers: form.projectTeam,
                 coverImage,
                 objectives,
@@ -275,41 +282,28 @@ export default function EditProjectPage() {
                             />
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <Label htmlFor="date" className="text-base font-semibold flex items-center gap-2">
-                                    <Calendar className="h-4 w-4 text-blue-600" />
-                                    Project Date <span className="text-red-500">*</span>
-                                </Label>
-                                <Input
-                                    id="date"
-                                    name="date"
-                                    type="date"
-                                    value={form.date}
-                                    onChange={handleChange}
-                                    className="h-12 border-2 focus:border-blue-500 transition-all"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="category" className="text-base font-semibold flex items-center gap-2">
-                                    <FolderOpen className="h-4 w-4 text-blue-600" />
-                                    Category (optional)
-                                </Label>
-                                <select
-                                    id="category"
-                                    name="category"
-                                    value={form.category}
-                                    onChange={handleChange as any}
-                                    className="h-12 border-2 focus:border-blue-500 transition-all rounded-md px-3"
-                                >
-                                    <option value="">No category</option>
-                                    {['Finance', 'Environment', 'Health', 'Sustainability', 'Energy', 'Water', 'Agriculture'].map(opt => (
-                                        <option key={opt} value={opt}>{opt}</option>
-                                    ))}
-                                </select>
-                            </div>
+                        <div className="space-y-2 md:w-1/3">
+                            <Label htmlFor="date" className="text-base font-semibold flex items-center gap-2">
+                                <Calendar className="h-4 w-4 text-blue-600" />
+                                Start Date <span className="text-red-500">*</span>
+                            </Label>
+                            <Input
+                                id="date"
+                                name="date"
+                                type="date"
+                                value={form.date}
+                                onChange={handleChange}
+                                className="h-12 border-2 focus:border-blue-500 transition-all"
+                            />
                         </div>
+
+                        {/* Focus area, status, end year: drive the website's Research Projects menu */}
+                        <ProjectClassificationFields
+                            category={form.category}
+                            status={form.status}
+                            endYear={form.endYear}
+                            onChange={(field, value) => setForm(prev => ({ ...prev, [field]: value }))}
+                        />
                     </CardContent>
                 </Card>
                 {/* Project Image Upload */}
